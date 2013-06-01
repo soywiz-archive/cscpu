@@ -45,8 +45,15 @@
     <Compile Include="Cpus\InstructionInfo.cs" />
     <Compile Include="Cpus\Chip8\InstructionTable.cs" />
     <Compile Include="Cpus\Z80\InstructionTable.cs" />
-    <Compile Include="Decoder\DecoderReference.cs" />
+    <Compile Include="Decoder\IDecoderReference.cs" />
+    <Compile Include="Decoder\SwitchGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\SafeILGenerator\SafeILGenerator\SafeILGenerator.csproj">
+      <Project>{9a93c7e4-09da-46cf-b7dd-6bb09681d5ab}</Project>
+      <Name>SafeILGenerator</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

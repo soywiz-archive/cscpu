@@ -8,6 +8,6 @@ namespace CSharpCpu.Cpus
 {
 	public interface IInstructionTable
 	{
-		public InstructionFlags InstructionFlags { get; }
+		InstructionFlags InstructionFlags { get; }
 	}
 }

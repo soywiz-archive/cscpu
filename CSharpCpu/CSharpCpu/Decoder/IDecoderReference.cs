@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace CSharpCpu.Decoder
 {
-	public class DecoderReference<T>
+	public interface IDecoderReference
 	{
-		public T[] Data;
-		public T[] Mask;
+		uint[] Data { get; }
+		uint[] Mask { get; }
 	}
 }
