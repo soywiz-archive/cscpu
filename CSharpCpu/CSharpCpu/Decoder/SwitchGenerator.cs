@@ -18,7 +18,8 @@ namespace CSharpCpu.Decoder
 				ReaderArgument = new AstArgument(0, typeof(Func<uint>), "Read"),
 				AllItems = AllItems,
 				Process = Process,
-			}.GenerateSwitch(BaseMask);
+				BaseMask = BaseMask,
+			}.GenerateSwitch(AllItems, 0);
 		}
 
 		sealed internal class SwitchGeneratorInternal<TDecoderReference> where TDecoderReference : IDecoderReference
@@ -27,13 +28,13 @@ namespace CSharpCpu.Decoder
 			internal AstArgument ReaderArgument;
 			internal Func<TDecoderReference, AstNodeExpr> Process;
 			internal IEnumerable<TDecoderReference> AllItems;
+			internal uint BaseMask;
 
-			internal AstNodeStm GenerateSwitch(uint BaseMask = 0xFFFFFFFF)
+			internal AstNodeStm GenerateSwitch(IEnumerable<TDecoderReference> Items, int ReferenceIndex)
 			{
-
 				return new AstNodeStmContainer(
 					new AstNodeStmAssign(new AstNodeExprLocal(Local), new AstNodeExprCallDelegate(new AstNodeExprArgument(ReaderArgument))),
-					_GenerateSwitch(BaseMask, AllItems, 0, 0),
+					_GenerateSwitch(this.BaseMask, Items, ReferenceIndex, 0),
 					new AstNodeStmReturn(Process(default(TDecoderReference)))
 				);
 			}
@@ -53,14 +54,42 @@ namespace CSharpCpu.Decoder
 			private AstNodeStm _GenerateSwitch(uint BaseMask, IEnumerable<TDecoderReference> Items, int ReferenceIndex, int NestLevel)
 			{
 				if (Items == null) Items = AllItems;
-				if (NestLevel > 10) throw(new Exception("Too much nesting. Probably an error."));
+				if (NestLevel > 64) throw(new Exception("Too much nesting. Probably an error."));
 
 				//Console.WriteLine("------------------------");
 
 				Items = Items.Where(Item => Item.Mask.Length > ReferenceIndex);
 
+				if (Items.Count() == 0)
+				{
+					return new AstNodeStmEmpty();
+				}
+
+				int MaxItemsLength = Items.Max(Item => Item.Mask.Length);
+
 				var CommonMask = GetCommonMask(BaseMask, Items, ReferenceIndex);
 				var CommonShift = GetShiftRightMask(CommonMask);
+
+				Console.WriteLine("{0}: {1}", CommonMask, String.Join(",", Items));
+
+				if (CommonMask == 0)
+				{
+					if (ReferenceIndex + 1 >= MaxItemsLength)
+					{
+						if (Items.Count() == 1)
+						{
+							return new AstNodeStmReturn(Process(Items.First()));
+						}
+						else
+						{
+							throw(new Exception("Unexpected case"));
+						}
+					}
+					else
+					{
+						return GenerateSwitch(Items, ReferenceIndex + 1);
+					}
+				}
 
 				//Console.WriteLine("BaseMask: 0x{0:X8}", BaseMask);
 				//Console.WriteLine("CommonMask: 0x{0:X8} | 0x{1:X8}", CommonMask, ~CommonMask);
@@ -80,10 +109,7 @@ namespace CSharpCpu.Decoder
 						if (ReferenceIndex < Group.First().Data.Length - 1)
 						{
 							//new AstNodeExprLocal(
-							CaseBody = new AstNodeStmContainer(
-								new AstNodeStmAssign(new AstNodeExprLocal(Local), new AstNodeExprCallDelegate(new AstNodeExprArgument(ReaderArgument))),
-								_GenerateSwitch(0xFFFFFFFF, null, ReferenceIndex + 1, NestLevel + 1)
-							);
+							CaseBody = GenerateSwitch(Items, ReferenceIndex + 1);
 						}
 						else
 						{
@@ -100,9 +126,9 @@ namespace CSharpCpu.Decoder
 				}
 
 				return new AstNodeStmSwitch(
-					new AstNodeExprBinop((new AstNodeExprLocal(Local)), ">>", CommonShift) & (CommonMask >> CommonShift),
-					Cases,
-					new AstNodeCaseDefault(new AstNodeStmReturn(Process(default(TDecoderReference))))
+					new AstNodeExprBinop((new AstNodeExprLocal(Local)), ">>", CommonShift) & (CommonMask >> CommonShift)
+					, Cases
+					//, new AstNodeCaseDefault(new AstNodeStmReturn(Process(default(TDecoderReference))))
 				);
 			}
 		}

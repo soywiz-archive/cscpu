@@ -8,7 +8,7 @@ namespace CSharpCpu.Decoder
 {
 	public interface IDecoderReference
 	{
-		uint[] Data { get; }
 		uint[] Mask { get; }
+		uint[] Data { get; }
 	}
 }

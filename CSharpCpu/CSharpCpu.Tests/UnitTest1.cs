@@ -8,61 +8,85 @@ using SafeILGenerator;
 using System.Reflection.Emit;
 using SafeILGenerator.Ast.Optimizers;
 using System.Collections.Generic;
+using CSharpCpu.Cpus;
 
 namespace CSharpCpu.Tests
 {
 	[TestClass]
 	public class UnitTest1
 	{
-		static DecoderReference[] Table = new[] {
-			new DecoderReference() { Name = "test1", Mask = new[] { (uint)0xFF000000 }, Data = new[] { (uint)0x12000000 } },
-			new DecoderReference() { Name = "test2", Mask = new[] { (uint)0xFF000000 }, Data = new[] { (uint)0x20000000 } },
-			new DecoderReference() { Name = "test3", Mask = new[] { (uint)0xFF00000F }, Data = new[] { (uint)0x33000000 } },
-			new DecoderReference() { Name = "test4", Mask = new[] { (uint)0xFF00000F }, Data = new[] { (uint)0x33000001 } },
-			new DecoderReference() { Name = "test5", Mask = new[] { (uint)0xFF0000FF, (uint)0xFF000000 }, Data = new[] { (uint)0x33000042, (uint)0x01000000 } },
-		};
+		[TestMethod]
+		public void TestSwitch1()
+		{
+			TestTable(new uint[] { 0x00 }, new[] {
+				new InstructionInfo(Name: "test1", Mask: new uint[] { 0xFF000000 }, Data: new uint[] { 0x12000000 }),
+				new InstructionInfo(Name: "test2", Mask: new uint[] { 0xFF000000 }, Data: new uint[] { 0x20000000 }),
+				new InstructionInfo(Name: "test3", Mask: new uint[] { 0xFF00000F }, Data: new uint[] { 0x33000000 }),
+				new InstructionInfo(Name: "test4", Mask: new uint[] { 0xFF00000F }, Data: new uint[] { 0x33000001 }),
+				new InstructionInfo(Name: "test5", Mask: new uint[] { 0xFF0000FF, 0xFF000000 }, Data: new uint[] { 0x33000042, 0x01000000 }),
+			});
+		}
 
 		[TestMethod]
-		public void TestSwitch()
+		public void TestSwitch2()
 		{
-			var GeneratorCSharp = new GeneratorCSharp();
+			TestTable(new uint[] { 0x01 }, new[] {
+				new InstructionInfo(Name: "test1", Mask: new uint[] { 0xFF, 0x00 }, Data: new uint[] { 0x00, 0x00 }),
+			});
+		}
 
-			const string DefaultValue = "DEFAULT!";
-			
+		[TestMethod]
+		public void TestSwitch3()
+		{
+			TestTable(new uint[] { 0x01 }, new[] {
+				new InstructionInfo(Name: "test1", Mask: new uint[] { 0xFF, 0x00 }, Data: new uint[] { 0x00, 0x00 }),
+				new InstructionInfo(Name: "test1", Mask: new uint[] { 0xFF, 0x00 }, Data: new uint[] { 0x01, 0x00 }),
+			});
+		}
+
+		[TestMethod]
+		public void TestSwitch4()
+		{
+			TestTable(new uint[] { 0xFF }, new[] {
+				new InstructionInfo(Name: "test1", Mask: new uint[] { 0xFF, 0x00 }, Data: new uint[] { 0x00, 0x00 }),
+				new InstructionInfo(Name: "test2", Mask: new uint[] { 0xFF }, Data: new uint[] { 0x01 }),
+				new InstructionInfo(Name: "test3", Mask: new uint[] { 0xFF, 0x00, 0x0F }, Data: new uint[] { 0x01, 0x00, 0x01 }),
+				new InstructionInfo(Name: "test4", Mask: new uint[] { 0xFF, 0x00, 0x0F }, Data: new uint[] { 0x01, 0x00, 0x02 }),
+			});
+		}
+
+		private void TestTable(uint[] DefaultSequence, InstructionInfo[] Table)
+		{
+			const string DefaultValue = "!!DEFAULT!!";
 			var SwitchTree = SwitchGenerator.GenerateSwitch(Table, (DecoderReference) =>
 			{
 				if (DecoderReference == null) return new AstNodeExprImm(DefaultValue);
 				return new AstNodeExprImm(DecoderReference.Name);
 			});
+			
 			SwitchTree = (AstNodeStm)(new AstOptimizer().Optimize(SwitchTree));
-			var StringString = GeneratorCSharp.GenerateString<GeneratorCSharp>(SwitchTree);
+
+			var SwitchString = GeneratorCSharp.GenerateString<GeneratorCSharp>(SwitchTree);
+			Console.WriteLine(SwitchString);
+
 			var Func = GeneratorIL.GenerateDelegate<GeneratorIL, Func<Func<uint>, String>>("Decoder", SwitchTree);
 
-			Func<uint[], string> Decode = (Data) => {
+			Func<uint[], string> Decode = (Data) =>
+			{
 				var Reader = new Queue<uint>(Data);
-				return Func(() => Reader.Dequeue());
+				return Func(() => {
+					if (Reader.Count == 0) return 0x00;
+					return Reader.Dequeue();
+				});
 			};
 
-			for (int n = 0; n < 5; n++) {
-				Assert.AreEqual(Table[n].Name, Decode(Table[n].Data));
-			}
-			Assert.AreEqual(DefaultValue, Decode(new uint[] { 0 }));
-		}
-
-		class DecoderReference : IDecoderReference {
-			public string Name;
-			public uint[] Data;
-			public uint[] Mask;
-
-			uint[] IDecoderReference.Data
+			foreach (var Item in Table)
 			{
-				get { return Data; }
+				var Decoded = Decode(Item.Data);
+				Console.WriteLine(Decoded);
+				Assert.AreEqual(Item.Name, Decoded);
 			}
-
-			uint[] IDecoderReference.Mask
-			{
-				get { return Mask; }
-			}
+			Assert.AreEqual(DefaultValue, Decode(DefaultSequence));
 		}
 	}
 }
