@@ -13,42 +13,9 @@ namespace CSharpCpu.Cpus.Z80
 	/// <see cref="http://pastraiser.com/cpu/gameboy/gameboy_opcodes.html"/>
 	public sealed partial class InstructionTable : IInstructionTable
 	{
-		static private InstructionInfo Instruction(string OpCode, string Mnemonic)
-		{
-			var MaskDataVarsList = new List<MaskDataVars>();
-			foreach (var Part in OpCode.Split(' '))
-			{
-				if (Part.Length == 0) continue;
+		public static InstructionInfo[] Instructions { get { return _Instructions.Value; } }
 
-				switch (Part)
-				{
-					case "%n": case "%d": case "%e":
-						MaskDataVarsList.Add(new MaskDataVars(0x00, 0x00, new VarReference(Part, 0, 0xFF)));
-					break;
-					case "%nn":
-						MaskDataVarsList.Add(new MaskDataVars(0x00, 0x00, new VarReference("%n1", 0, 0xFF)));
-						MaskDataVarsList.Add(new MaskDataVars(0x00, 0x00, new VarReference("%n2", 0, 0xFF)));
-					break;
-					default:
-					try
-					{
-						if ((Part.Length % 2) != 0) throw (new Exception());
-						for (int n = 0; n < Part.Length; n += 2)
-						{
-							MaskDataVarsList.Add(new MaskDataVars(0xFF, Convert.ToUInt32(Part.Substring(n, 2), 16)));
-						}
-					}
-					catch (Exception)
-					{
-						throw (new Exception("Can't parse '" + Part + "'"));
-					}
-					break;
-				}
-			}
-			return new InstructionInfo(Mnemonic.Trim(), MaskDataVarsList);
-		}
-
-		public static InstructionInfo[] Instructions = new[]
+		private static Lazy<InstructionInfo[]> _Instructions = new Lazy<InstructionInfo[]>(() => new[]
 		{
 			Instruction("8E         ","ADC A,(HL)       "),
 			Instruction("DD8E %d     ","ADC A,(IX+%d)     "),
@@ -448,7 +415,8 @@ namespace CSharpCpu.Cpus.Z80
 			Instruction("FD74 %d     ","LD (IY+%d),H      "),
 			Instruction("FD75 %d     ","LD (IY+%d),L      "),
 			Instruction("FD36 %d %n   ","LD (IY+%d),%n      "),
-			Instruction("32 %nn      ","LD (%nn),A        "),
+			//Instruction("32 %nn      ","LD (%nn),A        "),
+			Instruction("32      ","LDD (HL),A        "),
 			Instruction("ED43 %nn    ","LD (%nn),BC       "),
 			Instruction("ED53 %nn    ","LD (%nn),DE       "),
 			Instruction("ED63 %nn    ","LD (%nn),HL       "),
@@ -1048,8 +1016,8 @@ namespace CSharpCpu.Cpus.Z80
 			Instruction("CBA4       ","RES 4,H          "),
 			Instruction("CBA5       ","RES 4,L          "),
 			Instruction("CBAE       ","RES 5,(HL)       "),
-			Instruction("DDCB %d AE  ","RES 5,(IX+%d)     "),
-			Instruction("FDCB %d AE  ","RES 5,(IY+%d)     "),
+			Instruction("DDCB %d AE ","RES 5,(IX+%d)     "),
+			Instruction("FDCB %d AE ","RES 5,(IY+%d)     "),
 			Instruction("CBAF       ","RES 5,A          "),
 			Instruction("CBA8       ","RES 5,B          "),
 			Instruction("CBA9       ","RES 5,C          "),
@@ -1058,8 +1026,8 @@ namespace CSharpCpu.Cpus.Z80
 			Instruction("CBAC       ","RES 5,H          "),
 			Instruction("CBAD       ","RES 5,L          "),
 			Instruction("CBB6       ","RES 6,(HL)       "),
-			Instruction("DDCB %d B6  ","RES 6,(IX+%d)     "),
-			Instruction("FDCB %d B6  ","RES 6,(IY+%d)     "),
+			Instruction("DDCB %d B6 ","RES 6,(IX+%d)     "),
+			Instruction("FDCB %d B6 ","RES 6,(IY+%d)     "),
 			Instruction("CBB7       ","RES 6,A          "),
 			Instruction("CBB0       ","RES 6,B          "),
 			Instruction("CBB1       ","RES 6,C          "),
@@ -1068,8 +1036,8 @@ namespace CSharpCpu.Cpus.Z80
 			Instruction("CBB4       ","RES 6,H          "),
 			Instruction("CBB5       ","RES 6,L          "),
 			Instruction("CBBE       ","RES 7,(HL)       "),
-			Instruction("DDCB %d BE  ","RES 7,(IX+%d)     "),
-			Instruction("FDCB %d BE  ","RES 7,(IY+%d)     "),
+			Instruction("DDCB %d BE ","RES 7,(IX+%d)     "),
+			Instruction("FDCB %d BE ","RES 7,(IY+%d)     "),
 			Instruction("CBBF       ","RES 7,A          "),
 			Instruction("CBB8       ","RES 7,B          "),
 			Instruction("CBB9       ","RES 7,C          "),
@@ -1095,8 +1063,8 @@ namespace CSharpCpu.Cpus.Z80
 			Instruction("ED6D       ","RETN             "),
 			Instruction("ED7D       ","RETN             "),
 			Instruction("CB16       ","RL (HL)          "),
-			Instruction("DDCB %d 16  ","RL (IX+%d)        "),
-			Instruction("FDCB %d 16  ","RL (IY+%d)        "),
+			Instruction("DDCB %d 16 ","RL (IX+%d)        "),
+			Instruction("FDCB %d 16 ","RL (IY+%d)        "),
 			Instruction("CB17       ","RL A             "),
 			Instruction("CB10       ","RL B             "),
 			Instruction("CB11       ","RL C             "),
@@ -1106,8 +1074,8 @@ namespace CSharpCpu.Cpus.Z80
 			Instruction("CB15       ","RL L             "),
 			Instruction("17         ","RLA              "),
 			Instruction("CB06       ","RLC (HL)         "),
-			Instruction("DDCB %d 06  ","RLC (IX+%d)       "),
-			Instruction("FDCB %d 06  ","RLC (IY+%d)       "),
+			Instruction("DDCB %d 06 ","RLC (IX+%d)       "),
+			Instruction("FDCB %d 06 ","RLC (IY+%d)       "),
 			Instruction("CB07       ","RLC A            "),
 			Instruction("CB00       ","RLC B            "),
 			Instruction("CB01       ","RLC C            "),
@@ -1118,8 +1086,8 @@ namespace CSharpCpu.Cpus.Z80
 			Instruction("07         ","RLCA             "),
 			Instruction("ED6F       ","RLD              "),
 			Instruction("CB1E       ","RR (HL)          "),
-			Instruction("DDCB %d 1E  ","RR (IX+%d)        "),
-			Instruction("FDCB %d 1E  ","RR (IY+%d)        "),
+			Instruction("DDCB %d 1E ","RR (IX+%d)        "),
+			Instruction("FDCB %d 1E ","RR (IY+%d)        "),
 			Instruction("CB1F       ","RR A             "),
 			Instruction("CB18       ","RR B             "),
 			Instruction("CB19       ","RR C             "),
@@ -1129,8 +1097,8 @@ namespace CSharpCpu.Cpus.Z80
 			Instruction("CB1D       ","RR L             "),
 			Instruction("1F         ","RRA              "),
 			Instruction("CB0E       ","RRC (HL)         "),
-			Instruction("DDCB %d 0E  ","RRC (IX+%d)       "),
-			Instruction("FDCB %d 0E  ","RRC (IY+%d)       "),
+			Instruction("DDCB %d 0E ","RRC (IX+%d)       "),
+			Instruction("FDCB %d 0E ","RRC (IY+%d)       "),
 			Instruction("CB0F       ","RRC A            "),
 			Instruction("CB08       ","RRC B            "),
 			Instruction("CB09       ","RRC C            "),
@@ -1149,8 +1117,8 @@ namespace CSharpCpu.Cpus.Z80
 			Instruction("FF         ","RST 38H          "),
 			Instruction("CF         ","RST 8H           "),
 			Instruction("9E         ","SBC A,(HL)       "),
-			Instruction("DD9E %d     ","SBC A,(IX+%d)     "),
-			Instruction("FD9E %d     ","SBC A,(IY+%d)     "),
+			Instruction("DD9E %d    ","SBC A,(IX+%d)     "),
+			Instruction("FD9E %d    ","SBC A,(IY+%d)     "),
 			Instruction("9F         ","SBC A,A          "),
 			Instruction("98         ","SBC A,B          "),
 			Instruction("99         ","SBC A,C          "),
@@ -1169,8 +1137,8 @@ namespace CSharpCpu.Cpus.Z80
 			Instruction("ED72       ","SBC HL,SP        "),
 			Instruction("37         ","SCF              "),
 			Instruction("CBC6       ","SET 0,(HL)       "),
-			Instruction("DDCB %d C6  ","SET 0,(IX+%d)     "),
-			Instruction("FDCB %d C6  ","SET 0,(IY+%d)     "),
+			Instruction("DDCB %d C6 ","SET 0,(IX+%d)     "),
+			Instruction("FDCB %d C6 ","SET 0,(IY+%d)     "),
 			Instruction("CBC7       ","SET 0,A          "),
 			Instruction("CBC0       ","SET 0,B          "),
 			Instruction("CBC1       ","SET 0,C          "),
@@ -1179,8 +1147,8 @@ namespace CSharpCpu.Cpus.Z80
 			Instruction("CBC4       ","SET 0,H          "),
 			Instruction("CBC5       ","SET 0,L          "),
 			Instruction("CBCE       ","SET 1,(HL)       "),
-			Instruction("DDCB %d CE  ","SET 1,(IX+%d)     "),
-			Instruction("FDCB %d CE  ","SET 1,(IY+%d)     "),
+			Instruction("DDCB %d CE ","SET 1,(IX+%d)     "),
+			Instruction("FDCB %d CE ","SET 1,(IY+%d)     "),
 			Instruction("CBCF       ","SET 1,A          "),
 			Instruction("CBC8       ","SET 1,B          "),
 			Instruction("CBC9       ","SET 1,C          "),
@@ -1189,8 +1157,8 @@ namespace CSharpCpu.Cpus.Z80
 			Instruction("CBCC       ","SET 1,H          "),
 			Instruction("CBCD       ","SET 1,L          "),
 			Instruction("CBD6       ","SET 2,(HL)       "),
-			Instruction("DDCB %d D6  ","SET 2,(IX+%d)     "),
-			Instruction("FDCB %d D6  ","SET 2,(IY+%d)     "),
+			Instruction("DDCB %d D6 ","SET 2,(IX+%d)     "),
+			Instruction("FDCB %d D6 ","SET 2,(IY+%d)     "),
 			Instruction("CBD7       ","SET 2,A          "),
 			Instruction("CBD0       ","SET 2,B          "),
 			Instruction("CBD1       ","SET 2,C          "),
@@ -1199,8 +1167,8 @@ namespace CSharpCpu.Cpus.Z80
 			Instruction("CBD4       ","SET 2,H          "),
 			Instruction("CBD5       ","SET 2,L          "),
 			Instruction("CBDE       ","SET 3,(HL)       "),
-			Instruction("DDCB %d DE  ","SET 3,(IX+%d)     "),
-			Instruction("FDCB %d DE  ","SET 3,(IY+%d)     "),
+			Instruction("DDCB %d DE ","SET 3,(IX+%d)     "),
+			Instruction("FDCB %d DE ","SET 3,(IY+%d)     "),
 			Instruction("CBDF       ","SET 3,A          "),
 			Instruction("CBD8       ","SET 3,B          "),
 			Instruction("CBD9       ","SET 3,C          "),
@@ -1209,8 +1177,8 @@ namespace CSharpCpu.Cpus.Z80
 			Instruction("CBDC       ","SET 3,H          "),
 			Instruction("CBDD       ","SET 3,L          "),
 			Instruction("CBE6       ","SET 4,(HL)       "),
-			Instruction("DDCB %d E6  ","SET 4,(IX+%d)     "),
-			Instruction("FDCB %d E6  ","SET 4,(IY+%d)     "),
+			Instruction("DDCB %d E6 ","SET 4,(IX+%d)     "),
+			Instruction("FDCB %d E6 ","SET 4,(IY+%d)     "),
 			Instruction("CBE7       ","SET 4,A          "),
 			Instruction("CBE0       ","SET 4,B          "),
 			Instruction("CBE1       ","SET 4,C          "),
@@ -1219,8 +1187,8 @@ namespace CSharpCpu.Cpus.Z80
 			Instruction("CBE4       ","SET 4,H          "),
 			Instruction("CBE5       ","SET 4,L          "),
 			Instruction("CBEE       ","SET 5,(HL)       "),
-			Instruction("DDCB %d EE  ","SET 5,(IX+%d)     "),
-			Instruction("FDCB %d EE  ","SET 5,(IY+%d)     "),
+			Instruction("DDCB %d EE ","SET 5,(IX+%d)     "),
+			Instruction("FDCB %d EE ","SET 5,(IY+%d)     "),
 			Instruction("CBEF       ","SET 5,A          "),
 			Instruction("CBE8       ","SET 5,B          "),
 			Instruction("CBE9       ","SET 5,C          "),
@@ -1229,8 +1197,8 @@ namespace CSharpCpu.Cpus.Z80
 			Instruction("CBEC       ","SET 5,H          "),
 			Instruction("CBED       ","SET 5,L          "),
 			Instruction("CBF6       ","SET 6,(HL)       "),
-			Instruction("DDCB %d F6  ","SET 6,(IX+%d)     "),
-			Instruction("FDCB %d F6  ","SET 6,(IY+%d)     "),
+			Instruction("DDCB %d F6 ","SET 6,(IX+%d)     "),
+			Instruction("FDCB %d F6 ","SET 6,(IY+%d)     "),
 			Instruction("CBF7       ","SET 6,A          "),
 			Instruction("CBF0       ","SET 6,B          "),
 			Instruction("CBF1       ","SET 6,C          "),
@@ -1239,8 +1207,8 @@ namespace CSharpCpu.Cpus.Z80
 			Instruction("CBF4       ","SET 6,H          "),
 			Instruction("CBF5       ","SET 6,L          "),
 			Instruction("CBFE       ","SET 7,(HL)       "),
-			Instruction("DDCB %d FE  ","SET 7,(IX+%d)     "),
-			Instruction("FDCB %d FE  ","SET 7,(IY+%d)     "),
+			Instruction("DDCB %d FE ","SET 7,(IX+%d)     "),
+			Instruction("FDCB %d FE ","SET 7,(IY+%d)     "),
 			Instruction("CBFF       ","SET 7,A          "),
 			Instruction("CBF8       ","SET 7,B          "),
 			Instruction("CBF9       ","SET 7,C          "),
@@ -1249,8 +1217,8 @@ namespace CSharpCpu.Cpus.Z80
 			Instruction("CBFC       ","SET 7,H          "),
 			Instruction("CBFD       ","SET 7,L          "),
 			Instruction("CB26       ","SLA (HL)         "),
-			Instruction("DDCB %d 26  ","SLA (IX+%d)       "),
-			Instruction("FDCB %d 26  ","SLA (IY+%d)       "),
+			Instruction("DDCB %d 26 ","SLA (IX+%d)       "),
+			Instruction("FDCB %d 26 ","SLA (IY+%d)       "),
 			Instruction("CB27       ","SLA A            "),
 			Instruction("CB20       ","SLA B            "),
 			Instruction("CB21       ","SLA C            "),
@@ -1259,8 +1227,8 @@ namespace CSharpCpu.Cpus.Z80
 			Instruction("CB24       ","SLA H            "),
 			Instruction("CB25       ","SLA L            "),
 			Instruction("CB36       ","SLL (HL)         "),
-			Instruction("DDCB %d 36  ","SLL (IX+%d)       "),
-			Instruction("FDCB %d 36  ","SLL (IY+%d)       "),
+			Instruction("DDCB %d 36 ","SLL (IX+%d)       "),
+			Instruction("FDCB %d 36 ","SLL (IY+%d)       "),
 			Instruction("CB37       ","SLL A            "),
 			Instruction("CB30       ","SLL B            "),
 			Instruction("CB31       ","SLL C            "),
@@ -1269,8 +1237,8 @@ namespace CSharpCpu.Cpus.Z80
 			Instruction("CB34       ","SLL H            "),
 			Instruction("CB35       ","SLL L            "),
 			Instruction("CB2E       ","SRA (HL)         "),
-			Instruction("DDCB %d 2E  ","SRA (IX+%d)       "),
-			Instruction("FDCB %d 2E  ","SRA (IY+%d)       "),
+			Instruction("DDCB %d 2E ","SRA (IX+%d)       "),
+			Instruction("FDCB %d 2E ","SRA (IY+%d)       "),
 			Instruction("CB2F       ","SRA A            "),
 			Instruction("CB28       ","SRA B            "),
 			Instruction("CB29       ","SRA C            "),
@@ -1279,8 +1247,8 @@ namespace CSharpCpu.Cpus.Z80
 			Instruction("CB2C       ","SRA H            "),
 			Instruction("CB2D       ","SRA L            "),
 			Instruction("CB3E       ","SRL (HL)         "),
-			Instruction("DDCB %d 3E  ","SRL (IX+%d)       "),
-			Instruction("FDCB %d 3E  ","SRL (IY+%d)       "),
+			Instruction("DDCB %d 3E ","SRL (IX+%d)       "),
+			Instruction("FDCB %d 3E ","SRL (IY+%d)       "),
 			Instruction("CB3F       ","SRL A            "),
 			Instruction("CB38       ","SRL B            "),
 			Instruction("CB39       ","SRL C            "),
@@ -1289,8 +1257,8 @@ namespace CSharpCpu.Cpus.Z80
 			Instruction("CB3C       ","SRL H            "),
 			Instruction("CB3D       ","SRL L            "),
 			Instruction("96         ","SUB A,(HL)       "),
-			Instruction("DD96 %d     ","SUB A,(IX+%d)     "),
-			Instruction("FD96 %d     ","SUB A,(IY+%d)     "),
+			Instruction("DD96 %d    ","SUB A,(IX+%d)     "),
+			Instruction("FD96 %d    ","SUB A,(IY+%d)     "),
 			Instruction("97         ","SUB A,A          "),
 			Instruction("90         ","SUB A,B          "),
 			Instruction("91         ","SUB A,C          "),
@@ -1302,10 +1270,10 @@ namespace CSharpCpu.Cpus.Z80
 			Instruction("FD94       ","SUB A,IYh        "),
 			Instruction("FD95       ","SUB A,IYl        "),
 			Instruction("95         ","SUB A,L          "),
-			Instruction("D6 %n       ","SUB A,%n          "),
+			Instruction("D6 %n      ","SUB A,%n          "),
 			Instruction("AE         ","XOR (HL)         "),
-			Instruction("DDAE %d     ","XOR (IX+%d)       "),
-			Instruction("FDAE %d     ","XOR (IY+%d)       "),
+			Instruction("DDAE %d    ","XOR (IX+%d)       "),
+			Instruction("FDAE %d    ","XOR (IY+%d)       "),
 			Instruction("AF         ","XOR A            "),
 			Instruction("A8         ","XOR B            "),
 			Instruction("A9         ","XOR C            "),
@@ -1317,12 +1285,49 @@ namespace CSharpCpu.Cpus.Z80
 			Instruction("FDAC       ","XOR IYh          "),
 			Instruction("FDAD       ","XOR IYl          "),
 			Instruction("AD         ","XOR L            "),
-			Instruction("EE %n       ","XOR %n            "),
-		};
+			Instruction("EE %n      ","XOR %n            "),
+		});
 
 		public InstructionFlags InstructionFlags
 		{
 			get { throw new NotImplementedException(); }
+		}
+
+		static private InstructionInfo Instruction(string OpCode, string Mnemonic)
+		{
+			var MaskDataVarsList = new List<MaskDataVars>();
+			foreach (var Part in OpCode.Split(' '))
+			{
+				if (Part.Length == 0) continue;
+
+				switch (Part)
+				{
+					case "%n":
+					case "%d":
+					case "%e":
+						MaskDataVarsList.Add(new MaskDataVars(0x00, 0x00, new VarReference(Part, 0, 0xFF)));
+						break;
+					case "%nn":
+						MaskDataVarsList.Add(new MaskDataVars(0x00, 0x00, new VarReference("%n1", 0, 0xFF)));
+						MaskDataVarsList.Add(new MaskDataVars(0x00, 0x00, new VarReference("%n2", 0, 0xFF)));
+						break;
+					default:
+						try
+						{
+							if ((Part.Length % 2) != 0) throw (new Exception());
+							for (int n = 0; n < Part.Length; n += 2)
+							{
+								MaskDataVarsList.Add(new MaskDataVars(0xFF, Convert.ToUInt32(Part.Substring(n, 2), 16)));
+							}
+						}
+						catch (Exception)
+						{
+							throw (new Exception("Can't parse '" + Part + "'"));
+						}
+						break;
+				}
+			}
+			return new InstructionInfo(Mnemonic.Trim(), "", MaskDataVarsList);
 		}
 	}
 }

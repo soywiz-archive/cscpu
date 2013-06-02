@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{2ED8FB95-3C19-40AD-B05E-E677970EC6BD}</ProjectGuid>
+    <ProjectGuid>{78624E92-999F-498F-83F8-FC250D673427}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CSharpCpu</RootNamespace>
-    <AssemblyName>CSharpCpu</AssemblyName>
+    <RootNamespace>CSharpCpu.Chip8</RootNamespace>
+    <AssemblyName>CSharpCpu.Chip8</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -39,23 +39,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Memory\IMemory1.cs" />
-    <Compile Include="Memory\IMemory2.cs" />
-    <Compile Include="Cpus\IInstructionTable.cs" />
-    <Compile Include="Memory\IMemory4.cs" />
-    <Compile Include="Cpus\InstructionFlags.cs" />
-    <Compile Include="Cpus\InstructionInfo.cs" />
-    <Compile Include="Decoder\IDecoderReference.cs" />
-    <Compile Include="Decoder\MaskDataVars.cs" />
-    <Compile Include="Decoder\Scope.cs" />
-    <Compile Include="Decoder\SwitchGenerator.cs" />
-    <Compile Include="Decoder\VarReference.cs" />
+    <Compile Include="CpuContext.cs" />
+    <Compile Include="Disassembler\Chip8Disassembler.cs" />
+    <Compile Include="IDisplay.cs" />
+    <Compile Include="InstructionTable.cs" />
+    <Compile Include="Interpreter\Chip8Interpreter.cs" />
+    <Compile Include="ISyscall.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\SafeILGenerator\SafeILGenerator\SafeILGenerator.csproj">
-      <Project>{9a93c7e4-09da-46cf-b7dd-6bb09681d5ab}</Project>
-      <Name>SafeILGenerator</Name>
+    <ProjectReference Include="..\CSharpCpu\CSharpCpu.csproj">
+      <Project>{2ed8fb95-3c19-40ad-b05e-e677970ec6bd}</Project>
+      <Name>CSharpCpu</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

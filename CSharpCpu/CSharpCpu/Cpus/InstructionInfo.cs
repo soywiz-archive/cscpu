@@ -9,17 +9,20 @@ namespace CSharpCpu.Cpus
 	public class InstructionInfo : IDecoderReference 
 	{
 		public string Name;
+		public string Format;
 		public MaskDataVars[] MaskDataVarsList;
 
-		public InstructionInfo(string Name, IEnumerable<MaskDataVars> MaskDataVarsList)
+		public InstructionInfo(string Name, string Format, IEnumerable<MaskDataVars> MaskDataVarsList)
 		{
 			this.Name = Name;
+			this.Format = Format;
 			this.MaskDataVarsList = MaskDataVarsList.ToArray();
 		}
 
-		public InstructionInfo(string Name, params MaskDataVars[] MaskDataVarsList)
+		public InstructionInfo(string Name, string Format, params MaskDataVars[] MaskDataVarsList)
 		{
 			this.Name = Name;
+			this.Format = Format;
 			this.MaskDataVarsList = MaskDataVarsList.ToArray();
 		}
 

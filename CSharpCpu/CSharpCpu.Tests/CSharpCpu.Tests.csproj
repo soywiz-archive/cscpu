@@ -50,6 +50,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="UnitTest3.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnitTest2.cs" />
@@ -58,6 +59,14 @@
     <ProjectReference Include="..\..\..\SafeILGenerator\SafeILGenerator\SafeILGenerator.csproj">
       <Project>{9a93c7e4-09da-46cf-b7dd-6bb09681d5ab}</Project>
       <Name>SafeILGenerator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CSharpCpu.Chip8\CSharpCpu.Chip8.csproj">
+      <Project>{78624e92-999f-498f-83f8-fc250d673427}</Project>
+      <Name>CSharpCpu.Chip8</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CSharpCpu.Z80\CSharpCpu.Z80.csproj">
+      <Project>{836cab8a-c0bc-4fc4-9aa8-5d3a877a662c}</Project>
+      <Name>CSharpCpu.Z80</Name>
     </ProjectReference>
     <ProjectReference Include="..\CSharpCpu\CSharpCpu.csproj">
       <Project>{2ed8fb95-3c19-40ad-b05e-e677970ec6bd}</Project>

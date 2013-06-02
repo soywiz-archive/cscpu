@@ -19,11 +19,11 @@ namespace CSharpCpu.Tests
 		public void TestSwitch1()
 		{
 			TestTable(new uint[] { 0x00 }, new[] {
-				new InstructionInfo("test1", new MaskDataVars(0xFF000000, 0x12000000)),
-				new InstructionInfo("test2", new MaskDataVars(0xFF000000, 0x20000000)),
-				new InstructionInfo("test3", new MaskDataVars(0xFF00000F, 0x33000000)),
-				new InstructionInfo("test4", new MaskDataVars(0xFF00000F, 0x33000001)),
-				new InstructionInfo("test5", new MaskDataVars(0xFF0000FF, 0x33000042), new MaskDataVars(0xFF000000, 0x01000000)),
+				new InstructionInfo("test1", "", new MaskDataVars(0xFF000000, 0x12000000)),
+				new InstructionInfo("test2", "", new MaskDataVars(0xFF000000, 0x20000000)),
+				new InstructionInfo("test3", "", new MaskDataVars(0xFF00000F, 0x33000000)),
+				new InstructionInfo("test4", "", new MaskDataVars(0xFF00000F, 0x33000001)),
+				new InstructionInfo("test5", "", new MaskDataVars(0xFF0000FF, 0x33000042), new MaskDataVars(0xFF000000, 0x01000000)),
 			});
 		}
 
@@ -31,7 +31,7 @@ namespace CSharpCpu.Tests
 		public void TestSwitch2a()
 		{
 			TestTable(new uint[] { 0x01 }, new[] {
-				new InstructionInfo("test1", new MaskDataVars(0xFF, 0x00), new MaskDataVars(0x00, 0x00)),
+				new InstructionInfo("test1", "", new MaskDataVars(0xFF, 0x00), new MaskDataVars(0x00, 0x00)),
 			});
 		}
 
@@ -39,7 +39,7 @@ namespace CSharpCpu.Tests
 		public void TestSwitch2b()
 		{
 			TestTable(new uint[] { 0x01 }, new[] {
-				new InstructionInfo("test1", new MaskDataVars(0xFF, 0x00), new MaskDataVars(0x00, 0x00), new MaskDataVars(0x00, 0x00)),
+				new InstructionInfo("test1", "", new MaskDataVars(0xFF, 0x00), new MaskDataVars(0x00, 0x00), new MaskDataVars(0x00, 0x00)),
 			});
 		}
 
@@ -47,7 +47,7 @@ namespace CSharpCpu.Tests
 		public void TestSwitch2c()
 		{
 			TestTable(new uint[] { 0x01 }, new[] {
-				new InstructionInfo("test1", new MaskDataVars(0xFF, 0x00), new MaskDataVars(0x00, 0x00), new MaskDataVars(0x00, 0x00), new MaskDataVars(0x00, 0x00)),
+				new InstructionInfo("test1", "", new MaskDataVars(0xFF, 0x00), new MaskDataVars(0x00, 0x00), new MaskDataVars(0x00, 0x00), new MaskDataVars(0x00, 0x00)),
 			});
 		}
 
@@ -55,8 +55,8 @@ namespace CSharpCpu.Tests
 		public void TestSwitch3()
 		{
 			TestTable(new uint[] { 0xFF }, new[] {
-				new InstructionInfo("test1", new MaskDataVars(0xFF, 0x00), new MaskDataVars(0x00, 0x00)),
-				new InstructionInfo("test2", new MaskDataVars(0xFF, 0x01), new MaskDataVars(0x00, 0x00)),
+				new InstructionInfo("test1", "", new MaskDataVars(0xFF, 0x00), new MaskDataVars(0x00, 0x00)),
+				new InstructionInfo("test2", "", new MaskDataVars(0xFF, 0x01), new MaskDataVars(0x00, 0x00)),
 			});
 		}
 
@@ -64,10 +64,10 @@ namespace CSharpCpu.Tests
 		public void TestSwitch4()
 		{
 			TestTable(new uint[] { 0xFF }, new[] {
-				new InstructionInfo("test1", new MaskDataVars(0xFF, 0x00), new MaskDataVars(0x00, 0x00)),
-				new InstructionInfo("test2", new MaskDataVars(0xFF, 0x02)),
-				new InstructionInfo("test3", new MaskDataVars(0xFF, 0x01), new MaskDataVars(0x00, 0x00), new MaskDataVars(0x0F, 0x01)),
-				new InstructionInfo("test4", new MaskDataVars(0xFF, 0x01), new MaskDataVars(0x00, 0x00), new MaskDataVars(0x0F, 0x02)),
+				new InstructionInfo("test1", "", new MaskDataVars(0xFF, 0x00), new MaskDataVars(0x00, 0x00)),
+				new InstructionInfo("test2", "", new MaskDataVars(0xFF, 0x02)),
+				new InstructionInfo("test3", "", new MaskDataVars(0xFF, 0x01), new MaskDataVars(0x00, 0x00), new MaskDataVars(0x0F, 0x01)),
+				new InstructionInfo("test4", "", new MaskDataVars(0xFF, 0x01), new MaskDataVars(0x00, 0x00), new MaskDataVars(0x0F, 0x02)),
 			});
 		}
 

@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CSharpCpu
+namespace CSharpCpu.Cpus.Chip8
 {
-    public class Class1
-    {
-    }
+	public interface ISyscall
+	{
+		void Call(CpuContext CpuContext, ushort Address);
+	}
 }
