@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CSharpCpu.Decoder;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,8 +11,7 @@ namespace CSharpCpu.Cpus.Z80
 	{
 		static private InstructionInfo Instruction(string OpCode, string Mnemonic)
 		{
-			var Mask = new List<uint>();
-			var Value = new List<uint>();
+			var MaskDataVarsList = new List<MaskDataVars>();
 			foreach (var Part in OpCode.Split(' '))
 			{
 				if (Part.Length == 0) continue;
@@ -19,27 +19,29 @@ namespace CSharpCpu.Cpus.Z80
 				switch (Part)
 				{
 					case "n": case "d": case "e":
-						Mask.Add(0x00); Value.Add(0x00);
+						MaskDataVarsList.Add(new MaskDataVars(0x00, 0x00, new VarReference(Part, 0, 0xFF)));
 					break;
-					case "nn": 
-						Mask.Add(0x00); Value.Add(0x00);
-						Mask.Add(0x00); Value.Add(0x00);
+					case "nn":
+						MaskDataVarsList.Add(new MaskDataVars(0x00, 0x00, new VarReference("n1", 0, 0xFF)));
+						MaskDataVarsList.Add(new MaskDataVars(0x00, 0x00, new VarReference("n2", 0, 0xFF)));
 					break;
 					default:
-					if ((Part.Length % 2) != 0) throw (new Exception("Can't parse '" + Part + "'"));
-					for (int n = 0; n < Part.Length; n += 2)
+					try
 					{
-						Mask.Add(0xFF);
-						try {
-							Value.Add(Convert.ToUInt32(Part.Substring(n, 2), 16));
-						} catch (Exception e) {
-							throw (new Exception("Can't parse '" + Part.Substring(n, 2) + "'"));
+						if ((Part.Length % 2) != 0) throw (new Exception());
+						for (int n = 0; n < Part.Length; n += 2)
+						{
+							MaskDataVarsList.Add(new MaskDataVars(0xFF, Convert.ToUInt32(Part.Substring(n, 2), 16)));
 						}
+					}
+					catch (Exception e)
+					{
+						throw (new Exception("Can't parse '" + Part + "'"));
 					}
 					break;
 				}
 			}
-			return new InstructionInfo(OpCode.Trim(), Mask, Value);
+			return new InstructionInfo(Mnemonic.Trim(), MaskDataVarsList);
 		}
 
 		public static InstructionInfo[] Instructions = new[]

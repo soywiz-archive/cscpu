@@ -9,27 +9,30 @@ namespace CSharpCpu.Cpus
 	public class InstructionInfo : IDecoderReference 
 	{
 		public string Name;
-		public uint[] Mask;
-		public uint[] Data;
+		public MaskDataVars[] MaskDataVarsList;
 
-		public InstructionInfo(string Name, IEnumerable<uint> Mask, IEnumerable<uint> Data)
+		public InstructionInfo(string Name, IEnumerable<MaskDataVars> MaskDataVarsList)
 		{
 			this.Name = Name;
-			this.Data = Data.ToArray();
-			this.Mask = Mask.ToArray();
+			this.MaskDataVarsList = MaskDataVarsList.ToArray();
 		}
 
-		uint[] IDecoderReference.Mask { get { return Mask; } }
-		uint[] IDecoderReference.Data { get { return Data; } }
+		public InstructionInfo(string Name, params MaskDataVars[] MaskDataVarsList)
+		{
+			this.Name = Name;
+			this.MaskDataVarsList = MaskDataVarsList.ToArray();
+		}
+
+		MaskDataVars[] IDecoderReference.MaskDataVars { get { return MaskDataVarsList; } }
 
 		public override string ToString()
 		{
 			return String.Format(
-				"InstructionInfo('{0}', [{1}], [{2}])",
+				"InstructionInfo('{0}', [{1}])",
 				Name,
-				String.Join(",", Mask.Select(Item => String.Format("0x{0:X8}", Item))),
-				String.Join(",", Data.Select(Item => String.Format("0x{0:X8}", Item)))
+				String.Join(",", MaskDataVarsList.ToString())
 			);
 		}
+
 	}
 }

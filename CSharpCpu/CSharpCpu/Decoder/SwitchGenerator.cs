@@ -41,7 +41,7 @@ namespace CSharpCpu.Decoder
 
 			private uint GetCommonMask(uint BaseMask, IEnumerable<TDecoderReference> Items, int ReferenceIndex)
 			{
-				return Items.Aggregate(BaseMask, (CurrentMask, Item) => CurrentMask & Item.Mask[ReferenceIndex]);
+				return Items.Aggregate(BaseMask, (CurrentMask, Item) => CurrentMask & Item.MaskDataVars[ReferenceIndex].Mask);
 			}
 
 			public int GetShiftRightMask(uint Mask)
@@ -58,7 +58,7 @@ namespace CSharpCpu.Decoder
 
 				//Console.WriteLine("------------------------");
 
-				var Items = ItemsBase.Where(Item => Item.Mask.Length > ReferenceIndex);
+				var Items = ItemsBase.Where(Item => Item.MaskDataVars.Length > ReferenceIndex);
 
 				if (Items.Count() == 0)
 				{
@@ -73,7 +73,7 @@ namespace CSharpCpu.Decoder
 					}
 				}
 
-				int MaxItemsLength = Items.Max(Item => Item.Mask.Length);
+				int MaxItemsLength = Items.Max(Item => Item.MaskDataVars.Length);
 
 				var CommonMask = GetCommonMask(BaseMask, Items, ReferenceIndex);
 				var CommonShift = GetShiftRightMask(CommonMask);
@@ -108,7 +108,7 @@ namespace CSharpCpu.Decoder
 
 				var Cases = new List<AstNodeCase>();
 
-				foreach (var Group in Items.GroupBy(Item => Item.Data[ReferenceIndex] & CommonMask))
+				foreach (var Group in Items.GroupBy(Item => Item.MaskDataVars[ReferenceIndex].Data & CommonMask))
 				{
 					AstNodeStm CaseBody;
 					var GroupMask = GetCommonMask(BaseMask, Group, ReferenceIndex);
@@ -118,7 +118,7 @@ namespace CSharpCpu.Decoder
 					if ((Group.Count() == 1) && ((GroupMask & ~CommonMask) == 0))
 					{
 						// Leaf.
-						if (ReferenceIndex < Group.First().Data.Length - 1)
+						if (ReferenceIndex < Group.First().MaskDataVars.Length - 1)
 						{
 							//new AstNodeExprLocal(
 							CaseBody = GenerateSwitch(Group, ReferenceIndex + 1);
@@ -134,7 +134,7 @@ namespace CSharpCpu.Decoder
 						//CaseBody = new AstNodeStmReturn(null);
 					}
 
-					Cases.Add(new AstNodeCase(((Group.First().Data[ReferenceIndex] >> CommonShift) & (CommonMask >> CommonShift)), CaseBody));
+					Cases.Add(new AstNodeCase(((Group.First().MaskDataVars[ReferenceIndex].Data >> CommonShift) & (CommonMask >> CommonShift)), CaseBody));
 				}
 
 				return new AstNodeStmSwitch(
