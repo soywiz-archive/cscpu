@@ -51,18 +51,26 @@ namespace CSharpCpu.Decoder
 				return Count;
 			}
 
-			private AstNodeStm _GenerateSwitch(uint BaseMask, IEnumerable<TDecoderReference> Items, int ReferenceIndex, int NestLevel)
+			private AstNodeStm _GenerateSwitch(uint BaseMask, IEnumerable<TDecoderReference> ItemsBase, int ReferenceIndex, int NestLevel)
 			{
-				if (Items == null) Items = AllItems;
+				if (ItemsBase == null) ItemsBase = AllItems;
 				if (NestLevel > 64) throw(new Exception("Too much nesting. Probably an error."));
 
 				//Console.WriteLine("------------------------");
 
-				Items = Items.Where(Item => Item.Mask.Length > ReferenceIndex);
+				var Items = ItemsBase.Where(Item => Item.Mask.Length > ReferenceIndex);
 
 				if (Items.Count() == 0)
 				{
-					return new AstNodeStmEmpty();
+					if (ItemsBase.Count() == 1)
+					{
+						return new AstNodeStmReturn(Process(ItemsBase.First()));
+					}
+					else
+					{
+						throw (new Exception("Unexpected case"));
+						//return new AstNodeStmEmpty();
+					}
 				}
 
 				int MaxItemsLength = Items.Max(Item => Item.Mask.Length);
@@ -70,10 +78,13 @@ namespace CSharpCpu.Decoder
 				var CommonMask = GetCommonMask(BaseMask, Items, ReferenceIndex);
 				var CommonShift = GetShiftRightMask(CommonMask);
 
-				Console.WriteLine("{0}: {1}", CommonMask, String.Join(",", Items));
+				//Console.WriteLine("{0}: {1}", CommonMask, String.Join(",", Items));
 
 				if (CommonMask == 0)
 				{
+					return GenerateSwitch(Items, ReferenceIndex + 1);
+
+					/*
 					if (ReferenceIndex + 1 >= MaxItemsLength)
 					{
 						if (Items.Count() == 1)
@@ -89,6 +100,7 @@ namespace CSharpCpu.Decoder
 					{
 						return GenerateSwitch(Items, ReferenceIndex + 1);
 					}
+					*/
 				}
 
 				//Console.WriteLine("BaseMask: 0x{0:X8}", BaseMask);
@@ -109,7 +121,7 @@ namespace CSharpCpu.Decoder
 						if (ReferenceIndex < Group.First().Data.Length - 1)
 						{
 							//new AstNodeExprLocal(
-							CaseBody = GenerateSwitch(Items, ReferenceIndex + 1);
+							CaseBody = GenerateSwitch(Group, ReferenceIndex + 1);
 						}
 						else
 						{

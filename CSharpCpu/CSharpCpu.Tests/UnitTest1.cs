@@ -38,9 +38,9 @@ namespace CSharpCpu.Tests
 		[TestMethod]
 		public void TestSwitch3()
 		{
-			TestTable(new uint[] { 0x01 }, new[] {
+			TestTable(new uint[] { 0xFF }, new[] {
 				new InstructionInfo(Name: "test1", Mask: new uint[] { 0xFF, 0x00 }, Data: new uint[] { 0x00, 0x00 }),
-				new InstructionInfo(Name: "test1", Mask: new uint[] { 0xFF, 0x00 }, Data: new uint[] { 0x01, 0x00 }),
+				new InstructionInfo(Name: "test2", Mask: new uint[] { 0xFF, 0x00 }, Data: new uint[] { 0x01, 0x00 }),
 			});
 		}
 
@@ -49,7 +49,7 @@ namespace CSharpCpu.Tests
 		{
 			TestTable(new uint[] { 0xFF }, new[] {
 				new InstructionInfo(Name: "test1", Mask: new uint[] { 0xFF, 0x00 }, Data: new uint[] { 0x00, 0x00 }),
-				new InstructionInfo(Name: "test2", Mask: new uint[] { 0xFF }, Data: new uint[] { 0x01 }),
+				new InstructionInfo(Name: "test2", Mask: new uint[] { 0xFF }, Data: new uint[] { 0x02 }),
 				new InstructionInfo(Name: "test3", Mask: new uint[] { 0xFF, 0x00, 0x0F }, Data: new uint[] { 0x01, 0x00, 0x01 }),
 				new InstructionInfo(Name: "test4", Mask: new uint[] { 0xFF, 0x00, 0x0F }, Data: new uint[] { 0x01, 0x00, 0x02 }),
 			});

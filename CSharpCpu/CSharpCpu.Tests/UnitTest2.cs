@@ -12,6 +12,7 @@ namespace CSharpCpu.Tests
 		{
 			var Ins = CSharpCpu.Cpus.Z80.InstructionTable.Instructions;
 			SwitchGenerator.GenerateSwitch(Ins, (Item) => {
+				if (Item == null) return "Unknown";
 				return Item.Name;
 			});
 		}
