@@ -1,15 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpCpu", "CSharpCpu\CSharpCpu.csproj", "{2ED8FB95-3C19-40AD-B05E-E677970EC6BD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpCpu", "CSharpCpu\CSharpCpu\CSharpCpu.csproj", "{2ED8FB95-3C19-40AD-B05E-E677970EC6BD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SafeILGenerator", "..\..\SafeILGenerator\SafeILGenerator\SafeILGenerator.csproj", "{9A93C7E4-09DA-46CF-B7DD-6BB09681D5AB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SafeILGenerator", "..\SafeILGenerator\SafeILGenerator\SafeILGenerator.csproj", "{9A93C7E4-09DA-46CF-B7DD-6BB09681D5AB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpCpu.Tests", "CSharpCpu.Tests\CSharpCpu.Tests.csproj", "{FF01B4F5-6DE3-41D6-89C9-6AFF051C3D62}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpCpu.Chip8", "CSharpCpu.Chip8\CSharpCpu.Chip8.csproj", "{78624E92-999F-498F-83F8-FC250D673427}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpCpu.Chip8", "CSharpCpu\CSharpCpu.Chip8\CSharpCpu.Chip8.csproj", "{78624E92-999F-498F-83F8-FC250D673427}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpCpu.Z80", "CSharpCpu.Z80\CSharpCpu.Z80.csproj", "{836CAB8A-C0BC-4FC4-9AA8-5D3A877A662C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpCpu.Z80", "CSharpCpu\CSharpCpu.Z80\CSharpCpu.Z80.csproj", "{836CAB8A-C0BC-4FC4-9AA8-5D3A877A662C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{60FE9C6E-C663-4FF6-922A-3DD403D301E1}"
 EndProject
