@@ -28,10 +28,26 @@ namespace CSharpCpu.Tests
 		}
 
 		[TestMethod]
-		public void TestSwitch2()
+		public void TestSwitch2a()
 		{
 			TestTable(new uint[] { 0x01 }, new[] {
 				new InstructionInfo("test1", new MaskDataVars(0xFF, 0x00), new MaskDataVars(0x00, 0x00)),
+			});
+		}
+
+		[TestMethod]
+		public void TestSwitch2b()
+		{
+			TestTable(new uint[] { 0x01 }, new[] {
+				new InstructionInfo("test1", new MaskDataVars(0xFF, 0x00), new MaskDataVars(0x00, 0x00), new MaskDataVars(0x00, 0x00)),
+			});
+		}
+
+		[TestMethod]
+		public void TestSwitch2c()
+		{
+			TestTable(new uint[] { 0x01 }, new[] {
+				new InstructionInfo("test1", new MaskDataVars(0xFF, 0x00), new MaskDataVars(0x00, 0x00), new MaskDataVars(0x00, 0x00), new MaskDataVars(0x00, 0x00)),
 			});
 		}
 
@@ -74,10 +90,12 @@ namespace CSharpCpu.Tests
 			Func<uint[], string> Decode = (Data) =>
 			{
 				var Reader = new Queue<uint>(Data);
-				return Func(() => {
+				var Result = Func(() => {
 					if (Reader.Count == 0) return 0x00;
 					return Reader.Dequeue();
 				});
+				Assert.AreEqual(0, Reader.Count);
+				return Result;
 			};
 
 			foreach (var Item in Table)
