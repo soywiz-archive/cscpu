@@ -30,7 +30,7 @@ namespace CSharpCpu.Cpus
 			return String.Format(
 				"InstructionInfo('{0}', [{1}])",
 				Name,
-				String.Join(",", MaskDataVarsList.ToString())
+				String.Join(",", MaskDataVarsList.Select(Item => Item.ToString()))
 			);
 		}
 

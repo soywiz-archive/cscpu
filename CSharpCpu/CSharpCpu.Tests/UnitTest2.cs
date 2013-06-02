@@ -13,10 +13,10 @@ namespace CSharpCpu.Tests
 		public void TestMethod1()
 		{
 			var Ins = CSharpCpu.Cpus.Z80.InstructionTable.Instructions;
-			var SwitchTree = SwitchGenerator.GenerateSwitch(Ins, (Item) =>
+			var SwitchTree = SwitchGenerator.GenerateSwitch(Ins, (Context) =>
 			{
-				if (Item == null) return "Unknown";
-				return Item.Name;
+				if (Context.DecoderReference == null) return "Unknown";
+				return Context.DecoderReference.Name + " [" + String.Join(",", Context.Scope.GetAllKeys()) + "] ";
 			});
 
 			//Console.WriteLine(GeneratorCSharp.GenerateString<GeneratorCSharp>(SwitchTree));
@@ -49,6 +49,8 @@ namespace CSharpCpu.Tests
 			Console.WriteLine(Decoder(Reader));
 			Console.WriteLine(Decoder(Reader));
 			//Console.WriteLine(Decoder(Reader));
+
+			Assert.Fail();
 		}
 	}
 }

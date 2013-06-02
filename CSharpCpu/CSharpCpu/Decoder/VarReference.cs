@@ -18,5 +18,15 @@ namespace CSharpCpu.Decoder
 			this.Shift = Shift;
 			this.Mask = Mask;
 		}
+
+		public override string ToString()
+		{
+			return String.Format(
+				"VarReference('{0}', {1}, {2:X8})",
+				Name,
+				Shift,
+				Mask
+			);
+		}
 	}
 }

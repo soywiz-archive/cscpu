@@ -58,10 +58,10 @@ namespace CSharpCpu.Tests
 		private void TestTable(uint[] DefaultSequence, InstructionInfo[] Table)
 		{
 			const string DefaultValue = "!!DEFAULT!!";
-			var SwitchTree = SwitchGenerator.GenerateSwitch(Table, (DecoderReference) =>
+			var SwitchTree = SwitchGenerator.GenerateSwitch(Table, (Context) =>
 			{
-				if (DecoderReference == null) return new AstNodeExprImm(DefaultValue);
-				return new AstNodeExprImm(DecoderReference.Name);
+				if (Context.DecoderReference == null) return new AstNodeExprImm(DefaultValue);
+				return new AstNodeExprImm(Context.DecoderReference.Name);
 			});
 			
 			SwitchTree = (AstNodeStm)(new AstOptimizer().Optimize(SwitchTree));

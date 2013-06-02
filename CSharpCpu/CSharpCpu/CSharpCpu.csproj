@@ -47,6 +47,7 @@
     <Compile Include="Cpus\Z80\InstructionTable.cs" />
     <Compile Include="Decoder\IDecoderReference.cs" />
     <Compile Include="Decoder\MaskDataVars.cs" />
+    <Compile Include="Decoder\Scope.cs" />
     <Compile Include="Decoder\SwitchGenerator.cs" />
     <Compile Include="Decoder\VarReference.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

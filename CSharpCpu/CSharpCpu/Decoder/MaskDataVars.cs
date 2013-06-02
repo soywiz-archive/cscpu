@@ -18,5 +18,15 @@ namespace CSharpCpu.Decoder
 			this.Data = Data;
 			this.Vars = Vars;
 		}
+
+		public override string ToString()
+		{
+			return String.Format(
+				"MaskDataVars({0:X8}, {1:X8}, [{2}])",
+				this.Mask,
+				this.Data,
+				String.Join(", ", this.Vars.Select(Var => Var.ToString()))
+			);
+		}
 	}
 }
