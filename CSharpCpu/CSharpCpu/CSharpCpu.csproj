@@ -50,6 +50,7 @@
     <Compile Include="Decoder\Scope.cs" />
     <Compile Include="Decoder\SwitchGenerator.cs" />
     <Compile Include="Decoder\VarReference.cs" />
+    <Compile Include="Memory\IMemoryExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -9,6 +9,6 @@ namespace CSharpCpu.Memory
 	public interface IMemory4 : IMemory2
 	{
 		uint Read4(uint Address);
-		void Write4(uint Addres, uint Value);
+		void Write4(uint Address, uint Value);
 	}
 }
