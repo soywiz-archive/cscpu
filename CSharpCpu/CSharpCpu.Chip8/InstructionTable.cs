@@ -22,36 +22,36 @@ namespace CSharpCpu.Cpus.Chip8
 			Instruction("0nnn", "SYS", "%addr"),
 			Instruction("1nnn", "JP", "%addr"),
 			Instruction("2nnn", "CALL", "%addr"),
-			Instruction("3xnn", "SE", "%vx, %byte"),
-			Instruction("4xnn", "SNE", "%vx, %byte"),
-			Instruction("5xy0", "SE", "%vx, %vy"),
-			Instruction("6xnn", "LD", "%vx, %byte"),
-			Instruction("7xnn", "ADD", "%vx, %byte"),
-			Instruction("8xy0", "LD", "%vx, %vy"),
+			Instruction("3xnn", "SE_n", "%vx, %byte"),
+			Instruction("4xnn", "SNE_n", "%vx, %byte"),
+			Instruction("5xy0", "SE_v", "%vx, %vy"),
+			Instruction("6xnn", "LD_n", "%vx, %byte"),
+			Instruction("7xnn", "ADD_n", "%vx, %byte"),
+			Instruction("8xy0", "LD_v", "%vx, %vy"),
 			Instruction("8xy1", "OR", "%vx, %vy"),
 			Instruction("8xy2", "AND", "%vx, %vy"),
 			Instruction("8xy3", "XOR", "%vx, %vy"),
-			Instruction("8xy4", "ADD", "%vx, %vy"),
+			Instruction("8xy4", "ADD_v", "%vx, %vy"),
 			Instruction("8xy5", "SUB", "%vx, %vy"),
 			Instruction("8xy6", "SHR", "%vx, %vy"),
 			Instruction("8xy7", "SUBN", "%vx, %vy"),
 			Instruction("8xyE", "SHL", "%vx, %vy"),
-			Instruction("9xy0", "SNE", "%vx, %vy"),
-			Instruction("Annn", "LD", "I, %addr"),
-			Instruction("Bnnn", "JP", "V0, %addr"),
+			Instruction("9xy0", "SNE_v", "%vx, %vy"),
+			Instruction("Annn", "LD_addr", "I, %addr"),
+			Instruction("Bnnn", "JP_addr", "V0, %addr"),
 			Instruction("Cxnn", "RND", "%vx, %byte"),
 			Instruction("Dxyn", "DRW", "%vx, %vy, %nibble"),
 			Instruction("Ex9E", "SKP", "%vx"),
 			Instruction("ExA1", "SKNP", "%vx"),
-			Instruction("Fx07", "LD", "%vx, DT"),
-			Instruction("Fx0A", "LD", "%vx, K"),
-			Instruction("Fx15", "LD", "DT, %vx"),
-			Instruction("Fx18", "LD", "ST, %vx"),
-			Instruction("Fx1E", "ADD", "I, %vx"),
-			Instruction("Fx29", "LD", "F, %vx"),
-			Instruction("Fx33", "LD", "B, %vx"),
-			Instruction("Fx55", "LD", "[I], %vx"),
-			Instruction("Fx65", "LD", "%vx, [I]"),
+			Instruction("Fx07", "LD_vx_dt", "%vx, DT"),
+			Instruction("Fx0A", "LD_vx_k", "%vx, K"),
+			Instruction("Fx15", "LD_dt_vx", "DT, %vx"),
+			Instruction("Fx18", "LD_st_vx", "ST, %vx"),
+			Instruction("Fx1E", "ADD_i_vx", "I, %vx"),
+			Instruction("Fx29", "LD_f_vx", "F, %vx"),
+			Instruction("Fx33", "LD_b_vx", "B, %vx"),
+			Instruction("Fx55", "LD_Iptr_vx", "[I], %vx"),
+			Instruction("Fx65", "LD_vx_Iptr", "%vx, [I]"),
 		};
 
 		InstructionFlags IInstructionTable.InstructionFlags
@@ -59,44 +59,34 @@ namespace CSharpCpu.Cpus.Chip8
 			get { return InstructionTable.InstructionFlags; }
 		}
 
+		delegate void AddVarDelegate(string Name, ref int n, int NibbleCount);
+
 		static private InstructionInfo Instruction(string Opcode, string Mnemonic, string Format)
 		{
 			ushort Mask = 0xFFFF;
 			ushort Value = 0x0000;
 			var VarReferenceList = new List<VarReference>();
 
+			AddVarDelegate AddVar = (string Name, ref int n, int NibbleCount) =>
+			{
+				Mask <<= 4 * NibbleCount;
+				Value <<= 4 * NibbleCount;
+				n += NibbleCount - 1;
+				var Shift = (uint)((Opcode.Length - n - 1) * 4);
+				VarReferenceList.Add(new VarReference(Name, Shift, (uint)((1 << (4 * NibbleCount)) - 1)));
+			};
+
 			for (int n = 0; n < Opcode.Length; n++)
 			{
-				uint Shift = (uint)((Opcode.Length - n - 1) * 4);
 				switch (Opcode[n])
 				{
-					case 'x':
-					case 'y':
-						Mask <<= 4;
-						Value <<= 4;
-						VarReferenceList.Add(new VarReference("" + Opcode[n], Shift, 0xF));
-						break;
+					case 'x': case 'y': AddVar("" + Opcode[n], ref n, 1); break;
 					case 'n':
 						switch (Opcode.Substring(n))
 						{
-							case "nnn":
-								n += 2;
-								Mask <<= 12;
-								Value <<= 12;
-								VarReferenceList.Add(new VarReference("nnn", Shift, 0xFFF));
-								break;
-							case "nn":
-								n += 1;
-								Mask <<= 8;
-								Value <<= 8;
-								VarReferenceList.Add(new VarReference("nn", Shift, 0xFF));
-								break;
-							case "n":
-								n += 0;
-								Mask <<= 4;
-								Value <<= 4;
-								VarReferenceList.Add(new VarReference("n", Shift, 0xF));
-								break;
+							case "nnn": AddVar("nnn", ref n, 3); break;
+							case "nn": AddVar("nn", ref n, 2); break;
+							case "n": AddVar("n", ref n, 1); break;
 							default:
 								throw (new Exception("Unexpected"));
 						}

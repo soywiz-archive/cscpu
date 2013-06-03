@@ -1,5 +1,7 @@
-﻿using CSharpCpu.Decoder;
+﻿using CSharpCpu.Cpus;
+using CSharpCpu.Decoder;
 using CSharpCpu.Memory;
+using SafeILGenerator.Ast;
 using SafeILGenerator.Ast.Generators;
 using SafeILGenerator.Ast.Nodes;
 using System;
@@ -13,6 +15,8 @@ namespace CSharpCpu.Z80.Disassembler
 {
 	public class Z80Disassembler
 	{
+		static private AstGenerator ast = AstGenerator.Instance;
+
 		private IMemory1 Memory;
 		public ushort Address;
 		private Func<Func<uint>, string> Decoder;
@@ -44,9 +48,9 @@ namespace CSharpCpu.Z80.Disassembler
 		{
 			var Ins = CSharpCpu.Cpus.Z80.InstructionTable.Instructions;
 
-			var SwitchTree = SwitchGenerator.GenerateSwitch(Ins, (Context) =>
+			var SwitchTree = SwitchGenerator.GenerateSwitchReturnValue<string, InstructionInfo>(Ins, (Context) =>
 			{
-				if (Context.DecoderReference == null) return "Unknown";
+				if (Context.DecoderReference == null) return ast.Return("Unknown");
 
 				var Array = new AstNodeExprNewArray(typeof(uint));
 
@@ -68,11 +72,11 @@ namespace CSharpCpu.Z80.Disassembler
 					return "";
 				});
 
-				return new AstNodeExprCallStatic(
+				return ast.Return(ast.CallStatic(
 					((Func<string, uint[], string>)__DisassembleCallback).Method,
 					Context.DecoderReference.Name,
 					Array
-				);
+				));
 			});
 
 

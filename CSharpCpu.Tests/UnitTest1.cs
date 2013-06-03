@@ -9,12 +9,15 @@ using System.Reflection.Emit;
 using SafeILGenerator.Ast.Optimizers;
 using System.Collections.Generic;
 using CSharpCpu.Cpus;
+using SafeILGenerator.Ast;
 
 namespace CSharpCpu.Tests
 {
 	[TestClass]
 	public class UnitTest1
 	{
+		static private AstGenerator ast = AstGenerator.Instance;
+
 		[TestMethod]
 		public void TestSwitch1()
 		{
@@ -74,10 +77,10 @@ namespace CSharpCpu.Tests
 		private void TestTable(uint[] DefaultSequence, InstructionInfo[] Table)
 		{
 			const string DefaultValue = "!!DEFAULT!!";
-			var SwitchTree = SwitchGenerator.GenerateSwitch(Table, (Context) =>
+			var SwitchTree = SwitchGenerator.GenerateSwitchReturnValue<string, InstructionInfo>(Table, (Context) =>
 			{
-				if (Context.DecoderReference == null) return new AstNodeExprImm(DefaultValue);
-				return new AstNodeExprImm(Context.DecoderReference.Name);
+				if (Context.DecoderReference == null) return ast.Return(ast.Immediate(DefaultValue));
+				return ast.Return(ast.Immediate(Context.DecoderReference.Name));
 			});
 			
 			SwitchTree = (AstNodeStm)(new AstOptimizer().Optimize(SwitchTree));

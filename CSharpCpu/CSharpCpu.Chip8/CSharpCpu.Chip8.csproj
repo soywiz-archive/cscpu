@@ -41,13 +41,20 @@
   <ItemGroup>
     <Compile Include="CpuContext.cs" />
     <Compile Include="Disassembler\Chip8Disassembler.cs" />
+    <Compile Include="IController.cs" />
     <Compile Include="IDisplay.cs" />
     <Compile Include="InstructionTable.cs" />
     <Compile Include="Interpreter\Chip8Interpreter.cs" />
+    <Compile Include="Interpreter\Chip8Interpreter.Implementation.cs" />
     <Compile Include="ISyscall.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Timer.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\SafeILGenerator\SafeILGenerator\SafeILGenerator.csproj">
+      <Project>{9a93c7e4-09da-46cf-b7dd-6bb09681d5ab}</Project>
+      <Name>SafeILGenerator</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CSharpCpu\CSharpCpu.csproj">
       <Project>{2ed8fb95-3c19-40ad-b05e-e677970ec6bd}</Project>
       <Name>CSharpCpu</Name>

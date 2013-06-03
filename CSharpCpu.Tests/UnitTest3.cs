@@ -7,12 +7,14 @@ using SafeILGenerator.Ast.Nodes;
 using SafeILGenerator.Utils;
 using SafeILGenerator.Ast;
 using System.Text.RegularExpressions;
+using CSharpCpu.Cpus;
 
 namespace CSharpCpu.Tests
 {
 	[TestClass]
 	public class UnitTest3
 	{
+		static private AstGenerator ast = AstGenerator.Instance;
 		static Regex MatchArgument = new Regex(@"%\w+", RegexOptions.Compiled);
 
 		[TestMethod]
@@ -20,10 +22,10 @@ namespace CSharpCpu.Tests
 		{
 			var Instructions = CSharpCpu.Cpus.Chip8.InstructionTable.Instructions;
 
-			var SwitchTree = SwitchGenerator.GenerateSwitch(Instructions, (Context) =>
+			var SwitchTree = SwitchGenerator.GenerateSwitchReturnValue<string, InstructionInfo>(Instructions, (Context) =>
 			{
-				if (Context.DecoderReference == null) return "-";
-				return Context.DecoderReference.Name;
+				if (Context.DecoderReference == null) return ast.Return("-");
+				return ast.Return(Context.DecoderReference.Name);
 			});
 
 

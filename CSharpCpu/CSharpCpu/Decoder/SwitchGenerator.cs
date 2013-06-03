@@ -11,6 +11,8 @@ namespace CSharpCpu.Decoder
 {
 	sealed public class SwitchGenerator
 	{
+		static private AstGenerator ast = AstGenerator.Instance;
+
 		public class DecoderContext<TDecoderReference>
 		{
 			public TDecoderReference DecoderReference;
@@ -21,20 +23,38 @@ namespace CSharpCpu.Decoder
 			}
 		}
 
-		static public AstNodeStm GenerateSwitch<TDecoderReference>(IEnumerable<TDecoderReference> AllItems, Func<DecoderContext<TDecoderReference>, AstNodeExpr> Process, uint BaseMask = 0xFFFFFFFF) where TDecoderReference : IDecoderReference
+		static public AstNodeStm GenerateSwitchNoReturnValue<TDecoderReference>(IEnumerable<TDecoderReference> AllItems, Func<DecoderContext<TDecoderReference>, AstNodeStm> Process, uint BaseMask = 0xFFFFFFFF) where TDecoderReference : IDecoderReference
 		{
-			return new SwitchGeneratorInternal<TDecoderReference>() {
-				ReaderArgument = new AstArgument(0, typeof(Func<uint>), "Read"),
-				AllItems = AllItems,
-				Process = Process,
-				BaseMask = BaseMask,
-			}.GenerateSwitch(AllItems, 0);
+			return ast.Statements(
+				new SwitchGeneratorInternal<TDecoderReference>()
+				{
+					ReaderArgument = new AstArgument(0, typeof(Func<uint>), "Read"),
+					AllItems = AllItems,
+					Process = Process,
+					BaseMask = BaseMask,
+				}.GenerateSwitch(AllItems, 0),
+				ast.Return()
+			);
+		}
+
+		static public AstNodeStm GenerateSwitchReturnValue<TReturnType, TDecoderReference>(IEnumerable<TDecoderReference> AllItems, Func<DecoderContext<TDecoderReference>, AstNodeStm> Process, uint BaseMask = 0xFFFFFFFF) where TDecoderReference : IDecoderReference
+		{
+			return ast.Statements(
+				new SwitchGeneratorInternal<TDecoderReference>() {
+					ReaderArgument = new AstArgument(0, typeof(Func<uint>), "Read"),
+					AllItems = AllItems,
+					Process = Process,
+					BaseMask = BaseMask,
+				}.GenerateSwitch(AllItems, 0),
+
+				ast.Return(ast.Immediate(default(TReturnType)))
+			);
 		}
 
 		sealed internal class SwitchGeneratorInternal<TDecoderReference> where TDecoderReference : IDecoderReference
 		{
 			internal AstArgument ReaderArgument;
-			internal Func<DecoderContext<TDecoderReference>, AstNodeExpr> Process;
+			internal Func<DecoderContext<TDecoderReference>, AstNodeStm> Process;
 			internal IEnumerable<TDecoderReference> AllItems;
 			internal uint BaseMask;
 			internal Scope<string, AstLocal> LocalScope = new Scope<string, AstLocal>();
@@ -46,9 +66,9 @@ namespace CSharpCpu.Decoder
 				LocalScope = NewLocalScope;
 				try {
 					LocalScope.GetOrCreate("Word" + ReferenceIndex, () => { return AstLocal.Create(typeof(uint), "Word" + ReferenceIndex); });
-					var Statements = new AstNodeStmContainer();
+					var Statements = ast.Statements();
 					{
-						Statements.AddStatement(new AstNodeStmAssign(new AstNodeExprLocal(LocalScope.Get("Word" + ReferenceIndex)), new AstNodeExprCallDelegate(new AstNodeExprArgument(ReaderArgument))));
+						Statements.AddStatement(ast.Assign(ast.Local(LocalScope.Get("Word" + ReferenceIndex)), ast.CallDelegate(ast.Argument(ReaderArgument))));
 						Statements.AddStatement(_GenerateSwitch(this.BaseMask, Items, ReferenceIndex, 0));
 						Statements.AddStatement(_GenerateLeaf(default(TDecoderReference), ReferenceIndex));
 					}
@@ -77,7 +97,7 @@ namespace CSharpCpu.Decoder
 				//	throw(new Exception("aaa!!"));
 				//}
 
-				var Stats = new AstNodeStmContainer();
+				var Stats = ast.Statements();
 
 				if (DecoderReference != null && DecoderReference.MaskDataVars != null)
 				{
@@ -93,9 +113,9 @@ namespace CSharpCpu.Decoder
 									var Local = LocalScope.GetOrCreate(Var.Name, () => {
 										return AstLocal.Create(typeof(uint), Var.Name);
 									});
-									Stats.AddStatement(new AstNodeStmAssign(
-										new AstNodeExprLocal(Local),
-										new AstNodeExprBinop(new AstNodeExprBinop(new AstNodeExprLocal(LocalScope.Get("Word" + RI)), ">>", Var.Shift), "&", Var.Mask)
+									Stats.AddStatement(ast.Assign(
+										ast.Local(Local),
+										ast.Binary(ast.Binary(ast.Local(LocalScope.Get("Word" + RI)), ">>", Var.Shift), "&", Var.Mask)
 									));
 								}
 							}
@@ -104,13 +124,13 @@ namespace CSharpCpu.Decoder
 					}
 				}
 
-				Stats.AddStatement(new AstNodeStmReturn(Process(
+				Stats.AddStatement(Process(
 					new DecoderContext<TDecoderReference>()
 					{
 						DecoderReference = DecoderReference,
 						Scope = LocalScope,
 					}
-				)));
+				));
 
 				return Stats;
 			}
@@ -184,13 +204,12 @@ namespace CSharpCpu.Decoder
 						//CaseBody = new AstNodeStmReturn(null);
 					}
 
-					Cases.Add(new AstNodeCase(((Group.First().MaskDataVars[ReferenceIndex].Data >> CommonShift) & (CommonMask >> CommonShift)), CaseBody));
+					Cases.Add(ast.Case(((Group.First().MaskDataVars[ReferenceIndex].Data >> CommonShift) & (CommonMask >> CommonShift)), CaseBody));
 				}
 
-				return new AstNodeStmSwitch(
-					new AstNodeExprBinop((new AstNodeExprLocal(LocalScope.Get("Word" + ReferenceIndex))), ">>", CommonShift) & (CommonMask >> CommonShift)
-					, Cases
-					//, new AstNodeCaseDefault(new AstNodeStmReturn(Process(default(TDecoderReference))))
+				return ast.Switch(
+					ast.Binary((ast.Local(LocalScope.Get("Word" + ReferenceIndex))), ">>", CommonShift) & (CommonMask >> CommonShift),
+					Cases.ToArray()
 				);
 			}
 		}

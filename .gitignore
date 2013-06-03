@@ -1,4 +1,4 @@
-/CSharpCpu/*.suo
+*.suo
 /IgnoredSandbox
 obj
 bin

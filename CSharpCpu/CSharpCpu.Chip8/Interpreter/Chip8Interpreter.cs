@@ -1,73 +1,68 @@
-﻿using System;
+﻿using CSharpCpu.Decoder;
+using SafeILGenerator.Ast;
+using SafeILGenerator.Ast.Generators;
+using SafeILGenerator.Ast.Nodes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace CSharpCpu.Cpus.Chip8
+namespace CSharpCpu.Cpus.Chip8.Interpreter
 {
-	public class Chip8Interpreter
+	public sealed partial class Chip8Interpreter
 	{
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="Context"></param>
-		/// <param name="Address"></param>
-		static public void SYS(CpuContext Context, ushort Address)
-		{
-			Context.Syscall.Call(Context, Address);
-		}
+		static private AstGenerator ast = AstGenerator.Instance;
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="Context"></param>
-		/// <param name="Address"></param>
-		static public void JP(CpuContext Context, ushort Address)
+		static public Action<Func<uint>, CpuContext> CreateExecuteStep()
 		{
-			Context.PC = Address;
-		}
+			var SwitchTree = SwitchGenerator.GenerateSwitchNoReturnValue(InstructionTable.Instructions, (Context) =>
+			{
+				if (Context.DecoderReference == null)
+				{
+					return ast.Statements(
+						ast.Statement(ast.CallStatic((Action<CpuContext>)Chip8Interpreter.INVALID, ast.Argument<CpuContext>(1))),
+						ast.Return()
+					);
+				}
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="Context"></param>
-		/// <param name="Address"></param>
-		static public void CALL(CpuContext Context, ushort Address)
-		{
-			Context.CallStack.Push(Address);
-			JP(Context, Address);
-		}
+				var InstructionInfo = Context.DecoderReference;
+				var MethodInfo = typeof(Chip8Interpreter).GetMethod(Context.DecoderReference.Name);
 
-		//Instruction("3xnn", "SE", "%vx, %byte"),
-		//Instruction("4xnn", "SNE", "%vx, %byte"),
-		//Instruction("5xy0", "SE", "%vx, %vy"),
-		//Instruction("6xnn", "LD", "%vx, %byte"),
-		//Instruction("7xnn", "ADD", "%vx, %byte"),
-		//Instruction("8xy0", "LD", "%vx, %vy"),
-		//Instruction("8xy1", "OR", "%vx, %vy"),
-		//Instruction("8xy2", "AND", "%vx, %vy"),
-		//Instruction("8xy3", "XOR", "%vx, %vy"),
-		//Instruction("8xy4", "ADD", "%vx, %vy"),
-		//Instruction("8xy5", "SUB", "%vx, %vy"),
-		//Instruction("8xy6", "SHR", "%vx, %vy"),
-		//Instruction("8xy7", "SUBN", "%vx, %vy"),
-		//Instruction("8xyE", "SHL", "%vx, %vy"),
-		//Instruction("9xy0", "SNE", "%vx, %vy"),
-		//Instruction("Annn", "LD", "I, %addr"),
-		//Instruction("Bnnn", "JP", "V0, %addr"),
-		//Instruction("Cxnn", "RND", "%vx, %byte"),
-		//Instruction("Dxyn", "DRW", "%vx, %vy, %nibble"),
-		//Instruction("Ex9E", "SKP", "%vx"),
-		//Instruction("ExA1", "SKNP", "%vx"),
-		//Instruction("Fx07", "LD", "%vx, DT"),
-		//Instruction("Fx0A", "LD", "%vx, K"),
-		//Instruction("Fx15", "LD", "DT, %vx"),
-		//Instruction("Fx18", "LD", "ST, %vx"),
-		//Instruction("Fx1E", "ADD", "I, %vx"),
-		//Instruction("Fx29", "LD", "F, %vx"),
-		//Instruction("Fx33", "LD", "B, %vx"),
-		//Instruction("Fx55", "LD", "[I], %vx"),
-		//Instruction("Fx65", "LD", "%vx, [I]"),
+				if (MethodInfo == null)
+				{
+					throw (new NotImplementedException(String.Format("Can't find implementation for '{0}'", Context.DecoderReference.Name)));
+				}
+
+				var Parameters = new List<AstNodeExpr>();
+				Parameters.Add(ast.Argument<CpuContext>(1));
+				new Regex(@"%\w+").Replace(InstructionInfo.Format, (Match) =>
+				{
+					switch (Match.ToString())
+					{
+						case "%addr": Parameters.Add(ast.Cast<ushort>(ast.Local(Context.Scope.Get("nnn")))); break;
+						case "%vx": Parameters.Add(ast.Cast<byte>(ast.Local(Context.Scope.Get("x")))); break;
+						case "%vy": Parameters.Add(ast.Cast<byte>(ast.Local(Context.Scope.Get("y")))); break;
+						case "%byte": Parameters.Add(ast.Cast<byte>(ast.Local(Context.Scope.Get("nn")))); break;
+						case "%nibble": Parameters.Add(ast.Cast<byte>(ast.Local(Context.Scope.Get("n")))); break;
+						default: throw(new Exception(Match.ToString()));
+					}
+					return "";
+				});
+
+				return ast.Statements(
+					ast.Statement(ast.CallStatic(MethodInfo, Parameters.ToArray())),
+					ast.Return()
+				);
+			});
+
+			//Console.WriteLine(GeneratorCSharp.GenerateString(SwitchTree));
+
+			return GeneratorIL.GenerateDelegate<GeneratorIL, Action<Func<uint>, CpuContext>>("ExecuteNext", SwitchTree);
+
+			// SwitchCode
+			//return 
+		}
 	}
 }

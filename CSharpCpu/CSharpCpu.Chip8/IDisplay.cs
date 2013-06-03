@@ -9,6 +9,7 @@ namespace CSharpCpu.Cpus.Chip8
 {
 	public interface IDisplay
 	{
-		void Draw(IMemory4 Memory, byte X, byte Y, byte N);
+		void Draw(ref ushort I, ref byte VF, IMemory2 Memory, byte X, byte Y, byte N);
+		void Clear();
 	}
 }
