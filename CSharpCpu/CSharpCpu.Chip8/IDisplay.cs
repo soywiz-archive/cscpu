@@ -11,5 +11,6 @@ namespace CSharpCpu.Cpus.Chip8
 	{
 		void Draw(ref ushort I, ref byte VF, IMemory2 Memory, byte X, byte Y, byte N);
 		void Clear();
+		void Update();
 	}
 }

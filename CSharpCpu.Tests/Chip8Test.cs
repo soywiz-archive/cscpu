@@ -1,4 +1,5 @@
-﻿using CSharpCpu.Cpus.Chip8;
+﻿using CSharpCpu.Chip8;
+using CSharpCpu.Cpus.Chip8;
 using CSharpCpu.Cpus.Chip8.Interpreter;
 using CSharpCpu.Memory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -21,13 +22,42 @@ namespace CSharpCpu.Tests
 			}
 		}
 
+		class Display : IDisplay
+		{
+			public void Draw(ref ushort I, ref byte VF, IMemory2 Memory, byte X, byte Y, byte N)
+			{
+				throw new NotImplementedException();
+			}
+
+			public void Clear()
+			{
+				throw new NotImplementedException();
+			}
+
+			public void Update()
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		class Controller : IController
+		{
+			public bool IsPressed(byte Key)
+			{
+				throw new NotImplementedException();
+			}
+
+			public byte? GetPressMask()
+			{
+				throw new NotImplementedException();
+			}
+		}
+
 		[TestMethod]
 		public void TestInterpreter()
 		{
 			var ExecuteStep = Chip8Interpreter.CreateExecuteStep();
-			var CpuContext = new CpuContext();
-			CpuContext.Syscall = new Syscall();
-			CpuContext.Memory = new SimpleFastMemory4(16);
+			var CpuContext = new CpuContext(new SimpleFastMemory4(12), new Display(), new Syscall(), new Controller());
 
 			var Instructions = new ushort[] {
 				0x70FF,

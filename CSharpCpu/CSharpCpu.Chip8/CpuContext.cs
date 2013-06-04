@@ -13,15 +13,24 @@ namespace CSharpCpu.Cpus.Chip8
 		public ushort PC;
 		public byte[] V = new byte[16];
 		public ushort I;
-		public Random Random = new Random();
+		public readonly Random Random = new Random();
 
-		public IMemory2 Memory;
-		public IDisplay Display;
-		public ISyscall Syscall;
-		public IController Controller;
+		public readonly IMemory2 Memory;
+		public readonly IDisplay Display;
+		public readonly ISyscall Syscall;
+		public readonly IController Controller;
 		public Timer DelayTimer = new Timer("Delay");
 		public Timer SoundTimer = new Timer("Sound");
 		public Stack<ushort> CallStack = new Stack<ushort>();
+
+		public CpuContext(IMemory2 Memory, IDisplay Display, ISyscall Syscall, IController Controller)
+		{
+			this.Memory = Memory;
+			this.Display = Display;
+			this.Syscall = Syscall;
+			this.Controller = Controller;
+		}
+
 		//public Func<uint> ReadInstruction;
 		public void WriteInstruction(ushort Instruction)
 		{
@@ -44,6 +53,7 @@ namespace CSharpCpu.Cpus.Chip8
 		{
 			DelayTimer.Update();
 			SoundTimer.Update();
+			Display.Update();
 		}
 	}
 }
