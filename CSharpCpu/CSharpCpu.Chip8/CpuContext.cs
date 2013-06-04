@@ -39,21 +39,16 @@ namespace CSharpCpu.Cpus.Chip8
 		}
 		public uint ReadInstruction()
 		{
-			try
-			{
-				return Memory.Read2(PC);
-			}
-			finally
-			{
-				PC += 2;
-			}
+			var Readed = Memory.Read2(PC);
+			PC += 2;
+			return Readed;
 		}
 
 		public void Update()
 		{
 			DelayTimer.Update();
 			SoundTimer.Update();
-			Display.Update();
+			//Display.Update();
 		}
 	}
 }
