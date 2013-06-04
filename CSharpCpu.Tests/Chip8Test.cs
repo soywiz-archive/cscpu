@@ -24,7 +24,7 @@ namespace CSharpCpu.Tests
 
 		class Display : IDisplay
 		{
-			public void Draw(ref ushort I, ref byte VF, IMemory2 Memory, byte X, byte Y, byte N)
+			public void Draw(ref ushort I, ref byte VF, IMemory1 Memory, byte X, byte Y, byte N)
 			{
 				throw new NotImplementedException();
 			}
@@ -57,7 +57,7 @@ namespace CSharpCpu.Tests
 		public void TestInterpreter()
 		{
 			var ExecuteStep = Chip8Interpreter.CreateExecuteStep();
-			var CpuContext = new CpuContext(new SimpleFastMemory4(12), new Display(), new Syscall(), new Controller());
+			var CpuContext = new CpuContext(new SimpleFastMemory4BigEndian(12), new Display(), new Syscall(), new Controller());
 
 			var Instructions = new ushort[] {
 				0x70FF,

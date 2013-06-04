@@ -20,16 +20,10 @@ namespace CSharpCpu.Cpus.Chip8.Interpreter
 			switch (Address)
 			{
 				// Clears the screen.
-				case 0x0E0:
-					Context.Display.Clear();
-					break;
+				case 0x0E0: Context.Display.Clear(); break;
 				// Returns from a subroutine.
-				case 0x0EE:
-					Context.PC = Context.CallStack.Pop();
-					break;
-				default:
-					Context.Syscall.Call(Context, Address);
-					break;
+				case 0x0EE: Context.PC = Context.CallStack.Pop(); break;
+				default: Context.Syscall.Call(Context, Address); break;
 			}
 		}
 
@@ -50,7 +44,7 @@ namespace CSharpCpu.Cpus.Chip8.Interpreter
 		/// <param name="Address"></param>
 		static public void CALL(CpuContext Context, ushort Address)
 		{
-			Context.CallStack.Push(Address);
+			Context.CallStack.Push(Context.PC);
 			JP(Context, Address);
 		}
 
@@ -88,6 +82,17 @@ namespace CSharpCpu.Cpus.Chip8.Interpreter
 		}
 
 		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="Context"></param>
+		/// <param name="X"></param>
+		/// <param name="Y"></param>
+		static public void SNE_v(CpuContext Context, byte X, byte Y)
+		{
+			if (Context.V[X] != Context.V[Y]) Context.PC += 2;
+		}
+
+		/// <summary>
 		/// 6XNN: Sets VX to NN.
 		/// </summary>
 		/// <param name="Context"></param>
@@ -118,10 +123,13 @@ namespace CSharpCpu.Cpus.Chip8.Interpreter
 		static private void _SUB(CpuContext Context, byte X, byte Value)
 		{
 			Context.V[15] = (byte)(((Context.V[X] > Value)) ? 1 : 0);
-			Context.V[X] += Value;
+			Context.V[X] -= Value;
 		}
 
-		static public void ADD_n(CpuContext Context, byte X, byte Byte) { _ADD(Context, X, Byte); }
+		static public void ADD_n(CpuContext Context, byte X, byte Byte) {
+			_ADD(Context, X, Byte);
+			//Context.V[X] += Byte;
+		}
 		static public void ADD_v(CpuContext Context, byte X, byte Y) { _ADD(Context, X, Context.V[Y]); }
 		static public void OR(CpuContext Context, byte X, byte Y) { Context.V[X] |= Context.V[Y]; }
 		static public void AND(CpuContext Context, byte X, byte Y) { Context.V[X] &= Context.V[Y]; }
@@ -131,8 +139,6 @@ namespace CSharpCpu.Cpus.Chip8.Interpreter
 		static public void SHR(CpuContext Context, byte X, byte Y) { throw (new NotImplementedException()); }
 		static public void SUBN(CpuContext Context, byte X, byte Y) { throw (new NotImplementedException()); }
 		static public void SHL(CpuContext Context, byte X, byte Y) { throw (new NotImplementedException()); }
-
-		static public void SNE_v(CpuContext Context, byte X, byte Y) { throw (new NotImplementedException()); }
 
 		/// <summary>
 		/// Annn: Sets I to the address NNN.
@@ -177,7 +183,8 @@ namespace CSharpCpu.Cpus.Chip8.Interpreter
 		/// <param name="Nibble"></param>
 		static public void DRW(CpuContext Context, byte X, byte Y, byte Nibble)
 		{
-			Context.Display.Draw(ref Context.I, ref Context.V[15], Context.Memory, X, Y, Nibble);
+			//Console.WriteLine("Draw({0}, {1}, {2})", Context.V[X], Context.V[Y], Nibble);
+			Context.Display.Draw(ref Context.I, ref Context.V[15], Context.Memory, Context.V[X], Context.V[Y], Nibble);
 		}
 
 		/// <summary>
@@ -210,6 +217,7 @@ namespace CSharpCpu.Cpus.Chip8.Interpreter
 		/// <param name="X"></param>
 		static public void LD_vx_dt(CpuContext Context, byte X)
 		{
+			//Console.WriteLine("{0}", Context.DelayTimer.Value);
 			Context.V[X] = Context.DelayTimer.Value;
 		}
 
