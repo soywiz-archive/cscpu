@@ -222,7 +222,6 @@ namespace CSharpCpu.Cpus.Chip8.Interpreter
 		/// <param name="X"></param>
 		static public void LD_vx_k(CpuContext Context, byte X)
 		{
-			Context.Controller.WaitPressed();
 			var Ret = Context.Controller.GetPressMask();
 			if (Ret.HasValue)
 			{

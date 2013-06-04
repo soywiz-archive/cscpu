@@ -7,7 +7,6 @@ namespace CSharpCpu.Chip8
 {
 	public interface IController
 	{
-		void WaitPressed();
 		bool IsPressed(byte Key);
 		byte? GetPressMask();
 	}

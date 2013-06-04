@@ -22,6 +22,15 @@ namespace CSharpCpu.Cpus.Chip8
 		public Timer DelayTimer = new Timer("Delay");
 		public Timer SoundTimer = new Timer("Sound");
 		public Stack<ushort> CallStack = new Stack<ushort>();
+
+		public CpuContext(IMemory2 Memory, IDisplay Display, ISyscall Syscall, IController Controller)
+		{
+			this.Memory = Memory;
+			this.Display = Display;
+			this.Syscall = Syscall;
+			this.Controller = Controller;
+		}
+
 		//public Func<uint> ReadInstruction;
 		public void WriteInstruction(ushort Instruction)
 		{
