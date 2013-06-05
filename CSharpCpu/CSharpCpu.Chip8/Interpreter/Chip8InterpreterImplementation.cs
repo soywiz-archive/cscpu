@@ -6,26 +6,36 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CSharpCpu.Cpus.Chip8.Interpreter
+namespace CSharpCpu.Chip8.Interpreter
 {
-	public sealed partial class Chip8Interpreter
+	public sealed class Chip8InterpreterImplementation
 	{
-		/// <summary>
-		/// 0NNN: Calls RCA 1802 program at address NNN.
-		/// </summary>
-		/// <param name="Context"></param>
-		/// <param name="Address"></param>
-		static public void SYS(CpuContext Context, ushort Address)
+		static public void CLS(CpuContext Context)
 		{
-			switch (Address)
-			{
-				// Clears the screen.
-				case 0x0E0: Context.Display.Clear(); break;
-				// Returns from a subroutine.
-				case 0x0EE: Context.PC = Context.CallStack.Pop(); break;
-				default: Context.Syscall.Call(Context, Address); break;
-			}
+			Context.Display.Clear();
 		}
+
+		static public void RET(CpuContext Context)
+		{
+			Context.PC = Context.CallStack.Pop();
+		}
+
+		///// <summary>
+		///// 0NNN: Calls RCA 1802 program at address NNN.
+		///// </summary>
+		///// <param name="Context"></param>
+		///// <param name="Address"></param>
+		//static public void SYS(CpuContext Context, ushort Address)
+		//{
+		//	switch (Address)
+		//	{
+		//		// Clears the screen.
+		//		case 0x0E0: Context.Display.Clear(); break;
+		//		// Returns from a subroutine.
+		//		case 0x0EE: Context.PC = Context.CallStack.Pop(); break;
+		//		default: Context.Syscall.Call(Context, Address); break;
+		//	}
+		//}
 
 		/// <summary>
 		/// 1NNN: Jumps to address NNN.
@@ -126,7 +136,8 @@ namespace CSharpCpu.Cpus.Chip8.Interpreter
 			Context.V[X] -= Value;
 		}
 
-		static public void ADD_n(CpuContext Context, byte X, byte Byte) {
+		static public void ADD_n(CpuContext Context, byte X, byte Byte)
+		{
 			_ADD(Context, X, Byte);
 			//Context.V[X] += Byte;
 		}
@@ -135,7 +146,7 @@ namespace CSharpCpu.Cpus.Chip8.Interpreter
 		static public void AND(CpuContext Context, byte X, byte Y) { Context.V[X] &= Context.V[Y]; }
 		static public void XOR(CpuContext Context, byte X, byte Y) { Context.V[X] ^= Context.V[Y]; }
 		static public void SUB(CpuContext Context, byte X, byte Y) { _SUB(Context, X, Context.V[Y]); }
-		
+
 		static public void SHR(CpuContext Context, byte X, byte Y) { throw (new NotImplementedException()); }
 		static public void SUBN(CpuContext Context, byte X, byte Y) { throw (new NotImplementedException()); }
 		static public void SHL(CpuContext Context, byte X, byte Y) { throw (new NotImplementedException()); }
@@ -170,7 +181,7 @@ namespace CSharpCpu.Cpus.Chip8.Interpreter
 		{
 			Context.V[X] = (byte)(Context.Random.Next() & Byte);
 		}
-		
+
 		/// <summary>
 		/// Dxyn: Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels.
 		/// Each row of 8 pixels is read as bit-coded (with the most significant bit of each byte displayed on the left)
@@ -230,14 +241,19 @@ namespace CSharpCpu.Cpus.Chip8.Interpreter
 		/// <param name="X"></param>
 		static public void LD_vx_k(CpuContext Context, byte X)
 		{
-			var Ret = Context.Controller.GetPressMask();
-			if (Ret.HasValue)
+			while (true)
 			{
-				Context.V[X] = Ret.Value;
-			}
-			else
-			{
-				Context.PC -= 2;
+				var Ret = Context.Controller.GetPressMask();
+				if (Ret.HasValue)
+				{
+					Context.V[X] = Ret.Value;
+					return;
+				}
+				else
+				{
+					Thread.Sleep(1);
+					continue;
+				}
 			}
 		}
 
@@ -325,7 +341,7 @@ namespace CSharpCpu.Cpus.Chip8.Interpreter
 				Context.V[n] = Context.Memory.Read1(Context.I++);
 			}
 		}
-		
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -335,4 +351,5 @@ namespace CSharpCpu.Cpus.Chip8.Interpreter
 			throw (new Exception("Invalid instruction!"));
 		}
 	}
+
 }

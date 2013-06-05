@@ -28,7 +28,7 @@ namespace CSharpCpu.Decoder
 			return ast.Statements(
 				new SwitchGeneratorInternal<TDecoderReference>()
 				{
-					ReaderArgument = new AstArgument(0, typeof(Func<uint>), "Read"),
+					ReaderArgument = new AstArgument(0, typeof(SwitchReadWordDelegate), "Read"),
 					AllItems = AllItems,
 					Process = Process,
 					BaseMask = BaseMask,
@@ -41,7 +41,7 @@ namespace CSharpCpu.Decoder
 		{
 			return ast.Statements(
 				new SwitchGeneratorInternal<TDecoderReference>() {
-					ReaderArgument = new AstArgument(0, typeof(Func<uint>), "Read"),
+					ReaderArgument = new AstArgument(0, typeof(SwitchReadWordDelegate), "Read"),
 					AllItems = AllItems,
 					Process = Process,
 					BaseMask = BaseMask,

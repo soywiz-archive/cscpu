@@ -88,7 +88,7 @@ namespace CSharpCpu.Tests
 			var SwitchString = GeneratorCSharp.GenerateString<GeneratorCSharp>(SwitchTree);
 			Console.WriteLine(SwitchString);
 
-			var Func = GeneratorIL.GenerateDelegate<GeneratorIL, Func<Func<uint>, String>>("Decoder", SwitchTree);
+			var Func = GeneratorIL.GenerateDelegate<GeneratorIL, Func<SwitchReadWordDelegate, String>>("Decoder", SwitchTree);
 
 			Func<uint[], string> Decode = (Data) =>
 			{

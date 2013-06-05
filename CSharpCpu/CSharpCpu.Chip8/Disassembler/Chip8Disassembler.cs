@@ -18,7 +18,7 @@ namespace CSharpCpu.Cpus.Chip8.Disassembler
 
 		private IMemory2 Memory;
 		public ushort Address;
-		private Func<Func<uint>, string> Decoder;
+		private Func<SwitchReadWordDelegate, string> Decoder;
 
 		public Chip8Disassembler(IMemory2 Memory)
 		{
@@ -43,7 +43,7 @@ namespace CSharpCpu.Cpus.Chip8.Disassembler
 			});
 		}
 
-		static private Lazy<Func<Func<uint>, string>> LazyDecoder = new Lazy<Func<Func<uint>, string>>(() =>
+		static private Lazy<Func<SwitchReadWordDelegate, string>> LazyDecoder = new Lazy<Func<SwitchReadWordDelegate, string>>(() =>
 		{
 			var Ins = InstructionTable.Instructions;
 
@@ -74,7 +74,7 @@ namespace CSharpCpu.Cpus.Chip8.Disassembler
 
 			//Console.WriteLine(GeneratorCSharp.GenerateString<GeneratorCSharp>(SwitchTree));
 
-			return GeneratorIL.GenerateDelegate<GeneratorIL, Func<Func<uint>, String>>("Decoder", SwitchTree);
+			return GeneratorIL.GenerateDelegate<GeneratorIL, Func<SwitchReadWordDelegate, String>>("Decoder", SwitchTree);
 		});
 	}
 }

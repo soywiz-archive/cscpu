@@ -11,6 +11,7 @@ namespace CSharpCpu.Cpus
 		public string Name;
 		public string Format;
 		public MaskDataVars[] MaskDataVarsList;
+		public InstructionType InstructionType;
 
 		public InstructionInfo(string Name, string Format, IEnumerable<MaskDataVars> MaskDataVarsList)
 		{

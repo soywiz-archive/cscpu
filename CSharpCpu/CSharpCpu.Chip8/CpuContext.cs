@@ -31,7 +31,7 @@ namespace CSharpCpu.Cpus.Chip8
 			this.Controller = Controller;
 		}
 
-		//public Func<uint> ReadInstruction;
+		//public SwitchReadWordDelegate ReadInstruction;
 		public void WriteInstruction(ushort Instruction)
 		{
 			Memory.Write2(PC, Instruction);

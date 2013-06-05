@@ -19,7 +19,7 @@ namespace CSharpCpu.Z80.Disassembler
 
 		private IMemory1 Memory;
 		public ushort Address;
-		private Func<Func<uint>, string> Decoder;
+		private Func<SwitchReadWordDelegate, string> Decoder;
 
 		public Z80Disassembler(IMemory1 Memory)
 		{
@@ -44,7 +44,7 @@ namespace CSharpCpu.Z80.Disassembler
 			});
 		}
 
-		static private Lazy<Func<Func<uint>, string>> LazyDecoder = new Lazy<Func<Func<uint>,string>>(() => 
+		static private Lazy<Func<SwitchReadWordDelegate, string>> LazyDecoder = new Lazy<Func<SwitchReadWordDelegate, string>>(() => 
 		{
 			var Ins = CSharpCpu.Cpus.Z80.InstructionTable.Instructions;
 
@@ -82,7 +82,7 @@ namespace CSharpCpu.Z80.Disassembler
 
 			//Console.WriteLine(GeneratorCSharp.GenerateString<GeneratorCSharp>(SwitchTree));
 
-			return GeneratorIL.GenerateDelegate<GeneratorIL, Func<Func<uint>, String>>("Decoder", SwitchTree);
+			return GeneratorIL.GenerateDelegate<GeneratorIL, Func<SwitchReadWordDelegate, String>>("Decoder", SwitchTree);
 		});
 	}
 }
