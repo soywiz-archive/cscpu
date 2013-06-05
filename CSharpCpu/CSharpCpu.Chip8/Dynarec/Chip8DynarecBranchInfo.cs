@@ -12,6 +12,7 @@ namespace CSharpCpu.Chip8.Dynarec
 {
 	public sealed class Chip8DynarecBranchInfo
 	{
+		static public BranchResult RET(BranchContext Context) { return new BranchResult(BranchType.UnknownDestination); }
 		static public BranchResult JP(BranchContext Context, ushort Address) { return new BranchResult(BranchType.FixedDestination, Address); }
 		static public BranchResult CALL(BranchContext Context, ushort Address) { return new BranchResult(BranchType.FixedDestination, Address); }
 		static public BranchResult SE_n(BranchContext Context, byte X, byte Byte) { return new BranchResult(BranchType.FixedDestination, Context.EndInstructionAddress + 2); }
