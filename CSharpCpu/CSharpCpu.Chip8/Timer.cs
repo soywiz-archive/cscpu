@@ -7,10 +7,16 @@ namespace CSharpCpu.Chip8
 {
 	public class Timer
 	{
+		static public Timer _NullInstance = new Timer();
+
 		public string Name;
 		public byte Value;
 		//private 
 		private DateTime StartDateTime = DateTime.UtcNow;
+
+		private Timer()
+		{
+		}
 
 		public Timer(string Name)
 		{

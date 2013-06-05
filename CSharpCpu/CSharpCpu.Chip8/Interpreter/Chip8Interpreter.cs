@@ -37,8 +37,11 @@ namespace CSharpCpu.Cpus.Chip8.Interpreter
 					throw (new NotImplementedException(String.Format("Can't find implementation for '{0}'", Context.DecoderReference.Name)));
 				}
 
+				var Parameters = InstructionTable.ParseParameters(InstructionInfo, Scope);
+				Parameters.Insert(0, ast.Argument<CpuContext>(1));
+
 				return ast.Statements(
-					ast.Statement(ast.CallStatic(MethodInfo, InstructionTable.ParseParameters(InstructionInfo, Scope, true))),
+					ast.Statement(ast.CallStatic(MethodInfo, Parameters.ToArray())),
 					ast.Return()
 				);
 			});

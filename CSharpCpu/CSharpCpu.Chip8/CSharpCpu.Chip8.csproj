@@ -20,6 +20,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -28,6 +29,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -44,6 +46,7 @@
     <Compile Include="Dynarec\Chip8Dynarec.cs" />
     <Compile Include="Dynarec\Chip8DynarecImplementation.cs" />
     <Compile Include="Dynarec\Chip8DynarecBranchInfo.cs" />
+    <Compile Include="Dynarec\DynarecContextChip8.cs" />
     <Compile Include="IController.cs" />
     <Compile Include="IDisplay.cs" />
     <Compile Include="InstructionTable.cs" />

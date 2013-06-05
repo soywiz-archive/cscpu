@@ -195,7 +195,7 @@ namespace CSharpCpu.Chip8.Interpreter
 		static public void DRW(CpuContext Context, byte X, byte Y, byte Nibble)
 		{
 			//Console.WriteLine("Draw({0}, {1}, {2})", Context.V[X], Context.V[Y], Nibble);
-			Context.Display.Draw(ref Context.I, ref Context.V[15], Context.Memory, Context.V[X], Context.V[Y], Nibble);
+			Context.Display.Draw(ref Context.I, ref Context.V15, Context.Memory, Context.V[X], Context.V[Y], Nibble);
 		}
 
 		/// <summary>

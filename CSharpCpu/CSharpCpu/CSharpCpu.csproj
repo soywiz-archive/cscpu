@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Cpus\AstNodeStmCpuInstruction.cs" />
     <Compile Include="Cpus\Dynarec\BranchContext.cs" />
+    <Compile Include="Cpus\Dynarec\DynarecContext.cs" />
     <Compile Include="Cpus\Dynarec\InstructionDynarecInfo.cs" />
     <Compile Include="Cpus\InstructionType.cs" />
     <Compile Include="Decoder\SwitchReadWordDelegate.cs" />
