@@ -29,6 +29,7 @@ namespace CSharpCpu.Cpus.Chip8.Interpreter
 				}
 
 				var InstructionInfo = Context.DecoderReference;
+				var Scope = Context.Scope;
 				var MethodInfo = typeof(Chip8InterpreterImplementation).GetMethod(Context.DecoderReference.Name);
 
 				if (MethodInfo == null)
@@ -36,24 +37,8 @@ namespace CSharpCpu.Cpus.Chip8.Interpreter
 					throw (new NotImplementedException(String.Format("Can't find implementation for '{0}'", Context.DecoderReference.Name)));
 				}
 
-				var Parameters = new List<AstNodeExpr>();
-				Parameters.Add(ast.Argument<CpuContext>(1));
-				new Regex(@"%\w+").Replace(InstructionInfo.Format, (Match) =>
-				{
-					switch (Match.ToString())
-					{
-						case "%addr": Parameters.Add(ast.Cast<ushort>(ast.Local(Context.Scope.Get("nnn")))); break;
-						case "%vx": Parameters.Add(ast.Cast<byte>(ast.Local(Context.Scope.Get("x")))); break;
-						case "%vy": Parameters.Add(ast.Cast<byte>(ast.Local(Context.Scope.Get("y")))); break;
-						case "%byte": Parameters.Add(ast.Cast<byte>(ast.Local(Context.Scope.Get("nn")))); break;
-						case "%nibble": Parameters.Add(ast.Cast<byte>(ast.Local(Context.Scope.Get("n")))); break;
-						default: throw(new Exception(Match.ToString()));
-					}
-					return "";
-				});
-
 				return ast.Statements(
-					ast.Statement(ast.CallStatic(MethodInfo, Parameters.ToArray())),
+					ast.Statement(ast.CallStatic(MethodInfo, InstructionTable.ParseParameters(InstructionInfo, Scope, true))),
 					ast.Return()
 				);
 			});

@@ -9,17 +9,27 @@ using System.Threading.Tasks;
 
 namespace CSharpCpu.Cpus.Dynarec
 {
-	public delegate AstNode GenerateDynarecCodeDelgate(InstructionInfo InstructionInfo, Scope<string, AstLocal> VariableScope);
+	//public delegate AstNode GenerateDynarecCodeDelgate(InstructionInfo InstructionInfo, Scope<string, AstLocal> VariableScope);
 
 	public class InstructionDynarecInfo
 	{
 		public InstructionInfo InstructionInfo;
-		public GenerateDynarecCodeDelgate GenerateDynarecCode;
+		public uint[] Params;
 
-		public InstructionDynarecInfo(InstructionInfo InstructionInfo, GenerateDynarecCodeDelgate GenerateDynarecCode)
+		public InstructionDynarecInfo(InstructionInfo InstructionInfo, uint[] Params)
 		{
 			this.InstructionInfo = InstructionInfo;
-			this.GenerateDynarecCode = GenerateDynarecCode;
+			this.Params = Params;
+			//this.GenerateDynarecCode = GenerateDynarecCode;
+		}
+
+		public override string ToString()
+		{
+			return String.Format(
+				"InstructionDynarecInfo({0}, [{1}])",
+				InstructionInfo.ToString(),
+				String.Join(", ", Params)
+			);
 		}
 	}
 }

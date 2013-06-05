@@ -1,8 +1,11 @@
 ﻿using CSharpCpu.Decoder;
+using SafeILGenerator.Ast;
+using SafeILGenerator.Ast.Nodes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace CSharpCpu.Cpus.Chip8
@@ -107,6 +110,28 @@ namespace CSharpCpu.Cpus.Chip8
 			{
 				InstructionType = InstructionType,
 			};
+		}
+
+		static private AstGenerator ast = AstGenerator.Instance;
+
+		public static AstNodeExpr[] ParseParameters(InstructionInfo InstructionInfo, Scope<string, AstLocal> Scope, bool PushCpuContext)
+		{
+			var Parameters = new List<AstNodeExpr>();
+			if (PushCpuContext) Parameters.Add(ast.Argument<CpuContext>(1));
+			new Regex(@"%\w+").Replace(InstructionInfo.Format, (Match) =>
+			{
+				switch (Match.ToString())
+				{
+					case "%addr": Parameters.Add(ast.Cast<ushort>(ast.Local(Scope.Get("nnn")))); break;
+					case "%vx": Parameters.Add(ast.Cast<byte>(ast.Local(Scope.Get("x")))); break;
+					case "%vy": Parameters.Add(ast.Cast<byte>(ast.Local(Scope.Get("y")))); break;
+					case "%byte": Parameters.Add(ast.Cast<byte>(ast.Local(Scope.Get("nn")))); break;
+					case "%nibble": Parameters.Add(ast.Cast<byte>(ast.Local(Scope.Get("n")))); break;
+					default: throw (new Exception(Match.ToString()));
+				}
+				return "";
+			});
+			return Parameters.ToArray();
 		}
 	}
 }

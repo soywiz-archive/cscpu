@@ -13,6 +13,21 @@ namespace CSharpCpu.Cpus
 		public MaskDataVars[] MaskDataVarsList;
 		public InstructionType InstructionType;
 
+		public bool IsJump
+		{
+			get { return InstructionType == InstructionType.JumpAlways || InstructionType == InstructionType.Jump || InstructionType == InstructionType.Call; }
+		}
+
+		public bool IsJumpSometimes
+		{
+			get { return InstructionType == InstructionType.Jump || InstructionType == InstructionType.Call; }
+		}
+
+		public bool IsStopAnalyzing
+		{
+			get { return InstructionType == InstructionType.JumpAlways || InstructionType == InstructionType.Return; }
+		}
+
 		public InstructionInfo(string Name, string Format, IEnumerable<MaskDataVars> MaskDataVarsList)
 		{
 			this.Name = Name;
@@ -32,9 +47,10 @@ namespace CSharpCpu.Cpus
 		public override string ToString()
 		{
 			return String.Format(
-				"InstructionInfo('{0}', [{1}])",
+				"InstructionInfo('{0}', [{1}], {2})",
 				Name,
-				String.Join(",", MaskDataVarsList.Select(Item => Item.ToString()))
+				String.Join(",", MaskDataVarsList.Select(Item => Item.ToString())),
+				InstructionType
 			);
 		}
 
