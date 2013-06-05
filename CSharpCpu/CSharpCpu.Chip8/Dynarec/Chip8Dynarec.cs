@@ -6,6 +6,7 @@ using CSharpCpu.Memory;
 using SafeILGenerator.Ast;
 using SafeILGenerator.Ast.Generators;
 using SafeILGenerator.Ast.Nodes;
+using SafeILGenerator.Ast.Optimizers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -140,12 +141,15 @@ namespace CSharpCpu.Chip8.Dynarec
 
 		static public Action<CpuContext> CreateDynarecFunction(IMemory2 Memory, uint PC)
 		{
-			return GeneratorIL.GenerateDelegate<GeneratorIL, Action<CpuContext>>(String.Format("Method_{0:X8}", PC), AnalyzeFunction(Memory, PC));
+			var Ast = AnalyzeFunction(Memory, PC);
+			Ast = (AstNodeStm)(new AstOptimizer().Optimize(Ast));
+			Console.WriteLine(GeneratorCSharp.GenerateString(Ast));
+			return GeneratorIL.GenerateDelegate<GeneratorIL, Action<CpuContext>>(String.Format("Method_{0:X8}", PC), Ast);
 		}
 
 		static public AstNodeStm AnalyzeFunction(IMemory2 Memory, uint PC)
 		{
-			Console.WriteLine(PC);
+			Console.WriteLine("AnalyzeFunction: {0:X8}", PC);
 			var Reader = (SwitchReadWordDelegate)(() =>
 			{
 				var Ret = (uint)Memory.Read2(PC);
@@ -169,6 +173,8 @@ namespace CSharpCpu.Chip8.Dynarec
 			{
 				DynarecContext.PCToLabel[_PC] = AstLabel.CreateLabel(String.Format("Label_{0:X8}", _PC));
 			});
+
+			int InstructionCount = 0;
 
 			// PASS1: Branch analyzing
 			Console.WriteLine("- PASS 1 ------------------------------------");
@@ -229,13 +235,24 @@ namespace CSharpCpu.Chip8.Dynarec
 
 			// PASS2: Code generation
 			var Ast = ast.Statements();
+
+			var FlushInstructionCount = (Action)(() => {
+				if (InstructionCount > 0)
+				{
+					Ast.AddStatement(ast.Assign(DynarecContext.GetInstructionCount(), DynarecContext.GetInstructionCount() + InstructionCount));
+					InstructionCount = 0;
+				}
+			});
+
 			Console.WriteLine("- PASS 2 ------------------------------------");
 			foreach (var CurrentPC in AnalyzedPC.OrderBy(Item => Item))
 			{
 				PC = CurrentPC;
+				InstructionCount++;
 
 				if (DynarecContext.PCToLabel.ContainsKey(PC))
 				{
+					FlushInstructionCount();
 					Ast.AddStatement(ast.Label(DynarecContext.PCToLabel[PC]));
 				}
 
@@ -243,9 +260,25 @@ namespace CSharpCpu.Chip8.Dynarec
 				PC = CurrentPC; DecodeInstructionInfo(Reader);
 				DynarecContext.EndPC = PC;
 
+				PC = CurrentPC; var BranchInfo = DecodeBranchContext(Reader, new BranchContext(DynarecContext.CurrentPC, DynarecContext.EndPC));
 				PC = CurrentPC; var DynarecResult = DecodeDynarec(Reader, DynarecContext);
+
+				if (BranchInfo.IsJumpInstruction)
+				{
+					FlushInstructionCount();
+					if (BranchInfo.BranchType == BranchType.NoFollowAnalyzedAddresses)
+					{
+						Ast.AddStatement(DynarecContext.GetDynarecTick());
+					}
+				}
+				else
+				{
+					Console.WriteLine("-----------------------------");
+				}
+
 				Ast.AddStatement(DynarecResult.AstNodeStm);
 			}
+			FlushInstructionCount();
 			Ast.AddStatement(ast.Return());
 
 			//Console.WriteLine(GeneratorCSharp.GenerateString(Ast));

@@ -8,8 +8,9 @@ namespace CSharpCpu.Cpus.Dynarec
 {
 	public enum BranchType
 	{
-		NoFollowAnalyzedAddresses = 0,
-		FollowAnalyzedAddresses = 1,
+		NoJumpInstruction = 0,
+		NoFollowAnalyzedAddresses = 1,
+		FollowAnalyzedAddresses = 2,
 	}
 
 	public enum AnalyzeType
@@ -33,6 +34,7 @@ namespace CSharpCpu.Cpus.Dynarec
 
 		public bool ContinueAnalyzing { get { return AnalyzeType == AnalyzeType.ContinueAnalyzingCurrentBranch; } }
 		public bool FollowJumps { get { return BranchType == BranchType.FollowAnalyzedAddresses; } }
+		public bool IsJumpInstruction { get { return BranchType != BranchType.NoJumpInstruction; } }
 	}
 
 	public class BranchContext

@@ -17,17 +17,18 @@ namespace CSharpCpu.Chip8.Dynarec
 
 		private const BranchType FOLLOW = BranchType.FollowAnalyzedAddresses;
 		private const BranchType NO_FOLLOW = BranchType.NoFollowAnalyzedAddresses;
+		private const BranchType NO_JUMP = BranchType.NoJumpInstruction;
 
 		static public BranchResult RET(BranchContext Context) { return new BranchResult(STOP, NO_FOLLOW); }
-		static public BranchResult JP(BranchContext Context, ushort Address) { return new BranchResult(CONTINUE, FOLLOW, Address); }
+		static public BranchResult JP(BranchContext Context, ushort Address) { return new BranchResult(STOP, NO_FOLLOW, Address); }
 		static public BranchResult CALL(BranchContext Context, ushort Address) { return new BranchResult(CONTINUE, NO_FOLLOW, Address); }
 		static public BranchResult SE_n(BranchContext Context, byte X, byte Byte) { return new BranchResult(CONTINUE, FOLLOW, Context.EndInstructionAddress + 2); }
 		static public BranchResult SNE_n(BranchContext Context, byte X, byte Byte) { return new BranchResult(CONTINUE, FOLLOW, Context.EndInstructionAddress + 2); }
 		static public BranchResult SE_v(BranchContext Context, byte X, byte Y) { return new BranchResult(CONTINUE, FOLLOW, Context.EndInstructionAddress + 2); }
 		static public BranchResult SNE_v(BranchContext Context, byte X, byte Y) { return new BranchResult(CONTINUE, FOLLOW, Context.EndInstructionAddress + 2); }
-		static public BranchResult JP_addr(BranchContext Context, ushort Address) { return new BranchResult(CONTINUE, NO_FOLLOW); }
+		static public BranchResult JP_addr(BranchContext Context, ushort Address) { return new BranchResult(STOP, NO_FOLLOW); }
 		static public BranchResult SKP(BranchContext Context, byte X) { return new BranchResult(CONTINUE, FOLLOW, Context.EndInstructionAddress + 2); }
 		static public BranchResult SKNP(BranchContext Context, byte X) { return new BranchResult(CONTINUE, FOLLOW, Context.EndInstructionAddress + 2); }
-		static public BranchResult OTHER(BranchContext Context) { return new BranchResult(CONTINUE, NO_FOLLOW); }
+		static public BranchResult OTHER(BranchContext Context) { return new BranchResult(CONTINUE, NO_JUMP); }
 	}
 }

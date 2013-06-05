@@ -54,7 +54,7 @@
     <Compile Include="Interpreter\Chip8InterpreterImplementation.cs" />
     <Compile Include="ISyscall.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Timer.cs" />
+    <Compile Include="Chip8Timer.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\SafeILGenerator\SafeILGenerator\SafeILGenerator.csproj">

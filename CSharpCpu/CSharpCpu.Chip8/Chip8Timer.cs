@@ -5,20 +5,20 @@ using System.Text;
 
 namespace CSharpCpu.Chip8
 {
-	public class Timer
+	public class Chip8Timer
 	{
-		static public Timer _NullInstance = new Timer();
+		static public Chip8Timer _NullInstance = new Chip8Timer();
 
 		public string Name;
 		public byte Value;
 		//private 
 		private DateTime StartDateTime = DateTime.UtcNow;
 
-		private Timer()
+		private Chip8Timer()
 		{
 		}
 
-		public Timer(string Name)
+		public Chip8Timer(string Name)
 		{
 			this.Name = Name;
 		}

@@ -1,4 +1,6 @@
-﻿using CSharpCpu.Chip8.Interpreter;
+﻿//#define NATIVE_CALLS_AND_JUMPS
+
+using CSharpCpu.Chip8.Interpreter;
 using CSharpCpu.Cpus;
 using CSharpCpu.Cpus.Chip8;
 using CSharpCpu.Cpus.Dynarec;
@@ -28,7 +30,12 @@ namespace CSharpCpu.Chip8.Dynarec
 
 		static public DynarecResult RET(DynarecContextChip8 Context)
 		{
-			return ast.Return();
+			return ast.Statements(
+#if !NATIVE_CALLS_AND_JUMPS
+				ast.Assign(Context.GetPC(), ast.Cast<ushort>(ast.CallInstance(Context.GetCallStack(), (Func<uint>)((new Stack<uint>()).Pop)))),
+#endif
+				ast.Return()
+			);
 		}
 
 		/// <summary>
@@ -38,7 +45,32 @@ namespace CSharpCpu.Chip8.Dynarec
 		/// <param name="Address"></param>
 		static public DynarecResult JP(DynarecContextChip8 Context, ushort Address)
 		{
-			return ast.Statement(ast.CallTail(ast.CallDelegate(Context.GetCallForAddress(Address), Context.GetCpuContext())));
+			return ast.Statements(
+#if NATIVE_CALLS_AND_JUMPS
+				ast.Statement(ast.CallTail(ast.CallDelegate(Context.GetCallForAddress(Address), Context.GetCpuContext()))),
+#else
+				ast.Statements(ast.Assign(Context.GetPC(), Address)),
+#endif
+				ast.Return()
+			);
+		}
+
+
+		/// <summary>
+		/// Bnnn: Jumps to the address NNN plus V0.
+		/// </summary>
+		/// <param name="Context"></param>
+		/// <param name="Address"></param>
+		static public DynarecResult JP_addr(DynarecContextChip8 Context, ushort Address)
+		{
+			return ast.Statements(
+#if NATIVE_CALLS_AND_JUMPS
+ast.Statement(ast.CallTail(ast.CallDelegate(Context.GetCallForAddress(Address + Context.GetRegister(0)), Context.GetCpuContext()))),
+#else
+				ast.Statements(ast.Assign(Context.GetPC(), Address + Context.GetRegister(0))),
+#endif
+ ast.Return()
+			);
 		}
 
 		/// <summary>
@@ -48,7 +80,15 @@ namespace CSharpCpu.Chip8.Dynarec
 		/// <param name="Address"></param>
 		static public DynarecResult CALL(DynarecContextChip8 Context, ushort Address)
 		{
-			return ast.Statement(ast.CallDelegate(Context.GetCallForAddress(Address), Context.GetCpuContext()));
+			return ast.Statements(
+#if NATIVE_CALLS_AND_JUMPS
+				ast.Statement(ast.CallDelegate(Context.GetCallForAddress(Address), Context.GetCpuContext())),
+#else
+				ast.Statement(ast.CallInstance(Context.GetCallStack(), (Action<uint>)((new Stack<uint>()).Push), Context.EndPC)),
+				ast.Statements(ast.Assign(Context.GetPC(), Address)),
+				ast.Return()
+#endif
+			);
 		}
 
 		/// <summary>
@@ -173,16 +213,6 @@ namespace CSharpCpu.Chip8.Dynarec
 		static public DynarecResult LD_addr(DynarecContextChip8 Context, ushort Address)
 		{
 			return ast.Assign(Context.GetI(), Address);
-		}
-
-		/// <summary>
-		/// Bnnn: Jumps to the address NNN plus V0.
-		/// </summary>
-		/// <param name="Context"></param>
-		/// <param name="Address"></param>
-		static public DynarecResult JP_addr(DynarecContextChip8 Context, ushort Address)
-		{
-			return ast.Statement(ast.CallTail(ast.CallDelegate(Context.GetCallForAddress(Address + Context.GetRegister(0)), Context.GetCpuContext())));
 		}
 
 		/// <summary>

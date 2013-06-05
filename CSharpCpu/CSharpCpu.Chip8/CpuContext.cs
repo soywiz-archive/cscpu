@@ -6,6 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using CSharpCpu.Chip8;
 using CSharpCpu.Chip8.Dynarec;
+using System.Threading;
+using System.Collections;
+using System.Runtime.InteropServices;
 
 namespace CSharpCpu.Cpus.Chip8
 {
@@ -16,7 +19,7 @@ namespace CSharpCpu.Cpus.Chip8
 		public ushort PC;
 		public byte V0, V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12, V13, V14, V15;
 
-		unsafe public class VList
+		unsafe public class VList : IEnumerable<byte>
 		{
 			public CpuContext CpuContext;
 
@@ -36,6 +39,20 @@ namespace CSharpCpu.Cpus.Chip8
 					fixed (byte* V0Ptr = &CpuContext.V0) V0Ptr[i] = value;
 				}
 			}
+
+			IEnumerator<byte> IEnumerable<byte>.GetEnumerator()
+			{
+				var Items = new byte[16];
+				fixed (byte* V0Ptr = &CpuContext.V0) Marshal.Copy(new IntPtr(V0Ptr), Items, 0, 16);
+				return Items.AsEnumerable<byte>().GetEnumerator();
+			}
+
+			IEnumerator IEnumerable.GetEnumerator()
+			{
+				var Items = new byte[16];
+				fixed (byte* V0Ptr = &CpuContext.V0) Marshal.Copy(new IntPtr(V0Ptr), Items, 0, 16);
+				return Items.GetEnumerator();
+			}
 		}
 
 		public VList V;
@@ -48,9 +65,11 @@ namespace CSharpCpu.Cpus.Chip8
 		public readonly IDisplay Display;
 		public readonly ISyscall Syscall;
 		public readonly IController Controller;
-		public Timer DelayTimer = new Timer("Delay");
-		public Timer SoundTimer = new Timer("Sound");
+		public Chip8Timer DelayTimer = new Chip8Timer("Delay");
+		public Chip8Timer SoundTimer = new Chip8Timer("Sound");
 		public Stack<ushort> CallStack = new Stack<ushort>();
+		public uint InstructionCount;
+		public bool Running = true;
 
 		private CpuContext()
 		{
@@ -58,13 +77,31 @@ namespace CSharpCpu.Cpus.Chip8
 
 		Dictionary<uint, Action<CpuContext>> DynarecCache = new Dictionary<uint, Action<CpuContext>>();
 
+		int SubCount2 = 0;
+
+		public void DynarecTick()
+		{
+			if (InstructionCount >= 1000)
+			{
+				//Console.WriteLine("", InstructionCount);
+				InstructionCount = 0;
+				this.Update();
+				if (SubCount2++ % 20 == 0)
+				{
+					Console.WriteLine("InstructionCount: {0}: {1}", InstructionCount, String.Join(",", V));
+					Display.Update();
+				}
+				Thread.Sleep(1);
+			}
+		}
+
 		public Action<CpuContext> GetDelegateForAddress(uint Address)
 		{
 			Action<CpuContext> Func;
-			Console.WriteLine("{0:X8}: GetDelegateForAddress", Address);
+			//Console.WriteLine("{0:X8}: GetDelegateForAddress", Address);
 			if (!DynarecCache.TryGetValue(Address, out Func))
 			{
-				DynarecCache[Address] = Func = Chip8Dynarec.CreateDynarecFunction(Memory, PC);
+				DynarecCache[Address] = Func = Chip8Dynarec.CreateDynarecFunction(Memory, Address);
 			}
 			return Func;
 		}

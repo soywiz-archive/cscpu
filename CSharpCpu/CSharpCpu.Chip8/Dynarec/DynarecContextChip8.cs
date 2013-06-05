@@ -17,6 +17,11 @@ namespace CSharpCpu.Chip8.Dynarec
 			return ast.Argument<CpuContext>(0, "CpuContext");
 		}
 
+		public AstNodeExpr GetCallStack()
+		{
+			return ast.FieldAccess(GetCpuContext(), ILFieldInfo.GetFieldInfo(() => CpuContext._NullInstance.CallStack));
+		}
+
 		public AstNodeExpr GetController()
 		{
 			return ast.FieldAccess(GetCpuContext(), ILFieldInfo.GetFieldInfo(() => CpuContext._NullInstance.Controller));
@@ -29,12 +34,12 @@ namespace CSharpCpu.Chip8.Dynarec
 
 		public AstNodeExprLValue GetDelayTimerValue()
 		{
-			return ast.FieldAccess(ast.FieldAccess(GetCpuContext(), ILFieldInfo.GetFieldInfo(() => CpuContext._NullInstance.DelayTimer)), ILFieldInfo.GetFieldInfo(() => Timer._NullInstance.Value));
+			return ast.FieldAccess(ast.FieldAccess(GetCpuContext(), ILFieldInfo.GetFieldInfo(() => CpuContext._NullInstance.DelayTimer)), ILFieldInfo.GetFieldInfo(() => Chip8Timer._NullInstance.Value));
 		}
 
 		public AstNodeExprLValue GetSoundTimerValue()
 		{
-			return ast.FieldAccess(ast.FieldAccess(GetCpuContext(), ILFieldInfo.GetFieldInfo(() => CpuContext._NullInstance.SoundTimer)), ILFieldInfo.GetFieldInfo(() => Timer._NullInstance.Value));
+			return ast.FieldAccess(ast.FieldAccess(GetCpuContext(), ILFieldInfo.GetFieldInfo(() => CpuContext._NullInstance.SoundTimer)), ILFieldInfo.GetFieldInfo(() => Chip8Timer._NullInstance.Value));
 		}
 
 		public AstNodeExprLValue GetI()
@@ -55,6 +60,16 @@ namespace CSharpCpu.Chip8.Dynarec
 		public AstNodeExpr GetCallForAddress(AstNodeExpr Address)
 		{
 			return ast.CallInstance(GetCpuContext(), (Func<uint, Action<CpuContext>>)CpuContext._NullInstance.GetDelegateForAddress, ast.Cast<uint>(Address));
+		}
+
+		public AstNodeExprLValue GetInstructionCount()
+		{
+			return ast.FieldAccess(GetCpuContext(), ILFieldInfo.GetFieldInfo(() => CpuContext._NullInstance.InstructionCount));
+		}
+
+		internal AstNodeStm GetDynarecTick()
+		{
+			return ast.Statement(ast.CallInstance(GetCpuContext(), (Action)CpuContext._NullInstance.DynarecTick));
 		}
 	}
 }
