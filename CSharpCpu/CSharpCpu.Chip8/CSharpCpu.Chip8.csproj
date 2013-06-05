@@ -43,6 +43,7 @@
     <Compile Include="Disassembler\Chip8Disassembler.cs" />
     <Compile Include="Dynarec\Chip8Dynarec.cs" />
     <Compile Include="Dynarec\Chip8DynarecImplementation.cs" />
+    <Compile Include="Dynarec\Chip8DynarecBranchInfo.cs" />
     <Compile Include="IController.cs" />
     <Compile Include="IDisplay.cs" />
     <Compile Include="InstructionTable.cs" />
