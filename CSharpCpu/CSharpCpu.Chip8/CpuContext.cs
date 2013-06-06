@@ -75,7 +75,8 @@ namespace CSharpCpu.Cpus.Chip8
 		{
 		}
 
-		Dictionary<uint, Action<CpuContext>> DynarecCache = new Dictionary<uint, Action<CpuContext>>();
+		//Dictionary<uint, Action<CpuContext>> DynarecCache = new Dictionary<uint, Action<CpuContext>>();
+		Action<CpuContext>[] DynarecCache = new Action<CpuContext>[4096];
 
 		int SubCount2 = 0;
 
@@ -97,9 +98,9 @@ namespace CSharpCpu.Cpus.Chip8
 
 		public Action<CpuContext> GetDelegateForAddress(uint Address)
 		{
-			Action<CpuContext> Func;
+			Action<CpuContext> Func = DynarecCache[Address];
 			//Console.WriteLine("{0:X8}: GetDelegateForAddress", Address);
-			if (!DynarecCache.TryGetValue(Address, out Func))
+			if (Func == null)
 			{
 				DynarecCache[Address] = Func = Chip8Dynarec.CreateDynarecFunction(Memory, Address);
 			}
