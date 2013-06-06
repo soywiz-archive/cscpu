@@ -35,5 +35,10 @@ namespace CSharpCpu.Tests
 				Console.WriteLine("{0:X4}: {1}", Z80Disassembler.Address, Z80Disassembler.DecodeNext());
 			}
 		}
+
+		[TestMethod]
+		public void TestInterpreter()
+		{
+		}
 	}
 }

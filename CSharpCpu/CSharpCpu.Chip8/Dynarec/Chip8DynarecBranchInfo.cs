@@ -30,5 +30,6 @@ namespace CSharpCpu.Chip8.Dynarec
 		static public BranchResult SKP(BranchContext Context, byte X) { return new BranchResult(CONTINUE, FOLLOW, Context.EndInstructionAddress + 2); }
 		static public BranchResult SKNP(BranchContext Context, byte X) { return new BranchResult(CONTINUE, FOLLOW, Context.EndInstructionAddress + 2); }
 		static public BranchResult OTHER(BranchContext Context) { return new BranchResult(CONTINUE, NO_JUMP); }
+		static public BranchResult INVALID(BranchContext Context) { return new BranchResult(STOP, NO_JUMP); }
 	}
 }

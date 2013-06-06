@@ -1,4 +1,5 @@
 ﻿using CSharpCpu.Cpus;
+using CSharpCpu.Cpus.Z80;
 using CSharpCpu.Decoder;
 using CSharpCpu.Memory;
 using SafeILGenerator.Ast;
@@ -32,13 +33,11 @@ namespace CSharpCpu.Z80.Disassembler
 			return this.Decoder(() => Memory.Read1(this.Address++));
 		}
 
-		private static Regex MatchArgument = new Regex(@"%\w+", RegexOptions.Compiled);
-
 		static public string __DisassembleCallback(string Key, uint[] _Values)
 		{
 			var Values = new Queue<uint>(_Values);
 
-			return MatchArgument.Replace(Key, (Match) =>
+			return InstructionTable.MatchArgument.Replace(Key, (Match) =>
 			{
 				return String.Format("${0:X}", Values.Dequeue());
 			});
@@ -52,25 +51,8 @@ namespace CSharpCpu.Z80.Disassembler
 			{
 				if (Context.DecoderReference == null) return ast.Return("Unknown");
 
-				var Array = new AstNodeExprNewArray(typeof(uint));
-
-				MatchArgument.Replace(Context.DecoderReference.Name, (Match) =>
-				{
-					var MatchStr = Match.ToString();
-					switch (MatchStr)
-					{
-						case "%nn":
-							Array.AddValue(
-								(new AstNodeExprLocal(Context.Scope.Get("%n2")) * 256) |
-								new AstNodeExprLocal(Context.Scope.Get("%n1"))
-							);
-							break;
-						default:
-							Array.AddValue(new AstNodeExprLocal(Context.Scope.Get(MatchStr)));
-							break;
-					}
-					return "";
-				});
+				var Parameters = InstructionTable.ParseParameters(Context.DecoderReference, Context.Scope);
+				var Array = new AstNodeExprNewArray(typeof(uint), Parameters.ToArray());
 
 				return ast.Return(ast.CallStatic(
 					((Func<string, uint[], string>)__DisassembleCallback).Method,

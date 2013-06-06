@@ -1,4 +1,6 @@
-﻿using CSharpCpu.Cpus;
+﻿//#define DEBUG_DYNAREC
+
+using CSharpCpu.Cpus;
 using CSharpCpu.Cpus.Chip8;
 using CSharpCpu.Cpus.Dynarec;
 using CSharpCpu.Decoder;
@@ -10,6 +12,7 @@ using SafeILGenerator.Ast.Optimizers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -68,9 +71,12 @@ namespace CSharpCpu.Chip8.Dynarec
 		{
 			var SwitchTree = SwitchGenerator.GenerateSwitchReturnValue<BranchResult, InstructionInfo>(InstructionTable.Instructions, (Context) =>
 			{
+				MethodInfo MethodInfo;
+
 				if (Context.DecoderReference == null)
 				{
-					return ast.Return(ast.Null<BranchResult>());
+					MethodInfo = ((Func<BranchContext, BranchResult>)Chip8DynarecBranchInfo.INVALID).Method;
+					return ast.Return(ast.CallStatic(MethodInfo, ast.Argument<BranchContext>(1)));
 				}
 
 				var InstructionInfo = Context.DecoderReference;
@@ -81,10 +87,9 @@ namespace CSharpCpu.Chip8.Dynarec
 
 				var Parameters = InstructionTable.ParseParameters(InstructionInfo, Scope);
 				Parameters.Insert(0, ast.Argument<BranchContext>(1));
-
 				//Parameters.Add(ast.Argument<CpuContext>(1));
 
-				var MethodInfo = typeof(Chip8DynarecBranchInfo).GetMethod(InstructionInfo.Name);
+				MethodInfo = typeof(Chip8DynarecBranchInfo).GetMethod(InstructionInfo.Name);
 
 				if (MethodInfo == null)
 				{
@@ -143,14 +148,18 @@ namespace CSharpCpu.Chip8.Dynarec
 		{
 			var Ast = AnalyzeFunction(Memory, PC);
 			Ast = (AstNodeStm)(new AstOptimizer().Optimize(Ast));
+#if DEBUG_DYNAREC
 			Console.WriteLine(GeneratorCSharp.GenerateString(Ast));
 			Console.WriteLine(GeneratorIL.GenerateToString<Action<CpuContext>>(Ast));
+#endif
 			return GeneratorIL.GenerateDelegate<GeneratorIL, Action<CpuContext>>(String.Format("Method_{0:X8}", PC), Ast);
 		}
 
 		static public AstNodeStm AnalyzeFunction(IMemory2 Memory, uint PC)
 		{
+#if DEBUG_DYNAREC
 			Console.WriteLine("AnalyzeFunction: {0:X8}", PC);
+#endif
 			var Reader = (SwitchReadWordDelegate)(() =>
 			{
 				var Ret = (uint)Memory.Read2(PC);
@@ -178,11 +187,15 @@ namespace CSharpCpu.Chip8.Dynarec
 			int InstructionCount = 0;
 
 			// PASS1: Branch analyzing
+#if DEBUG_DYNAREC
 			Console.WriteLine("- PASS 1 ------------------------------------");
+#endif
 			while (BranchesToAnalyze.Count > 0)
 			{
 				PC = BranchesToAnalyze.Dequeue();
+#if DEBUG_DYNAREC
 				Console.WriteLine("Analyzing: {0:X8}", PC);
+#endif
 				AddLabelForPC(PC);
 
 				while (true)
@@ -209,18 +222,24 @@ namespace CSharpCpu.Chip8.Dynarec
 					if (Instruction == null)
 					{
 						//throw (new Exception("Invalid!"));
+#if DEBUG_DYNAREC
 						Console.WriteLine("{0:X4}: Invalid Instruction", CurrentPC);
+#endif
 					}
 					else
 					{
+#if DEBUG_DYNAREC
 						Console.WriteLine("{0:X4}: {1} : {2}", CurrentPC, Instruction.InstructionInfo.Name, BranchInfo.BranchType);
+#endif
 						
 						// Must follow jumps.
 						if (BranchInfo.FollowJumps)
 						{
 							foreach (var JumpAddress in BranchInfo.PossibleJumpList)
 							{
+#if DEBUG_DYNAREC
 								Console.WriteLine("{0:X4}: Enqueueing BranchesToAnalyze {1:X4}", CurrentPC, JumpAddress);
+#endif
 								BranchesToAnalyze.Enqueue(JumpAddress);
 							}
 						}
@@ -244,8 +263,9 @@ namespace CSharpCpu.Chip8.Dynarec
 					InstructionCount = 0;
 				}
 			});
-
+#if DEBUG_DYNAREC
 			Console.WriteLine("- PASS 2 ------------------------------------");
+#endif
 			foreach (var CurrentPC in AnalyzedPC.OrderBy(Item => Item))
 			{
 				PC = CurrentPC;
@@ -271,10 +291,6 @@ namespace CSharpCpu.Chip8.Dynarec
 					{
 						Ast.AddStatement(DynarecContext.GetDynarecTick());
 					}
-				}
-				else
-				{
-					Console.WriteLine("-----------------------------");
 				}
 
 				Ast.AddStatement(DynarecResult.AstNodeStm);

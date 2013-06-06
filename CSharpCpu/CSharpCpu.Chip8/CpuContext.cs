@@ -9,10 +9,12 @@ using CSharpCpu.Chip8.Dynarec;
 using System.Threading;
 using System.Collections;
 using System.Runtime.InteropServices;
+using CSharpCpu.Decoder;
+using CSharpCpu.Cpus.Chip8.Interpreter;
 
 namespace CSharpCpu.Cpus.Chip8
 {
-	unsafe public class CpuContext
+	sealed unsafe public class CpuContext
 	{
 		static public CpuContext _NullInstance = new CpuContext();
 
@@ -28,15 +30,15 @@ namespace CSharpCpu.Cpus.Chip8
 				this.CpuContext = CpuContext;
 			}
 
-			public byte this[int i]
+			public byte this[int Index]
 			{
 				get
 				{
-					fixed (byte* V0Ptr = &CpuContext.V0) return V0Ptr[i];
+					fixed (byte* V0Ptr = &CpuContext.V0) return V0Ptr[Index];
 				}
 				set
 				{
-					fixed (byte* V0Ptr = &CpuContext.V0) V0Ptr[i] = value;
+					fixed (byte* V0Ptr = &CpuContext.V0) V0Ptr[Index] = value;
 				}
 			}
 
@@ -59,7 +61,7 @@ namespace CSharpCpu.Cpus.Chip8
 
 		//public byte[] V = new byte[16];
 		public ushort I;
-		public readonly Random Random = new Random();
+		public Random Random = new Random();
 
 		public readonly IMemory2 Memory;
 		public readonly IDisplay Display;
@@ -69,7 +71,7 @@ namespace CSharpCpu.Cpus.Chip8
 		public Chip8Timer SoundTimer = new Chip8Timer("Sound");
 		public Stack<ushort> CallStack = new Stack<ushort>();
 		public uint InstructionCount;
-		public bool Running = true;
+		public bool Running = false;
 
 		private CpuContext()
 		{
@@ -82,6 +84,11 @@ namespace CSharpCpu.Cpus.Chip8
 
 		public void DynarecTick()
 		{
+			if (!Running)
+			{
+				throw(new ThreadInterruptedException());
+			}
+
 			if (InstructionCount >= 1000)
 			{
 				//Console.WriteLine("", InstructionCount);
@@ -89,7 +96,7 @@ namespace CSharpCpu.Cpus.Chip8
 				this.Update();
 				if (SubCount2++ % 20 == 0)
 				{
-					Console.WriteLine("InstructionCount: {0}: {1}", InstructionCount, String.Join(",", V));
+					//Console.WriteLine("InstructionCount: {0}: {1}", InstructionCount, String.Join(",", V));
 					Display.Update();
 				}
 				Thread.Sleep(1);
@@ -134,6 +141,82 @@ namespace CSharpCpu.Cpus.Chip8
 			DelayTimer.Update();
 			SoundTimer.Update();
 			//Display.Update();
+		}
+
+		public void Restart()
+		{
+			//for (int n = 0; n < 16; n++)
+			//{
+			//	fixed (byte* V0Ptr = &V0)
+			//	fixed (byte* V1Ptr = &V1)
+			//	fixed (byte* V2Ptr = &V2)
+			//	{
+			//		Console.WriteLine("{0}", new IntPtr(V0Ptr));
+			//		Console.WriteLine("{0}", new IntPtr(V1Ptr));
+			//		Console.WriteLine("{0}", new IntPtr(V2Ptr));
+			//	}
+			//}
+
+			PC = 0x200;
+			for (int n = 0; n < 16; n++) V[n] = 0;
+			I = 0;
+			Random = new Random();
+			//for (int n = 0; n < (1 << 12); n++) Memory.Write1((ushort)n, 0);
+			Display.Clear();
+			Display.Update();
+			DelayTimer = new Chip8Timer("Delay");
+			SoundTimer = new Chip8Timer("Sound");
+			CallStack = new Stack<ushort>();
+			InstructionCount = 0;
+			SubCount2 = 0;
+			DynarecCache = new Action<CpuContext>[4096];
+			Running = true;
+		}
+
+		private void _RunDynarec()
+		{
+			while (true)
+			{
+				//Console.WriteLine("{0:X8}", Context.PC);
+				GetDelegateForAddress(PC)(this);
+			}
+		}
+
+		static private Lazy<Action<SwitchReadWordDelegate, CpuContext>> LazyInterpretStep = new Lazy<Action<SwitchReadWordDelegate, CpuContext>>(() => Chip8Interpreter.CreateExecuteStep());
+
+		private void _RunInterpreter()
+		{
+			var InterpretStep = LazyInterpretStep.Value;
+
+			while (true)
+			{
+				InstructionCount++;
+				DynarecTick();
+				InterpretStep(ReadInstruction, this);
+			}
+		}
+
+		public void Run(bool Dynarec)
+		{
+			try
+			{
+				Console.WriteLine("ThreadRun...");
+				Running = true;
+				PC = 0x200;
+
+				if (Dynarec)
+				{
+					_RunDynarec();
+				}
+				else
+				{
+					_RunInterpreter();
+				}
+			}
+			catch (ThreadInterruptedException)
+			{
+				Console.WriteLine("ThreadInterruptedException");
+			}
 		}
 	}
 }

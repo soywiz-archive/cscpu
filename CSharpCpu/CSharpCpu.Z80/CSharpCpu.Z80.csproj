@@ -39,8 +39,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CpuContext.cs" />
     <Compile Include="Disassembler\Z80Disassembler.cs" />
     <Compile Include="InstructionTable.cs" />
+    <Compile Include="InstructionTable.Tools.cs" />
+    <Compile Include="Interpreter\Z80InterpreterImplementation.cs" />
+    <Compile Include="Interpreter\Z80Interpreter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -53,9 +57,7 @@
       <Name>CSharpCpu</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Interpreter\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
