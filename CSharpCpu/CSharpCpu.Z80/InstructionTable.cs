@@ -19,1276 +19,1286 @@ namespace CSharpCpu.Cpus.Z80
 	{
 		public static InstructionInfo[] Instructions { get { return _Instructions.Value; } }
 
-		private static Lazy<InstructionInfo[]> _Instructions = new Lazy<InstructionInfo[]>(() => new[]
+		public enum Version
 		{
-			Instruction("8E         ","ADC A,(HL)        "),
-			Instruction("DD8E %d    ","ADC A,(IX+%d)     "),
-			Instruction("FD8E %d    ","ADC A,(IY+%d)     "),
-			Instruction("8F         ","ADC A,A           ", 4),
-			Instruction("88         ","ADC A,B           ", 4),
-			Instruction("89         ","ADC A,C           ", 4),
-			Instruction("8A         ","ADC A,D           ", 4),
-			Instruction("8B         ","ADC A,E           ", 4),
-			Instruction("8C         ","ADC A,H           ", 4),
-			Instruction("DD8C       ","ADC A,IXh         ", 8),
-			Instruction("DD8D       ","ADC A,IXl         ", 8),
-			Instruction("FD8C       ","ADC A,IYh         ", 8),
-			Instruction("FD8D       ","ADC A,IYl         ", 8),
-			Instruction("8D         ","ADC A,L           ", 4),
-			Instruction("CE %n      ","ADC A,%n          "),
-			Instruction("ED4A       ","ADC HL,BC         "),
-			Instruction("ED5A       ","ADC HL,DE         "),
-			Instruction("ED6A       ","ADC HL,HL         "),
-			Instruction("ED7A       ","ADC HL,SP         "),
-			Instruction("86         ","ADD A,(HL)        "),
-			Instruction("DD86 %d    ","ADD A,(IX+%d)     "),
-			Instruction("FD86 %d    ","ADD A,(IY+%d)     "),
-			Instruction("87         ","ADD A,A           "),
-			Instruction("80         ","ADD A,B           "),
-			Instruction("81         ","ADD A,C           "),
-			Instruction("82         ","ADD A,D           "),
-			Instruction("83         ","ADD A,E           "),
-			Instruction("84         ","ADD A,H           "),
-			Instruction("DD84       ","ADD A,IXh         "),
-			Instruction("DD85       ","ADD A,IXl         "),
-			Instruction("FD84       ","ADD A,IYh         "),
-			Instruction("FD85       ","ADD A,IYl         "),
-			Instruction("85         ","ADD A,L           "),
-			Instruction("C6 %n      ","ADD A,%n          "),
-			Instruction("09         ","ADD HL,BC         "),
-			Instruction("19         ","ADD HL,DE         "),
-			Instruction("29         ","ADD HL,HL         "),
-			Instruction("39         ","ADD HL,SP         "),
-			Instruction("DD09       ","ADD IX,BC         "),
-			Instruction("DD19       ","ADD IX,DE         "),
-			Instruction("DD29       ","ADD IX,IX         "),
-			Instruction("DD39       ","ADD IX,SP         "),
-			Instruction("FD09       ","ADD IY,BC         "),
-			Instruction("FD19       ","ADD IY,DE         "),
-			Instruction("FD29       ","ADD IY,IY         "),
-			Instruction("FD39       ","ADD IY,SP         "),
-			Instruction("A6         ","AND (HL)          "),
-			Instruction("DDA6 %d    ","AND (IX+%d)       "),
-			Instruction("FDA6 %d    ","AND (IY+%d)       "),
-			Instruction("A7         ","AND A             "),
-			Instruction("A0         ","AND B             "),
-			Instruction("A1         ","AND C             "),
-			Instruction("A2         ","AND D             "),
-			Instruction("A3         ","AND E             "),
-			Instruction("A4         ","AND H             "),
-			Instruction("DDA4       ","AND IXh           "),
-			Instruction("DDA5       ","AND IXl           "),
-			Instruction("FDA4       ","AND IYh           "),
-			Instruction("FDA5       ","AND IYl           "),
-			Instruction("A5         ","AND L             "),
-			Instruction("E6 %n      ","AND %n            "),
-			Instruction("CB46       ","BIT 0,(HL)        "),
-			Instruction("DDCB %d 46 ","BIT 0,(IX+%d)     "),
-			Instruction("DDCB %d 41 ","BIT 0,(IX+%d)     "),
-			Instruction("DDCB %d 47 ","BIT 0,(IX+%d)     "),
-			Instruction("DDCB %d 42 ","BIT 0,(IX+%d)     "),
-			Instruction("DDCB %d 43 ","BIT 0,(IX+%d)     "),
-			Instruction("DDCB %d 44 ","BIT 0,(IX+%d)     "),
-			Instruction("DDCB %d 40 ","BIT 0,(IX+%d)     "),
-			Instruction("DDCB %d 45 ","BIT 0,(IX+%d)     "),
-			Instruction("FDCB %d 46 ","BIT 0,(IY+%d)     "),
-			Instruction("FDCB %d 40 ","BIT 0,(IY+%d)     "),
-			Instruction("FDCB %d 47 ","BIT 0,(IY+%d)     "),
-			Instruction("FDCB %d 43 ","BIT 0,(IY+%d)     "),
-			Instruction("FDCB %d 41 ","BIT 0,(IY+%d)     "),
-			Instruction("FDCB %d 45 ","BIT 0,(IY+%d)     "),
-			Instruction("FDCB %d 42 ","BIT 0,(IY+%d)     "),
-			Instruction("FDCB %d 44 ","BIT 0,(IY+%d)     "),
-			Instruction("CB47       ","BIT 0,A           "),
-			Instruction("CB40       ","BIT 0,B           "),
-			Instruction("CB41       ","BIT 0,C           "),
-			Instruction("CB42       ","BIT 0,D           "),
-			Instruction("CB43       ","BIT 0,E           "),
-			Instruction("CB44       ","BIT 0,H           "),
-			Instruction("CB45       ","BIT 0,L           "),
-			Instruction("CB4E       ","BIT 1,(HL)        "),
-			Instruction("DDCB %d 4E ","BIT 1,(IX+%d)     "),
-			Instruction("DDCB %d 4B ","BIT 1,(IX+%d)     "),
-			Instruction("DDCB %d 4F ","BIT 1,(IX+%d)     "),
-			Instruction("DDCB %d 4A ","BIT 1,(IX+%d)     "),
-			Instruction("DDCB %d 4C ","BIT 1,(IX+%d)     "),
-			Instruction("DDCB %d 49 ","BIT 1,(IX+%d)     "),
-			Instruction("DDCB %d 48 ","BIT 1,(IX+%d)     "),
-			Instruction("DDCB %d 4D ","BIT 1,(IX+%d)     "),
-			Instruction("FDCB %d 4E ","BIT 1,(IY+%d)     "),
-			Instruction("FDCB %d 48 ","BIT 1,(IY+%d)     "),
-			Instruction("FDCB %d 4F ","BIT 1,(IY+%d)     "),
-			Instruction("FDCB %d 4D ","BIT 1,(IY+%d)     "),
-			Instruction("FDCB %d 4C ","BIT 1,(IY+%d)     "),
-			Instruction("FDCB %d 4B ","BIT 1,(IY+%d)     "),
-			Instruction("FDCB %d 4A ","BIT 1,(IY+%d)     "),
-			Instruction("FDCB %d 49 ","BIT 1,(IY+%d)     "),
-			Instruction("CB4F       ","BIT 1,A           "),
-			Instruction("CB48       ","BIT 1,B           "),
-			Instruction("CB49       ","BIT 1,C           "),
-			Instruction("CB4A       ","BIT 1,D           "),
-			Instruction("CB4B       ","BIT 1,E           "),
-			Instruction("CB4C       ","BIT 1,H           "),
-			Instruction("CB4D       ","BIT 1,L           "),
-			Instruction("CB56       ","BIT 2,(HL)        "),
-			Instruction("DDCB %d 56 ","BIT 2,(IX+%d)     "),
-			Instruction("DDCB %d 53 ","BIT 2,(IX+%d)     "),
-			Instruction("DDCB %d 52 ","BIT 2,(IX+%d)     "),
-			Instruction("DDCB %d 51 ","BIT 2,(IX+%d)     "),
-			Instruction("DDCB %d 54 ","BIT 2,(IX+%d)     "),
-			Instruction("DDCB %d 55 ","BIT 2,(IX+%d)     "),
-			Instruction("DDCB %d 57 ","BIT 2,(IX+%d)     "),
-			Instruction("DDCB %d 50 ","BIT 2,(IX+%d)     "),
-			Instruction("FDCB %d 56 ","BIT 2,(IY+%d)     "),
-			Instruction("FDCB %d 53 ","BIT 2,(IY+%d)     "),
-			Instruction("FDCB %d 57 ","BIT 2,(IY+%d)     "),
-			Instruction("FDCB %d 55 ","BIT 2,(IY+%d)     "),
-			Instruction("FDCB %d 50 ","BIT 2,(IY+%d)     "),
-			Instruction("FDCB %d 51 ","BIT 2,(IY+%d)     "),
-			Instruction("FDCB %d 52 ","BIT 2,(IY+%d)     "),
-			Instruction("FDCB %d 54 ","BIT 2,(IY+%d)     "),
-			Instruction("CB57       ","BIT 2,A           "),
-			Instruction("CB50       ","BIT 2,B           "),
-			Instruction("CB51       ","BIT 2,C           "),
-			Instruction("CB52       ","BIT 2,D           "),
-			Instruction("CB53       ","BIT 2,E           "),
-			Instruction("CB54       ","BIT 2,H           "),
-			Instruction("CB55       ","BIT 2,L           "),
-			Instruction("CB5E       ","BIT 3,(HL)        "),
-			Instruction("DDCB %d 5E ","BIT 3,(IX+%d)     "),
-			Instruction("DDCB %d 58 ","BIT 3,(IX+%d)     "),
-			Instruction("DDCB %d 5A ","BIT 3,(IX+%d)     "),
-			Instruction("DDCB %d 59 ","BIT 3,(IX+%d)     "),
-			Instruction("DDCB %d 5B ","BIT 3,(IX+%d)     "),
-			Instruction("DDCB %d 5F ","BIT 3,(IX+%d)     "),
-			Instruction("DDCB %d 5D ","BIT 3,(IX+%d)     "),
-			Instruction("DDCB %d 5C ","BIT 3,(IX+%d)     "),
-			Instruction("FDCB %d 5E ","BIT 3,(IY+%d)     "),
-			Instruction("FDCB %d 5B ","BIT 3,(IY+%d)     "),
-			Instruction("FDCB %d 5A ","BIT 3,(IY+%d)     "),
-			Instruction("FDCB %d 5F ","BIT 3,(IY+%d)     "),
-			Instruction("FDCB %d 58 ","BIT 3,(IY+%d)     "),
-			Instruction("FDCB %d 5C ","BIT 3,(IY+%d)     "),
-			Instruction("FDCB %d 59 ","BIT 3,(IY+%d)     "),
-			Instruction("FDCB %d 5D ","BIT 3,(IY+%d)     "),
-			Instruction("CB5F       ","BIT 3,A           "),
-			Instruction("CB58       ","BIT 3,B           "),
-			Instruction("CB59       ","BIT 3,C           "),
-			Instruction("CB5A       ","BIT 3,D           "),
-			Instruction("CB5B       ","BIT 3,E           "),
-			Instruction("CB5C       ","BIT 3,H           "),
-			Instruction("CB5D       ","BIT 3,L           "),
-			Instruction("CB66       ","BIT 4,(HL)        "),
-			Instruction("DDCB %d 66 ","BIT 4,(IX+%d)     "),
-			Instruction("DDCB %d 60 ","BIT 4,(IX+%d)     "),
-			Instruction("DDCB %d 62 ","BIT 4,(IX+%d)     "),
-			Instruction("DDCB %d 61 ","BIT 4,(IX+%d)     "),
-			Instruction("DDCB %d 65 ","BIT 4,(IX+%d)     "),
-			Instruction("DDCB %d 63 ","BIT 4,(IX+%d)     "),
-			Instruction("DDCB %d 64 ","BIT 4,(IX+%d)     "),
-			Instruction("DDCB %d 67 ","BIT 4,(IX+%d)     "),
-			Instruction("FDCB %d 66 ","BIT 4,(IY+%d)     "),
-			Instruction("FDCB %d 60 ","BIT 4,(IY+%d)     "),
-			Instruction("FDCB %d 64 ","BIT 4,(IY+%d)     "),
-			Instruction("FDCB %d 62 ","BIT 4,(IY+%d)     "),
-			Instruction("FDCB %d 65 ","BIT 4,(IY+%d)     "),
-			Instruction("FDCB %d 61 ","BIT 4,(IY+%d)     "),
-			Instruction("FDCB %d 63 ","BIT 4,(IY+%d)     "),
-			Instruction("FDCB %d 67 ","BIT 4,(IY+%d)     "),
-			Instruction("CB67       ","BIT 4,A           "),
-			Instruction("CB60       ","BIT 4,B           "),
-			Instruction("CB61       ","BIT 4,C           "),
-			Instruction("CB62       ","BIT 4,D           "),
-			Instruction("CB63       ","BIT 4,E           "),
-			Instruction("CB64       ","BIT 4,H           "),
-			Instruction("CB65       ","BIT 4,L           "),
-			Instruction("CB6E       ","BIT 5,(HL)        "),
-			Instruction("DDCB %d 6E ","BIT 5,(IX+%d)     "),
-			Instruction("DDCB %d 69 ","BIT 5,(IX+%d)     "),
-			Instruction("DDCB %d 6D ","BIT 5,(IX+%d)     "),
-			Instruction("DDCB %d 6F ","BIT 5,(IX+%d)     "),
-			Instruction("DDCB %d 68 ","BIT 5,(IX+%d)     "),
-			Instruction("DDCB %d 6C ","BIT 5,(IX+%d)     "),
-			Instruction("DDCB %d 6B ","BIT 5,(IX+%d)     "),
-			Instruction("DDCB %d 6A ","BIT 5,(IX+%d)     "),
-			Instruction("FDCB %d 6E ","BIT 5,(IY+%d)     "),
-			Instruction("FDCB %d 69 ","BIT 5,(IY+%d)     "),
-			Instruction("FDCB %d 68 ","BIT 5,(IY+%d)     "),
-			Instruction("FDCB %d 6D ","BIT 5,(IY+%d)     "),
-			Instruction("FDCB %d 6A ","BIT 5,(IY+%d)     "),
-			Instruction("FDCB %d 6F ","BIT 5,(IY+%d)     "),
-			Instruction("FDCB %d 6B ","BIT 5,(IY+%d)     "),
-			Instruction("FDCB %d 6C ","BIT 5,(IY+%d)     "),
-			Instruction("CB6F       ","BIT 5,A           "),
-			Instruction("CB68       ","BIT 5,B           "),
-			Instruction("CB69       ","BIT 5,C           "),
-			Instruction("CB6A       ","BIT 5,D           "),
-			Instruction("CB6B       ","BIT 5,E           "),
-			Instruction("CB6C       ","BIT 5,H           "),
-			Instruction("CB6D       ","BIT 5,L           "),
-			Instruction("CB76       ","BIT 6,(HL)        "),
-			Instruction("DDCB %d 76 ","BIT 6,(IX+%d)     "),
-			Instruction("DDCB %d 77 ","BIT 6,(IX+%d)     "),
-			Instruction("DDCB %d 75 ","BIT 6,(IX+%d)     "),
-			Instruction("DDCB %d 74 ","BIT 6,(IX+%d)     "),
-			Instruction("DDCB %d 73 ","BIT 6,(IX+%d)     "),
-			Instruction("DDCB %d 71 ","BIT 6,(IX+%d)     "),
-			Instruction("DDCB %d 70 ","BIT 6,(IX+%d)     "),
-			Instruction("DDCB %d 72 ","BIT 6,(IX+%d)     "),
-			Instruction("FDCB %d 76 ","BIT 6,(IY+%d)     "),
-			Instruction("FDCB %d 73 ","BIT 6,(IY+%d)     "),
-			Instruction("FDCB %d 70 ","BIT 6,(IY+%d)     "),
-			Instruction("FDCB %d 75 ","BIT 6,(IY+%d)     "),
-			Instruction("FDCB %d 74 ","BIT 6,(IY+%d)     "),
-			Instruction("FDCB %d 72 ","BIT 6,(IY+%d)     "),
-			Instruction("FDCB %d 77 ","BIT 6,(IY+%d)     "),
-			Instruction("FDCB %d 71 ","BIT 6,(IY+%d)     "),
-			Instruction("CB77       ","BIT 6,A           "),
-			Instruction("CB70       ","BIT 6,B           "),
-			Instruction("CB71       ","BIT 6,C           "),
-			Instruction("CB72       ","BIT 6,D           "),
-			Instruction("CB73       ","BIT 6,E           "),
-			Instruction("CB74       ","BIT 6,H           "),
-			Instruction("CB75       ","BIT 6,L           "),
-			Instruction("CB7E       ","BIT 7,(HL)        "),
-			Instruction("DDCB %d 7E ","BIT 7,(IX+%d)     "),
-			Instruction("DDCB %d 7B ","BIT 7,(IX+%d)     "),
-			Instruction("DDCB %d 79 ","BIT 7,(IX+%d)     "),
-			Instruction("DDCB %d 7F ","BIT 7,(IX+%d)     "),
-			Instruction("DDCB %d 7C ","BIT 7,(IX+%d)     "),
-			Instruction("DDCB %d 7A ","BIT 7,(IX+%d)     "),
-			Instruction("DDCB %d 7D ","BIT 7,(IX+%d)     "),
-			Instruction("DDCB %d 78 ","BIT 7,(IX+%d)     "),
-			Instruction("FDCB %d 7E ","BIT 7,(IY+%d)     "),
-			Instruction("FDCB %d 78 ","BIT 7,(IY+%d)     "),
-			Instruction("FDCB %d 7A ","BIT 7,(IY+%d)     "),
-			Instruction("FDCB %d 7F ","BIT 7,(IY+%d)     "),
-			Instruction("FDCB %d 7C ","BIT 7,(IY+%d)     "),
-			Instruction("FDCB %d 7B ","BIT 7,(IY+%d)     "),
-			Instruction("FDCB %d 79 ","BIT 7,(IY+%d)     "),
-			Instruction("FDCB %d 7D ","BIT 7,(IY+%d)     "),
-			Instruction("CB7F       ","BIT 7,A           "),
-			Instruction("CB78       ","BIT 7,B           "),
-			Instruction("CB79       ","BIT 7,C           "),
-			Instruction("CB7A       ","BIT 7,D           "),
-			Instruction("CB7B       ","BIT 7,E           "),
-			Instruction("CB7C       ","BIT 7,H           "),
-			Instruction("CB7D       ","BIT 7,L           "),
-			Instruction("CD %nn     ","CALL (%nn)        "),
-			Instruction("DC %nn     ","CALL C,(%nn)      "),
-			Instruction("FC %nn     ","CALL M,(%nn)      "),
-			Instruction("D4 %nn     ","CALL NC,(%nn)     "),
-			Instruction("C4 %nn     ","CALL NZ,(%nn)     "),
-			Instruction("F4 %nn     ","CALL P,(%nn)      "),
-			Instruction("EC %nn     ","CALL PE,(%nn)     "),
-			Instruction("E4 %nn     ","CALL PO,(%nn)     "),
-			Instruction("CC %nn     ","CALL Z,(%nn)      "),
-			Instruction("3F         ","CCF               "),
-			Instruction("BE         ","CP (HL)           "),
-			Instruction("DDBE %d    ","CP (IX+%d)        "),
-			Instruction("FDBE %d    ","CP (IY+%d)        "),
-			Instruction("BF         ","CP A              "),
-			Instruction("B8         ","CP B              "),
-			Instruction("B9         ","CP C              "),
-			Instruction("BA         ","CP D              "),
-			Instruction("BB         ","CP E              "),
-			Instruction("BC         ","CP H              "),
-			Instruction("DDBC       ","CP IXh            "),
-			Instruction("DDBD       ","CP IXl            "),
-			Instruction("FDBC       ","CP IYh            "),
-			Instruction("FDBD       ","CP IYl            "),
-			Instruction("BD         ","CP L              "),
-			Instruction("FE %n      ","CP %n             "),
-			Instruction("EDA9       ","CPD               "),
-			Instruction("EDB9       ","CPDR              "),
-			Instruction("EDA1       ","CPI               "),
-			Instruction("EDB1       ","CPIR              "),
-			Instruction("2F         ","CPL               "),
-			Instruction("27         ","DAA               "),
-			Instruction("35         ","DEC (HL)          "),
-			Instruction("DD35 %d    ","DEC (IX+%d)       "),
-			Instruction("FD35 %d    ","DEC (IY+%d)       "),
-			Instruction("3D         ","DEC A             "),
-			Instruction("05         ","DEC B             "),
-			Instruction("0B         ","DEC BC            "),
-			Instruction("0D         ","DEC C             "),
-			Instruction("15         ","DEC D             "),
-			Instruction("1B         ","DEC DE            "),
-			Instruction("1D         ","DEC E             "),
-			Instruction("25         ","DEC H             "),
-			Instruction("2B         ","DEC HL            "),
-			Instruction("DD2B       ","DEC IX            "),
-			Instruction("DD25       ","DEC IXh           "),
-			Instruction("DD2D       ","DEC IXl           "),
-			Instruction("FD2B       ","DEC IY            "),
-			Instruction("FD25       ","DEC IYh           "),
-			Instruction("FD2D       ","DEC IYl           "),
-			Instruction("2D         ","DEC L             "),
-			Instruction("3B         ","DEC SP            "),
-			Instruction("F3         ","DI                "),
-			Instruction("10 %e      ","DJNZ (PC+%e)      "),
-			Instruction("FB         ","EI                "),
-			Instruction("E3         ","EX (SP),HL        "),
-			Instruction("DDE3       ","EX (SP),IX        "),
-			Instruction("FDE3       ","EX (SP),IY        "),
-			Instruction("08         ","EX AF,AF'         "),
-			Instruction("EB         ","EX DE,HL          "),
-			Instruction("D9         ","EXX               "),
-			Instruction("76         ","HALT              "),
-			Instruction("ED46       ","IM 0              "),
-			Instruction("ED6E       ","IM 0              "),
-			Instruction("ED4E       ","IM 0              "),
-			Instruction("ED66       ","IM 0              "),
-			Instruction("ED56       ","IM 1              "),
-			Instruction("ED76       ","IM 1              "),
-			Instruction("ED5E       ","IM 2              "),
-			Instruction("ED7E       ","IM 2              "),
-			Instruction("ED78       ","IN A,(C)          "),
-			Instruction("DB %n      ","IN A,(n)          "),
-			Instruction("ED40       ","IN B,(C)          "),
-			Instruction("ED48       ","IN C,(C)          "),
-			Instruction("ED50       ","IN D,(C)          "),
-			Instruction("ED58       ","IN E,(C)          "),
-			Instruction("ED70       ","IN F,(C)          "),
-			Instruction("ED60       ","IN H,(C)          "),
-			Instruction("ED68       ","IN L,(C)          "),
-			Instruction("34         ","INC (HL)          "),
-			Instruction("DD34 %d    ","INC (IX+%d)       "),
-			Instruction("FD34 %d    ","INC (IY+%d)       "),
-			Instruction("3C         ","INC A             "),
-			Instruction("04         ","INC B             "),
-			Instruction("03         ","INC BC            "),
-			Instruction("0C         ","INC C             "),
-			Instruction("14         ","INC D             "),
-			Instruction("13         ","INC DE            "),
-			Instruction("1C         ","INC E             "),
-			Instruction("24         ","INC H             "),
-			Instruction("23         ","INC HL            "),
-			Instruction("DD23       ","INC IX            "),
-			Instruction("DD24       ","INC IXh           "),
-			Instruction("DD2C       ","INC IXl           "),
-			Instruction("FD23       ","INC IY            "),
-			Instruction("FD24       ","INC IYh           "),
-			Instruction("FD2C       ","INC IYl           "),
-			Instruction("2C         ","INC L             "),
-			Instruction("33         ","INC SP            "),
-			Instruction("EDAA       ","IND               "),
-			Instruction("EDBA       ","INDR              "),
-			Instruction("EDA2       ","INI               "),
-			Instruction("EDB2       ","INIR              "),
-			Instruction("E9         ","JP (HL)           "),
-			Instruction("DDE9       ","JP (IX)           "),
-			Instruction("FDE9       ","JP (IY)           "),
-			Instruction("C3 %nn     ","JP (%nn)          "),
-			Instruction("DA %nn     ","JP C,(%nn)        "),
-			Instruction("FA %nn     ","JP M,(%nn)        "),
-			Instruction("D2 %nn     ","JP NC,(%nn)       "),
-			Instruction("C2 %nn     ","JP NZ,(%nn)       "),
-			Instruction("F2 %nn     ","JP P,(%nn)        "),
-			Instruction("EA %nn     ","JP PE,(%nn)       "),
-			Instruction("E2 %nn     ","JP PO,(%nn)       "),
-			Instruction("CA %nn     ","JP Z,(%nn)        "),
-			Instruction("18 %e      ","JR (PC+%e)        "),
-			Instruction("38 %e      ","JR C,(PC+%e)      "),
-			Instruction("30 %e      ","JR NC,(PC+%e)     "),
-			Instruction("20 %e      ","JR NZ,(PC+%e)     "),
-			Instruction("28 %e      ","JR Z,(PC+%e)      "),
-			Instruction("02         ","LD (BC),A         "),
-			Instruction("12         ","LD (DE),A         "),
-			Instruction("77         ","LD (HL),A         "),
-			Instruction("70         ","LD (HL),B         "),
-			Instruction("71         ","LD (HL),C         "),
-			Instruction("72         ","LD (HL),D         "),
-			Instruction("73         ","LD (HL),E         "),
-			Instruction("74         ","LD (HL),H         "),
-			Instruction("75         ","LD (HL),L         "),
-			Instruction("36 %n      ","LD (HL),%n        "),
-			Instruction("DD77 %d    ","LD (IX+%d),A      "),
-			Instruction("DD70 %d    ","LD (IX+%d),B      "),
-			Instruction("DD71 %d    ","LD (IX+%d),C      "),
-			Instruction("DD72 %d    ","LD (IX+%d),D      "),
-			Instruction("DD73 %d    ","LD (IX+%d),E      "),
-			Instruction("DD74 %d    ","LD (IX+%d),H      "),
-			Instruction("DD75 %d    ","LD (IX+%d),L      "),
-			Instruction("DD36 %d %n ","LD (IX+%d),%n     "),
-			Instruction("FD77 %d    ","LD (IY+%d),A      "),
-			Instruction("FD70 %d    ","LD (IY+%d),B      "),
-			Instruction("FD71 %d    ","LD (IY+%d),C      "),
-			Instruction("FD72 %d    ","LD (IY+%d),D      "),
-			Instruction("FD73 %d    ","LD (IY+%d),E      "),
-			Instruction("FD74 %d    ","LD (IY+%d),H      "),
-			Instruction("FD75 %d    ","LD (IY+%d),L      "),
-			Instruction("FD36 %d %n ","LD (IY+%d),%n     "),
-			Instruction("32 %nn     ","LD (%nn),A        "),
-			Instruction("ED43 %nn   ","LD (%nn),BC       "),
-			Instruction("ED53 %nn   ","LD (%nn),DE       "),
-			Instruction("ED63 %nn   ","LD (%nn),HL       "),
-			Instruction("22 %nn     ","LD (%nn),HL       "),
-			Instruction("DD22 %nn   ","LD (%nn),IX       "),
-			Instruction("FD22 %nn   ","LD (%nn),IY       "),
-			Instruction("ED73 %nn   ","LD (%nn),SP       "),
-			Instruction("0A         ","LD A,(BC)         "),
-			Instruction("1A         ","LD A,(DE)         "),
-			Instruction("7E         ","LD A,(HL)         "),
-			Instruction("DD7E %d    ","LD A,(IX+%d)      "),
-			Instruction("FD7E %d    ","LD A,(IY+%d)      "),
-			Instruction("3A %nn     ","LD A,(%nn)        "),
-			Instruction("7F         ","LD A,A            "),
-			Instruction("78         ","LD A,B            "),
-			Instruction("79         ","LD A,C            "),
-			Instruction("7A         ","LD A,D            "),
-			Instruction("7B         ","LD A,E            "),
-			Instruction("7C         ","LD A,H            "),
-			Instruction("ED57       ","LD A,I            "),
-			Instruction("DD7C       ","LD A,IXh          "),
-			Instruction("DD7D       ","LD A,IXl          "),
-			Instruction("FD7C       ","LD A,IYh          "),
-			Instruction("FD7D       ","LD A,IYl          "),
-			Instruction("7D         ","LD A,L            "),
-			Instruction("3E %n      ","LD A,%n           "),
-			Instruction("ED5F       ","LD A,R            "),
-			Instruction("DDCB %d 87 ","LD A,RES 0,(IX+%d)"),
-			Instruction("FDCB %d 87 ","LD A,RES 0,(IY+%d)"),
-			Instruction("DDCB %d 8F ","LD A,RES 1,(IX+%d)"),
-			Instruction("FDCB %d 8F ","LD A,RES 1,(IY+%d)"),
-			Instruction("DDCB %d 97 ","LD A,RES 2,(IX+%d)"),
-			Instruction("FDCB %d 97 ","LD A,RES 2,(IY+%d)"),
-			Instruction("DDCB %d 9F ","LD A,RES 3,(IX+%d)"),
-			Instruction("FDCB %d 9F ","LD A,RES 3,(IY+%d)"),
-			Instruction("DDCB %d A7 ","LD A,RES 4,(IX+%d)"),
-			Instruction("FDCB %d A7 ","LD A,RES 4,(IY+%d)"),
-			Instruction("DDCB %d AF ","LD A,RES 5,(IX+%d)"),
-			Instruction("FDCB %d AF ","LD A,RES 5,(IY+%d)"),
-			Instruction("DDCB %d B7 ","LD A,RES 6,(IX+%d)"),
-			Instruction("FDCB %d B7 ","LD A,RES 6,(IY+%d)"),
-			Instruction("DDCB %d BF ","LD A,RES 7,(IX+%d)"),
-			Instruction("FDCB %d BF ","LD A,RES 7,(IY+%d)"),
-			Instruction("DDCB %d 17 ","LD A,RL (IX+%d)   "),
-			Instruction("FDCB %d 17 ","LD A,RL (IY+%d)   "),
-			Instruction("DDCB %d 07 ","LD A,RLC (IX+%d)  "),
-			Instruction("FDCB %d 07 ","LD A,RLC (IY+%d)  "),
-			Instruction("DDCB %d 1F ","LD A,RR (IX+%d)   "),
-			Instruction("FDCB %d 1F ","LD A,RR (IY+%d)   "),
-			Instruction("DDCB %d 0F ","LD A,RRC (IX+%d)  "),
-			Instruction("FDCB %d 0F ","LD A,RRC (IY+%d)  "),
-			Instruction("DDCB %d C7 ","LD A,SET 0,(IX+%d)"),
-			Instruction("FDCB %d C7 ","LD A,SET 0,(IY+%d)"),
-			Instruction("DDCB %d CF ","LD A,SET 1,(IX+%d)"),
-			Instruction("FDCB %d CF ","LD A,SET 1,(IY+%d)"),
-			Instruction("DDCB %d D7 ","LD A,SET 2,(IX+%d)"),
-			Instruction("FDCB %d D7 ","LD A,SET 2,(IY+%d)"),
-			Instruction("DDCB %d DF ","LD A,SET 3,(IX+%d)"),
-			Instruction("FDCB %d DF ","LD A,SET 3,(IY+%d)"),
-			Instruction("DDCB %d E7 ","LD A,SET 4,(IX+%d)"),
-			Instruction("FDCB %d E7 ","LD A,SET 4,(IY+%d)"),
-			Instruction("DDCB %d EF ","LD A,SET 5,(IX+%d)"),
-			Instruction("FDCB %d EF ","LD A,SET 5,(IY+%d)"),
-			Instruction("DDCB %d F7 ","LD A,SET 6,(IX+%d)"),
-			Instruction("FDCB %d F7 ","LD A,SET 6,(IY+%d)"),
-			Instruction("DDCB %d FF ","LD A,SET 7,(IX+%d)"),
-			Instruction("FDCB %d FF ","LD A,SET 7,(IY+%d)"),
-			Instruction("DDCB %d 27 ","LD A,SLA (IX+%d)  "),
-			Instruction("FDCB %d 27 ","LD A,SLA (IY+%d)  "),
-			Instruction("DDCB %d 37 ","LD A,SLL (IX+%d)  "),
-			Instruction("FDCB %d 37 ","LD A,SLL (IY+%d)  "),
-			Instruction("DDCB %d 2F ","LD A,SRA (IX+%d)  "),
-			Instruction("FDCB %d 2F ","LD A,SRA (IY+%d)  "),
-			Instruction("DDCB %d 3F ","LD A,SRL (IX+%d)  "),
-			Instruction("FDCB %d 3F ","LD A,SRL (IY+%d)  "),
-			Instruction("46         ","LD B,(HL)         "),
-			Instruction("DD46 %d    ","LD B,(IX+%d)      "),
-			Instruction("FD46 %d    ","LD B,(IY+%d)      "),
-			Instruction("47         ","LD B,A            "),
-			Instruction("40         ","LD B,B            "),
-			Instruction("41         ","LD B,C            "),
-			Instruction("42         ","LD B,D            "),
-			Instruction("43         ","LD B,E            "),
-			Instruction("44         ","LD B,H            "),
-			Instruction("DD44       ","LD B,IXh          "),
-			Instruction("DD45       ","LD B,IXl          "),
-			Instruction("FD44       ","LD B,IYh          "),
-			Instruction("FD45       ","LD B,IYl          "),
-			Instruction("45         ","LD B,L            "),
-			Instruction("06 %n      ","LD B,%n           "),
-			Instruction("DDCB %d 80 ","LD B,RES 0,(IX+%d)"),
-			Instruction("FDCB %d 80 ","LD B,RES 0,(IY+%d)"),
-			Instruction("DDCB %d 88 ","LD B,RES 1,(IX+%d)"),
-			Instruction("FDCB %d 88 ","LD B,RES 1,(IY+%d)"),
-			Instruction("DDCB %d 90 ","LD B,RES 2,(IX+%d)"),
-			Instruction("FDCB %d 90 ","LD B,RES 2,(IY+%d)"),
-			Instruction("DDCB %d 98 ","LD B,RES 3,(IX+%d)"),
-			Instruction("FDCB %d 98 ","LD B,RES 3,(IY+%d)"),
-			Instruction("DDCB %d A0 ","LD B,RES 4,(IX+%d)"),
-			Instruction("FDCB %d A0 ","LD B,RES 4,(IY+%d)"),
-			Instruction("DDCB %d A8 ","LD B,RES 5,(IX+%d)"),
-			Instruction("FDCB %d A8 ","LD B,RES 5,(IY+%d)"),
-			Instruction("DDCB %d B0 ","LD B,RES 6,(IX+%d)"),
-			Instruction("FDCB %d B0 ","LD B,RES 6,(IY+%d)"),
-			Instruction("DDCB %d B8 ","LD B,RES 7,(IX+%d)"),
-			Instruction("FDCB %d B8 ","LD B,RES 7,(IY+%d)"),
-			Instruction("DDCB %d 10 ","LD B,RL (IX+%d)   "),
-			Instruction("FDCB %d 10 ","LD B,RL (IY+%d)   "),
-			Instruction("DDCB %d 00 ","LD B,RLC (IX+%d)  "),
-			Instruction("FDCB %d 00 ","LD B,RLC (IY+%d)  "),
-			Instruction("DDCB %d 18 ","LD B,RR (IX+%d)   "),
-			Instruction("FDCB %d 18 ","LD B,RR (IY+%d)   "),
-			Instruction("DDCB %d 08 ","LD B,RRC (IX+%d)  "),
-			Instruction("FDCB %d 08 ","LD B,RRC (IY+%d)  "),
-			Instruction("DDCB %d C0 ","LD B,SET 0,(IX+%d)"),
-			Instruction("FDCB %d C0 ","LD B,SET 0,(IY+%d)"),
-			Instruction("DDCB %d C8 ","LD B,SET 1,(IX+%d)"),
-			Instruction("FDCB %d C8 ","LD B,SET 1,(IY+%d)"),
-			Instruction("DDCB %d D0 ","LD B,SET 2,(IX+%d)"),
-			Instruction("FDCB %d D0 ","LD B,SET 2,(IY+%d)"),
-			Instruction("DDCB %d D8 ","LD B,SET 3,(IX+%d)"),
-			Instruction("FDCB %d D8 ","LD B,SET 3,(IY+%d)"),
-			Instruction("DDCB %d E0 ","LD B,SET 4,(IX+%d)"),
-			Instruction("FDCB %d E0 ","LD B,SET 4,(IY+%d)"),
-			Instruction("DDCB %d E8 ","LD B,SET 5,(IX+%d)"),
-			Instruction("FDCB %d E8 ","LD B,SET 5,(IY+%d)"),
-			Instruction("DDCB %d F0 ","LD B,SET 6,(IX+%d)"),
-			Instruction("FDCB %d F0 ","LD B,SET 6,(IY+%d)"),
-			Instruction("DDCB %d F8 ","LD B,SET 7,(IX+%d)"),
-			Instruction("FDCB %d F8 ","LD B,SET 7,(IY+%d)"),
-			Instruction("DDCB %d 20 ","LD B,SLA (IX+%d)  "),
-			Instruction("FDCB %d 20 ","LD B,SLA (IY+%d)  "),
-			Instruction("DDCB %d 30 ","LD B,SLL (IX+%d)  "),
-			Instruction("FDCB %d 30 ","LD B,SLL (IY+%d)  "),
-			Instruction("DDCB %d 28 ","LD B,SRA (IX+%d)  "),
-			Instruction("FDCB %d 28 ","LD B,SRA (IY+%d)  "),
-			Instruction("DDCB %d 38 ","LD B,SRL (IX+%d)  "),
-			Instruction("FDCB %d 38 ","LD B,SRL (IY+%d)  "),
-			Instruction("ED4B %nn   ","LD BC,(%nn)       "),
-			Instruction("01 %nn     ","LD BC,%nn         "),
-			Instruction("4E         ","LD C,(HL)         "),
-			Instruction("DD4E %d    ","LD C,(IX+%d)      "),
-			Instruction("FD4E %d    ","LD C,(IY+%d)      "),
-			Instruction("4F         ","LD C,A            "),
-			Instruction("48         ","LD C,B            "),
-			Instruction("49         ","LD C,C            "),
-			Instruction("4A         ","LD C,D            "),
-			Instruction("4B         ","LD C,E            "),
-			Instruction("4C         ","LD C,H            "),
-			Instruction("DD4C       ","LD C,IXh          "),
-			Instruction("DD4D       ","LD C,IXl          "),
-			Instruction("FD4C       ","LD C,IYh          "),
-			Instruction("FD4D       ","LD C,IYl          "),
-			Instruction("4D         ","LD C,L            "),
-			Instruction("0E %n      ","LD C,%n           "),
-			Instruction("DDCB %d 81 ","LD C,RES 0,(IX+%d)"),
-			Instruction("FDCB %d 81 ","LD C,RES 0,(IY+%d)"),
-			Instruction("DDCB %d 89 ","LD C,RES 1,(IX+%d)"),
-			Instruction("FDCB %d 89 ","LD C,RES 1,(IY+%d)"),
-			Instruction("DDCB %d 91 ","LD C,RES 2,(IX+%d)"),
-			Instruction("FDCB %d 91 ","LD C,RES 2,(IY+%d)"),
-			Instruction("DDCB %d 99 ","LD C,RES 3,(IX+%d)"),
-			Instruction("FDCB %d 99 ","LD C,RES 3,(IY+%d)"),
-			Instruction("DDCB %d A1 ","LD C,RES 4,(IX+%d)"),
-			Instruction("FDCB %d A1 ","LD C,RES 4,(IY+%d)"),
-			Instruction("DDCB %d A9 ","LD C,RES 5,(IX+%d)"),
-			Instruction("FDCB %d A9 ","LD C,RES 5,(IY+%d)"),
-			Instruction("DDCB %d B1 ","LD C,RES 6,(IX+%d)"),
-			Instruction("FDCB %d B1 ","LD C,RES 6,(IY+%d)"),
-			Instruction("DDCB %d B9 ","LD C,RES 7,(IX+%d)"),
-			Instruction("FDCB %d B9 ","LD C,RES 7,(IY+%d)"),
-			Instruction("DDCB %d 11 ","LD C,RL (IX+%d)   "),
-			Instruction("FDCB %d 11 ","LD C,RL (IY+%d)   "),
-			Instruction("DDCB %d 01 ","LD C,RLC (IX+%d)  "),
-			Instruction("FDCB %d 01 ","LD C,RLC (IY+%d)  "),
-			Instruction("DDCB %d 19 ","LD C,RR (IX+%d)   "),
-			Instruction("FDCB %d 19 ","LD C,RR (IY+%d)   "),
-			Instruction("DDCB %d 09 ","LD C,RRC (IX+%d)  "),
-			Instruction("FDCB %d 09 ","LD C,RRC (IY+%d)  "),
-			Instruction("DDCB %d C1 ","LD C,SET 0,(IX+%d)"),
-			Instruction("FDCB %d C1 ","LD C,SET 0,(IY+%d)"),
-			Instruction("DDCB %d C9 ","LD C,SET 1,(IX+%d)"),
-			Instruction("FDCB %d C9 ","LD C,SET 1,(IY+%d)"),
-			Instruction("DDCB %d D1 ","LD C,SET 2,(IX+%d)"),
-			Instruction("FDCB %d D1 ","LD C,SET 2,(IY+%d)"),
-			Instruction("DDCB %d D9 ","LD C,SET 3,(IX+%d)"),
-			Instruction("FDCB %d D9 ","LD C,SET 3,(IY+%d)"),
-			Instruction("DDCB %d E1 ","LD C,SET 4,(IX+%d)"),
-			Instruction("FDCB %d E1 ","LD C,SET 4,(IY+%d)"),
-			Instruction("DDCB %d E9 ","LD C,SET 5,(IX+%d)"),
-			Instruction("FDCB %d E9 ","LD C,SET 5,(IY+%d)"),
-			Instruction("DDCB %d F1 ","LD C,SET 6,(IX+%d)"),
-			Instruction("FDCB %d F1 ","LD C,SET 6,(IY+%d)"),
-			Instruction("DDCB %d F9 ","LD C,SET 7,(IX+%d)"),
-			Instruction("FDCB %d F9 ","LD C,SET 7,(IY+%d)"),
-			Instruction("DDCB %d 21 ","LD C,SLA (IX+%d)  "),
-			Instruction("FDCB %d 21 ","LD C,SLA (IY+%d)  "),
-			Instruction("DDCB %d 31 ","LD C,SLL (IX+%d)  "),
-			Instruction("FDCB %d 31 ","LD C,SLL (IY+%d)  "),
-			Instruction("DDCB %d 29 ","LD C,SRA (IX+%d)  "),
-			Instruction("FDCB %d 29 ","LD C,SRA (IY+%d)  "),
-			Instruction("DDCB %d 39 ","LD C,SRL (IX+%d)  "),
-			Instruction("FDCB %d 39 ","LD C,SRL (IY+%d)  "),
-			Instruction("56         ","LD D,(HL)         "),
-			Instruction("DD56 %d    ","LD D,(IX+%d)      "),
-			Instruction("FD56 %d    ","LD D,(IY+%d)      "),
-			Instruction("57         ","LD D,A            "),
-			Instruction("50         ","LD D,B            "),
-			Instruction("51         ","LD D,C            "),
-			Instruction("52         ","LD D,D            "),
-			Instruction("53         ","LD D,E            "),
-			Instruction("54         ","LD D,H            "),
-			Instruction("DD54       ","LD D,IXh          "),
-			Instruction("DD55       ","LD D,IXl          "),
-			Instruction("FD54       ","LD D,IYh          "),
-			Instruction("FD55       ","LD D,IYl          "),
-			Instruction("55         ","LD D,L            "),
-			Instruction("16 %n      ","LD D,%n           "),
-			Instruction("DDCB %d 82 ","LD D,RES 0,(IX+%d)"),
-			Instruction("FDCB %d 82 ","LD D,RES 0,(IY+%d)"),
-			Instruction("DDCB %d 8A ","LD D,RES 1,(IX+%d)"),
-			Instruction("FDCB %d 8A ","LD D,RES 1,(IY+%d)"),
-			Instruction("DDCB %d 92 ","LD D,RES 2,(IX+%d)"),
-			Instruction("FDCB %d 92 ","LD D,RES 2,(IY+%d)"),
-			Instruction("DDCB %d 9A ","LD D,RES 3,(IX+%d)"),
-			Instruction("FDCB %d 9A ","LD D,RES 3,(IY+%d)"),
-			Instruction("DDCB %d A2 ","LD D,RES 4,(IX+%d)"),
-			Instruction("FDCB %d A2 ","LD D,RES 4,(IY+%d)"),
-			Instruction("DDCB %d AA ","LD D,RES 5,(IX+%d)"),
-			Instruction("FDCB %d AA ","LD D,RES 5,(IY+%d)"),
-			Instruction("DDCB %d B2 ","LD D,RES 6,(IX+%d)"),
-			Instruction("FDCB %d B2 ","LD D,RES 6,(IY+%d)"),
-			Instruction("DDCB %d BA ","LD D,RES 7,(IX+%d)"),
-			Instruction("FDCB %d BA ","LD D,RES 7,(IY+%d)"),
-			Instruction("DDCB %d 12 ","LD D,RL (IX+%d)   "),
-			Instruction("FDCB %d 12 ","LD D,RL (IY+%d)   "),
-			Instruction("DDCB %d 02 ","LD D,RLC (IX+%d)  "),
-			Instruction("FDCB %d 02 ","LD D,RLC (IY+%d)  "),
-			Instruction("DDCB %d 1A ","LD D,RR (IX+%d)   "),
-			Instruction("FDCB %d 1A ","LD D,RR (IY+%d)   "),
-			Instruction("DDCB %d 0A ","LD D,RRC (IX+%d)  "),
-			Instruction("FDCB %d 0A ","LD D,RRC (IY+%d)  "),
-			Instruction("DDCB %d C2 ","LD D,SET 0,(IX+%d)"),
-			Instruction("FDCB %d C2 ","LD D,SET 0,(IY+%d)"),
-			Instruction("DDCB %d CA ","LD D,SET 1,(IX+%d)"),
-			Instruction("FDCB %d CA ","LD D,SET 1,(IY+%d)"),
-			Instruction("DDCB %d D2 ","LD D,SET 2,(IX+%d)"),
-			Instruction("FDCB %d D2 ","LD D,SET 2,(IY+%d)"),
-			Instruction("DDCB %d DA ","LD D,SET 3,(IX+%d)"),
-			Instruction("FDCB %d DA ","LD D,SET 3,(IY+%d)"),
-			Instruction("DDCB %d E2 ","LD D,SET 4,(IX+%d)"),
-			Instruction("FDCB %d E2 ","LD D,SET 4,(IY+%d)"),
-			Instruction("DDCB %d EA ","LD D,SET 5,(IX+%d)"),
-			Instruction("FDCB %d EA ","LD D,SET 5,(IY+%d)"),
-			Instruction("DDCB %d F2 ","LD D,SET 6,(IX+%d)"),
-			Instruction("FDCB %d F2 ","LD D,SET 6,(IY+%d)"),
-			Instruction("DDCB %d FA ","LD D,SET 7,(IX+%d)"),
-			Instruction("FDCB %d FA ","LD D,SET 7,(IY+%d)"),
-			Instruction("DDCB %d 22 ","LD D,SLA (IX+%d)  "),
-			Instruction("FDCB %d 22 ","LD D,SLA (IY+%d)  "),
-			Instruction("DDCB %d 32 ","LD D,SLL (IX+%d)  "),
-			Instruction("FDCB %d 32 ","LD D,SLL (IY+%d)  "),
-			Instruction("DDCB %d 2A ","LD D,SRA (IX+%d)  "),
-			Instruction("FDCB %d 2A ","LD D,SRA (IY+%d)  "),
-			Instruction("DDCB %d 3A ","LD D,SRL (IX+%d)  "),
-			Instruction("FDCB %d 3A ","LD D,SRL (IY+%d)  "),
-			Instruction("ED5B %nn   ","LD DE,(%nn)       "),
-			Instruction("11 %nn     ","LD DE,%nn         "),
-			Instruction("5E         ","LD E,(HL)         "),
-			Instruction("DD5E %d    ","LD E,(IX+%d)      "),
-			Instruction("FD5E %d    ","LD E,(IY+%d)      "),
-			Instruction("5F         ","LD E,A            "),
-			Instruction("58         ","LD E,B            "),
-			Instruction("59         ","LD E,C            "),
-			Instruction("5A         ","LD E,D            "),
-			Instruction("5B         ","LD E,E            "),
-			Instruction("5C         ","LD E,H            "),
-			Instruction("DD5C       ","LD E,IXh          "),
-			Instruction("DD5D       ","LD E,IXl          "),
-			Instruction("FD5C       ","LD E,IYh          "),
-			Instruction("FD5D       ","LD E,IYl          "),
-			Instruction("5D         ","LD E,L            "),
-			Instruction("1E %n      ","LD E,%n           "),
-			Instruction("DDCB %d 83 ","LD E,RES 0,(IX+%d)"),
-			Instruction("FDCB %d 83 ","LD E,RES 0,(IY+%d)"),
-			Instruction("DDCB %d 8B ","LD E,RES 1,(IX+%d)"),
-			Instruction("FDCB %d 8B ","LD E,RES 1,(IY+%d)"),
-			Instruction("DDCB %d 93 ","LD E,RES 2,(IX+%d)"),
-			Instruction("FDCB %d 93 ","LD E,RES 2,(IY+%d)"),
-			Instruction("DDCB %d 9B ","LD E,RES 3,(IX+%d)"),
-			Instruction("FDCB %d 9B ","LD E,RES 3,(IY+%d)"),
-			Instruction("DDCB %d A3 ","LD E,RES 4,(IX+%d)"),
-			Instruction("FDCB %d A3 ","LD E,RES 4,(IY+%d)"),
-			Instruction("DDCB %d AB ","LD E,RES 5,(IX+%d)"),
-			Instruction("FDCB %d AB ","LD E,RES 5,(IY+%d)"),
-			Instruction("DDCB %d B3 ","LD E,RES 6,(IX+%d)"),
-			Instruction("FDCB %d B3 ","LD E,RES 6,(IY+%d)"),
-			Instruction("DDCB %d BB ","LD E,RES 7,(IX+%d)"),
-			Instruction("FDCB %d BB ","LD E,RES 7,(IY+%d)"),
-			Instruction("DDCB %d 13 ","LD E,RL (IX+%d)   "),
-			Instruction("FDCB %d 13 ","LD E,RL (IY+%d)   "),
-			Instruction("DDCB %d 03 ","LD E,RLC (IX+%d)  "),
-			Instruction("FDCB %d 03 ","LD E,RLC (IY+%d)  "),
-			Instruction("DDCB %d 1B ","LD E,RR (IX+%d)   "),
-			Instruction("FDCB %d 1B ","LD E,RR (IY+%d)   "),
-			Instruction("DDCB %d 0B ","LD E,RRC (IX+%d)  "),
-			Instruction("FDCB %d 0B ","LD E,RRC (IY+%d)  "),
-			Instruction("DDCB %d C3 ","LD E,SET 0,(IX+%d)"),
-			Instruction("FDCB %d C3 ","LD E,SET 0,(IY+%d)"),
-			Instruction("DDCB %d CB ","LD E,SET 1,(IX+%d)"),
-			Instruction("FDCB %d CB ","LD E,SET 1,(IY+%d)"),
-			Instruction("DDCB %d D3 ","LD E,SET 2,(IX+%d)"),
-			Instruction("FDCB %d D3 ","LD E,SET 2,(IY+%d)"),
-			Instruction("DDCB %d DB ","LD E,SET 3,(IX+%d)"),
-			Instruction("FDCB %d DB ","LD E,SET 3,(IY+%d)"),
-			Instruction("DDCB %d E3 ","LD E,SET 4,(IX+%d)"),
-			Instruction("FDCB %d E3 ","LD E,SET 4,(IY+%d)"),
-			Instruction("DDCB %d EB ","LD E,SET 5,(IX+%d)"),
-			Instruction("FDCB %d EB ","LD E,SET 5,(IY+%d)"),
-			Instruction("DDCB %d F3 ","LD E,SET 6,(IX+%d)"),
-			Instruction("FDCB %d F3 ","LD E,SET 6,(IY+%d)"),
-			Instruction("DDCB %d FB ","LD E,SET 7,(IX+%d)"),
-			Instruction("FDCB %d FB ","LD E,SET 7,(IY+%d)"),
-			Instruction("DDCB %d 23 ","LD E,SLA (IX+%d)  "),
-			Instruction("FDCB %d 23 ","LD E,SLA (IY+%d)  "),
-			Instruction("DDCB %d 33 ","LD E,SLL (IX+%d)  "),
-			Instruction("FDCB %d 33 ","LD E,SLL (IY+%d)  "),
-			Instruction("DDCB %d 2B ","LD E,SRA (IX+%d)  "),
-			Instruction("FDCB %d 2B ","LD E,SRA (IY+%d)  "),
-			Instruction("DDCB %d 3B ","LD E,SRL (IX+%d)  "),
-			Instruction("FDCB %d 3B ","LD E,SRL (IY+%d)  "),
-			Instruction("66         ","LD H,(HL)         "),
-			Instruction("DD66 %d    ","LD H,(IX+%d)      "),
-			Instruction("FD66 %d    ","LD H,(IY+%d)      "),
-			Instruction("67         ","LD H,A            "),
-			Instruction("60         ","LD H,B            "),
-			Instruction("61         ","LD H,C            "),
-			Instruction("62         ","LD H,D            "),
-			Instruction("63         ","LD H,E            "),
-			Instruction("64         ","LD H,H            "),
-			Instruction("65         ","LD H,L            "),
-			Instruction("26 %n      ","LD H,%n           "),
-			Instruction("DDCB %d 84 ","LD H,RES 0,(IX+%d)"),
-			Instruction("FDCB %d 84 ","LD H,RES 0,(IY+%d)"),
-			Instruction("DDCB %d 8C ","LD H,RES 1,(IX+%d)"),
-			Instruction("FDCB %d 8C ","LD H,RES 1,(IY+%d)"),
-			Instruction("DDCB %d 94 ","LD H,RES 2,(IX+%d)"),
-			Instruction("FDCB %d 94 ","LD H,RES 2,(IY+%d)"),
-			Instruction("DDCB %d 9C ","LD H,RES 3,(IX+%d)"),
-			Instruction("FDCB %d 9C ","LD H,RES 3,(IY+%d)"),
-			Instruction("DDCB %d A4 ","LD H,RES 4,(IX+%d)"),
-			Instruction("FDCB %d A4 ","LD H,RES 4,(IY+%d)"),
-			Instruction("DDCB %d AC ","LD H,RES 5,(IX+%d)"),
-			Instruction("FDCB %d AC ","LD H,RES 5,(IY+%d)"),
-			Instruction("DDCB %d B4 ","LD H,RES 6,(IX+%d)"),
-			Instruction("FDCB %d B4 ","LD H,RES 6,(IY+%d)"),
-			Instruction("DDCB %d BC ","LD H,RES 7,(IX+%d)"),
-			Instruction("FDCB %d BC ","LD H,RES 7,(IY+%d)"),
-			Instruction("DDCB %d 14 ","LD H,RL (IX+%d)   "),
-			Instruction("FDCB %d 14 ","LD H,RL (IY+%d)   "),
-			Instruction("DDCB %d 04 ","LD H,RLC (IX+%d)  "),
-			Instruction("FDCB %d 04 ","LD H,RLC (IY+%d)  "),
-			Instruction("DDCB %d 1C ","LD H,RR (IX+%d)   "),
-			Instruction("FDCB %d 1C ","LD H,RR (IY+%d)   "),
-			Instruction("DDCB %d 0C ","LD H,RRC (IX+%d)  "),
-			Instruction("FDCB %d 0C ","LD H,RRC (IY+%d)  "),
-			Instruction("DDCB %d C4 ","LD H,SET 0,(IX+%d)"),
-			Instruction("FDCB %d C4 ","LD H,SET 0,(IY+%d)"),
-			Instruction("DDCB %d CC ","LD H,SET 1,(IX+%d)"),
-			Instruction("FDCB %d CC ","LD H,SET 1,(IY+%d)"),
-			Instruction("DDCB %d D4 ","LD H,SET 2,(IX+%d)"),
-			Instruction("FDCB %d D4 ","LD H,SET 2,(IY+%d)"),
-			Instruction("DDCB %d DC ","LD H,SET 3,(IX+%d)"),
-			Instruction("FDCB %d DC ","LD H,SET 3,(IY+%d)"),
-			Instruction("DDCB %d E4 ","LD H,SET 4,(IX+%d)"),
-			Instruction("FDCB %d E4 ","LD H,SET 4,(IY+%d)"),
-			Instruction("DDCB %d EC ","LD H,SET 5,(IX+%d)"),
-			Instruction("FDCB %d EC ","LD H,SET 5,(IY+%d)"),
-			Instruction("DDCB %d F4 ","LD H,SET 6,(IX+%d)"),
-			Instruction("FDCB %d F4 ","LD H,SET 6,(IY+%d)"),
-			Instruction("DDCB %d FC ","LD H,SET 7,(IX+%d)"),
-			Instruction("FDCB %d FC ","LD H,SET 7,(IY+%d)"),
-			Instruction("DDCB %d 24 ","LD H,SLA (IX+%d)  "),
-			Instruction("FDCB %d 24 ","LD H,SLA (IY+%d)  "),
-			Instruction("DDCB %d 34 ","LD H,SLL (IX+%d)  "),
-			Instruction("FDCB %d 34 ","LD H,SLL (IY+%d)  "),
-			Instruction("DDCB %d 2C ","LD H,SRA (IX+%d)  "),
-			Instruction("FDCB %d 2C ","LD H,SRA (IY+%d)  "),
-			Instruction("DDCB %d 3C ","LD H,SRL (IX+%d)  "),
-			Instruction("FDCB %d 3C ","LD H,SRL (IY+%d)  "),
-			Instruction("ED6B %nn   ","LD HL,(%nn)       "),
-			Instruction("2A %nn     ","LD HL,(%nn)       "),
-			Instruction("21 %nn     ","LD HL,%nn         "),
-			Instruction("ED47       ","LD I,A            "),
-			Instruction("DD2A %nn   ","LD IX,(%nn)       "),
-			Instruction("DD21 %nn   ","LD IX,%nn         "),
-			Instruction("DD67       ","LD IXh,A          "),
-			Instruction("DD60       ","LD IXh,B          "),
-			Instruction("DD61       ","LD IXh,C          "),
-			Instruction("DD62       ","LD IXh,D          "),
-			Instruction("DD63       ","LD IXh,E          "),
-			Instruction("DD64       ","LD IXh,IXh        "),
-			Instruction("DD65       ","LD IXh,IXl        "),
-			Instruction("DD26 %n    ","LD IXh,%n         "),
-			Instruction("DD6F       ","LD IXl,A          "),
-			Instruction("DD68       ","LD IXl,B          "),
-			Instruction("DD69       ","LD IXl,C          "),
-			Instruction("DD6A       ","LD IXl,D          "),
-			Instruction("DD6B       ","LD IXl,E          "),
-			Instruction("DD6C       ","LD IXl,IXh        "),
-			Instruction("DD6D       ","LD IXl,IXl        "),
-			Instruction("DD2E %n    ","LD IXl,%n         "),
-			Instruction("FD2A %nn   ","LD IY,(%nn)       "),
-			Instruction("FD21 %nn   ","LD IY,%nn         "),
-			Instruction("FD67       ","LD IYh,A          "),
-			Instruction("FD60       ","LD IYh,B          "),
-			Instruction("FD61       ","LD IYh,C          "),
-			Instruction("FD62       ","LD IYh,D          "),
-			Instruction("FD63       ","LD IYh,E          "),
-			Instruction("FD64       ","LD IYh,IYh        "),
-			Instruction("FD65       ","LD IYh,IYl        "),
-			Instruction("FD26 %n    ","LD IYh,%n         "),
-			Instruction("FD6F       ","LD IYl,A          "),
-			Instruction("FD68       ","LD IYl,B          "),
-			Instruction("FD69       ","LD IYl,C          "),
-			Instruction("FD6A       ","LD IYl,D          "),
-			Instruction("FD6B       ","LD IYl,E          "),
-			Instruction("FD6C       ","LD IYl,IYh        "),
-			Instruction("FD6D       ","LD IYl,IYl        "),
-			Instruction("FD2E %n    ","LD IYl,%n         "),
-			Instruction("6E         ","LD L,(HL)         "),
-			Instruction("DD6E %d    ","LD L,(IX+%d)      "),
-			Instruction("FD6E %d    ","LD L,(IY+%d)      "),
-			Instruction("6F         ","LD L,A            "),
-			Instruction("68         ","LD L,B            "),
-			Instruction("69         ","LD L,C            "),
-			Instruction("6A         ","LD L,D            "),
-			Instruction("6B         ","LD L,E            "),
-			Instruction("6C         ","LD L,H            "),
-			Instruction("6D         ","LD L,L            "),
-			Instruction("2E %n      ","LD L,%n           "),
-			Instruction("DDCB %d 85 ","LD L,RES 0,(IX+%d)"),
-			Instruction("FDCB %d 85 ","LD L,RES 0,(IY+%d)"),
-			Instruction("DDCB %d 8D ","LD L,RES 1,(IX+%d)"),
-			Instruction("FDCB %d 8D ","LD L,RES 1,(IY+%d)"),
-			Instruction("DDCB %d 95 ","LD L,RES 2,(IX+%d)"),
-			Instruction("FDCB %d 95 ","LD L,RES 2,(IY+%d)"),
-			Instruction("DDCB %d 9D ","LD L,RES 3,(IX+%d)"),
-			Instruction("FDCB %d 9D ","LD L,RES 3,(IY+%d)"),
-			Instruction("DDCB %d A5 ","LD L,RES 4,(IX+%d)"),
-			Instruction("FDCB %d A5 ","LD L,RES 4,(IY+%d)"),
-			Instruction("DDCB %d AD ","LD L,RES 5,(IX+%d)"),
-			Instruction("FDCB %d AD ","LD L,RES 5,(IY+%d)"),
-			Instruction("DDCB %d B5 ","LD L,RES 6,(IX+%d)"),
-			Instruction("FDCB %d B5 ","LD L,RES 6,(IY+%d)"),
-			Instruction("DDCB %d BD ","LD L,RES 7,(IX+%d)"),
-			Instruction("FDCB %d BD ","LD L,RES 7,(IY+%d)"),
-			Instruction("DDCB %d 15 ","LD L,RL (IX+%d)   "),
-			Instruction("FDCB %d 15 ","LD L,RL (IY+%d)   "),
-			Instruction("DDCB %d 05 ","LD L,RLC (IX+%d)  "),
-			Instruction("FDCB %d 05 ","LD L,RLC (IY+%d)  "),
-			Instruction("DDCB %d 1D ","LD L,RR (IX+%d)   "),
-			Instruction("FDCB %d 1D ","LD L,RR (IY+%d)   "),
-			Instruction("DDCB %d 0D ","LD L,RRC (IX+%d)  "),
-			Instruction("FDCB %d 0D ","LD L,RRC (IY+%d)  "),
-			Instruction("DDCB %d C5 ","LD L,SET 0,(IX+%d)"),
-			Instruction("FDCB %d C5 ","LD L,SET 0,(IY+%d)"),
-			Instruction("DDCB %d CD ","LD L,SET 1,(IX+%d)"),
-			Instruction("FDCB %d CD ","LD L,SET 1,(IY+%d)"),
-			Instruction("DDCB %d D5 ","LD L,SET 2,(IX+%d)"),
-			Instruction("FDCB %d D5 ","LD L,SET 2,(IY+%d)"),
-			Instruction("DDCB %d DD ","LD L,SET 3,(IX+%d)"),
-			Instruction("FDCB %d DD ","LD L,SET 3,(IY+%d)"),
-			Instruction("DDCB %d E5 ","LD L,SET 4,(IX+%d)"),
-			Instruction("FDCB %d E5 ","LD L,SET 4,(IY+%d)"),
-			Instruction("DDCB %d ED ","LD L,SET 5,(IX+%d)"),
-			Instruction("FDCB %d ED ","LD L,SET 5,(IY+%d)"),
-			Instruction("DDCB %d F5 ","LD L,SET 6,(IX+%d)"),
-			Instruction("FDCB %d F5 ","LD L,SET 6,(IY+%d)"),
-			Instruction("DDCB %d FD ","LD L,SET 7,(IX+%d)"),
-			Instruction("FDCB %d FD ","LD L,SET 7,(IY+%d)"),
-			Instruction("DDCB %d 25 ","LD L,SLA (IX+%d)  "),
-			Instruction("FDCB %d 25 ","LD L,SLA (IY+%d)  "),
-			Instruction("DDCB %d 35 ","LD L,SLL (IX+%d)  "),
-			Instruction("FDCB %d 35 ","LD L,SLL (IY+%d)  "),
-			Instruction("DDCB %d 2D ","LD L,SRA (IX+%d)  "),
-			Instruction("FDCB %d 2D ","LD L,SRA (IY+%d)  "),
-			Instruction("DDCB %d 3D ","LD L,SRL (IX+%d)  "),
-			Instruction("FDCB %d 3D ","LD L,SRL (IY+%d)  "),
-			Instruction("ED4F       ","LD R,A            "),
-			Instruction("ED7B %nn   ","LD SP,(%nn)       "),
-			Instruction("F9         ","LD SP,HL          "),
-			Instruction("DDF9       ","LD SP,IX          "),
-			Instruction("FDF9       ","LD SP,IY          "),
-			Instruction("31 %nn     ","LD SP,%nn         "),
-			Instruction("EDA8       ","LDD               "),
-			Instruction("EDB8       ","LDDR              "),
-			Instruction("EDA0       ","LDI               "),
-			Instruction("EDB0       ","LDIR              "),
-			Instruction("ED44       ","NEG               "),
-			Instruction("ED64       ","NEG               "),
-			Instruction("ED6C       ","NEG               "),
-			Instruction("ED74       ","NEG               "),
-			Instruction("ED5C       ","NEG               "),
-			Instruction("ED7C       ","NEG               "),
-			Instruction("ED54       ","NEG               "),
-			Instruction("ED4C       ","NEG               "),
-			Instruction("00         ","NOP               "),
-			Instruction("B6         ","OR (HL)           "),
-			Instruction("DDB6 %d    ","OR (IX+%d)        "),
-			Instruction("FDB6 %d    ","OR (IY+%d)        "),
-			Instruction("B7         ","OR A              "),
-			Instruction("B0         ","OR B              "),
-			Instruction("B1         ","OR C              "),
-			Instruction("B2         ","OR D              "),
-			Instruction("B3         ","OR E              "),
-			Instruction("B4         ","OR H              "),
-			Instruction("DDB4       ","OR IXh            "),
-			Instruction("DDB5       ","OR IXl            "),
-			Instruction("FDB4       ","OR IYh            "),
-			Instruction("FDB5       ","OR IYl            "),
-			Instruction("B5         ","OR L              "),
-			Instruction("F6 %n      ","OR %n             "),
-			Instruction("EDBB       ","OTDR              "),
-			Instruction("EDB3       ","OTIR              "),
-			Instruction("ED71       ","OUT (C),0         "),
-			Instruction("ED79       ","OUT (C),A         "),
-			Instruction("ED41       ","OUT (C),B         "),
-			Instruction("ED49       ","OUT (C),C         "),
-			Instruction("ED51       ","OUT (C),D         "),
-			Instruction("ED59       ","OUT (C),E         "),
-			Instruction("ED61       ","OUT (C),H         "),
-			Instruction("ED69       ","OUT (C),L         "),
-			Instruction("D3 %n      ","OUT (n),A         "),
-			Instruction("EDAB       ","OUTD              "),
-			Instruction("EDA3       ","OUTI              "),
-			Instruction("F1         ","POP AF            "),
-			Instruction("C1         ","POP BC            "),
-			Instruction("D1         ","POP DE            "),
-			Instruction("E1         ","POP HL            "),
-			Instruction("DDE1       ","POP IX            "),
-			Instruction("FDE1       ","POP IY            "),
-			Instruction("F5         ","PUSH AF           "),
-			Instruction("C5         ","PUSH BC           "),
-			Instruction("D5         ","PUSH DE           "),
-			Instruction("E5         ","PUSH HL           "),
-			Instruction("DDE5       ","PUSH IX           "),
-			Instruction("FDE5       ","PUSH IY           "),
-			Instruction("CB86       ","RES 0,(HL)        "),
-			Instruction("DDCB %d 86 ","RES 0,(IX+%d)     "),
-			Instruction("FDCB %d 86 ","RES 0,(IY+%d)     "),
-			Instruction("CB87       ","RES 0,A           "),
-			Instruction("CB80       ","RES 0,B           "),
-			Instruction("CB81       ","RES 0,C           "),
-			Instruction("CB82       ","RES 0,D           "),
-			Instruction("CB83       ","RES 0,E           "),
-			Instruction("CB84       ","RES 0,H           "),
-			Instruction("CB85       ","RES 0,L           "),
-			Instruction("CB8E       ","RES 1,(HL)        "),
-			Instruction("DDCB %d 8E ","RES 1,(IX+%d)     "),
-			Instruction("FDCB %d 8E ","RES 1,(IY+%d)     "),
-			Instruction("CB8F       ","RES 1,A           "),
-			Instruction("CB88       ","RES 1,B           "),
-			Instruction("CB89       ","RES 1,C           "),
-			Instruction("CB8A       ","RES 1,D           "),
-			Instruction("CB8B       ","RES 1,E           "),
-			Instruction("CB8C       ","RES 1,H           "),
-			Instruction("CB8D       ","RES 1,L           "),
-			Instruction("CB96       ","RES 2,(HL)        "),
-			Instruction("DDCB %d 96 ","RES 2,(IX+%d)     "),
-			Instruction("FDCB %d 96 ","RES 2,(IY+%d)     "),
-			Instruction("CB97       ","RES 2,A           "),
-			Instruction("CB90       ","RES 2,B           "),
-			Instruction("CB91       ","RES 2,C           "),
-			Instruction("CB92       ","RES 2,D           "),
-			Instruction("CB93       ","RES 2,E           "),
-			Instruction("CB94       ","RES 2,H           "),
-			Instruction("CB95       ","RES 2,L           "),
-			Instruction("CB9E       ","RES 3,(HL)        "),
-			Instruction("DDCB %d 9E ","RES 3,(IX+%d)     "),
-			Instruction("FDCB %d 9E ","RES 3,(IY+%d)     "),
-			Instruction("CB9F       ","RES 3,A           "),
-			Instruction("CB98       ","RES 3,B           "),
-			Instruction("CB99       ","RES 3,C           "),
-			Instruction("CB9A       ","RES 3,D           "),
-			Instruction("CB9B       ","RES 3,E           "),
-			Instruction("CB9C       ","RES 3,H           "),
-			Instruction("CB9D       ","RES 3,L           "),
-			Instruction("CBA6       ","RES 4,(HL)        "),
-			Instruction("DDCB %d A6 ","RES 4,(IX+%d)     "),
-			Instruction("FDCB %d A6 ","RES 4,(IY+%d)     "),
-			Instruction("CBA7       ","RES 4,A           "),
-			Instruction("CBA0       ","RES 4,B           "),
-			Instruction("CBA1       ","RES 4,C           "),
-			Instruction("CBA2       ","RES 4,D           "),
-			Instruction("CBA3       ","RES 4,E           "),
-			Instruction("CBA4       ","RES 4,H           "),
-			Instruction("CBA5       ","RES 4,L           "),
-			Instruction("CBAE       ","RES 5,(HL)        "),
-			Instruction("DDCB %d AE ","RES 5,(IX+%d)     "),
-			Instruction("FDCB %d AE ","RES 5,(IY+%d)     "),
-			Instruction("CBAF       ","RES 5,A           "),
-			Instruction("CBA8       ","RES 5,B           "),
-			Instruction("CBA9       ","RES 5,C           "),
-			Instruction("CBAA       ","RES 5,D           "),
-			Instruction("CBAB       ","RES 5,E           "),
-			Instruction("CBAC       ","RES 5,H           "),
-			Instruction("CBAD       ","RES 5,L           "),
-			Instruction("CBB6       ","RES 6,(HL)        "),
-			Instruction("DDCB %d B6 ","RES 6,(IX+%d)     "),
-			Instruction("FDCB %d B6 ","RES 6,(IY+%d)     "),
-			Instruction("CBB7       ","RES 6,A           "),
-			Instruction("CBB0       ","RES 6,B           "),
-			Instruction("CBB1       ","RES 6,C           "),
-			Instruction("CBB2       ","RES 6,D           "),
-			Instruction("CBB3       ","RES 6,E           "),
-			Instruction("CBB4       ","RES 6,H           "),
-			Instruction("CBB5       ","RES 6,L           "),
-			Instruction("CBBE       ","RES 7,(HL)        "),
-			Instruction("DDCB %d BE ","RES 7,(IX+%d)     "),
-			Instruction("FDCB %d BE ","RES 7,(IY+%d)     "),
-			Instruction("CBBF       ","RES 7,A           "),
-			Instruction("CBB8       ","RES 7,B           "),
-			Instruction("CBB9       ","RES 7,C           "),
-			Instruction("CBBA       ","RES 7,D           "),
-			Instruction("CBBB       ","RES 7,E           "),
-			Instruction("CBBC       ","RES 7,H           "),
-			Instruction("CBBD       ","RES 7,L           "),
-			Instruction("C9         ","RET               "),
-			Instruction("D8         ","RET C             "),
-			Instruction("F8         ","RET M             "),
-			Instruction("D0         ","RET NC            "),
-			Instruction("C0         ","RET NZ            "),
-			Instruction("F0         ","RET P             "),
-			Instruction("E8         ","RET PE            "),
-			Instruction("E0         ","RET PO            "),
-			Instruction("C8         ","RET Z             "),
-			Instruction("ED4D       ","RETI              "),
-			Instruction("ED45       ","RETN              "),
-			Instruction("ED55       ","RETN              "),
-			Instruction("ED65       ","RETN              "),
-			Instruction("ED5D       ","RETN              "),
-			Instruction("ED75       ","RETN              "),
-			Instruction("ED6D       ","RETN              "),
-			Instruction("ED7D       ","RETN              "),
-			Instruction("CB16       ","RL (HL)           "),
-			Instruction("DDCB %d 16 ","RL (IX+%d)        "),
-			Instruction("FDCB %d 16 ","RL (IY+%d)        "),
-			Instruction("CB17       ","RL A              "),
-			Instruction("CB10       ","RL B              "),
-			Instruction("CB11       ","RL C              "),
-			Instruction("CB12       ","RL D              "),
-			Instruction("CB13       ","RL E              "),
-			Instruction("CB14       ","RL H              "),
-			Instruction("CB15       ","RL L              "),
-			Instruction("17         ","RLA               "),
-			Instruction("CB06       ","RLC (HL)          "),
-			Instruction("DDCB %d 06 ","RLC (IX+%d)       "),
-			Instruction("FDCB %d 06 ","RLC (IY+%d)       "),
-			Instruction("CB07       ","RLC A             "),
-			Instruction("CB00       ","RLC B             "),
-			Instruction("CB01       ","RLC C             "),
-			Instruction("CB02       ","RLC D             "),
-			Instruction("CB03       ","RLC E             "),
-			Instruction("CB04       ","RLC H             "),
-			Instruction("CB05       ","RLC L             "),
-			Instruction("07         ","RLCA              "),
-			Instruction("ED6F       ","RLD               "),
-			Instruction("CB1E       ","RR (HL)           "),
-			Instruction("DDCB %d 1E ","RR (IX+%d)        "),
-			Instruction("FDCB %d 1E ","RR (IY+%d)        "),
-			Instruction("CB1F       ","RR A              "),
-			Instruction("CB18       ","RR B              "),
-			Instruction("CB19       ","RR C              "),
-			Instruction("CB1A       ","RR D              "),
-			Instruction("CB1B       ","RR E              "),
-			Instruction("CB1C       ","RR H              "),
-			Instruction("CB1D       ","RR L              "),
-			Instruction("1F         ","RRA               "),
-			Instruction("CB0E       ","RRC (HL)          "),
-			Instruction("DDCB %d 0E ","RRC (IX+%d)       "),
-			Instruction("FDCB %d 0E ","RRC (IY+%d)       "),
-			Instruction("CB0F       ","RRC A             "),
-			Instruction("CB08       ","RRC B             "),
-			Instruction("CB09       ","RRC C             "),
-			Instruction("CB0A       ","RRC D             "),
-			Instruction("CB0B       ","RRC E             "),
-			Instruction("CB0C       ","RRC H             "),
-			Instruction("CB0D       ","RRC L             "),
-			Instruction("0F         ","RRCA              "),
-			Instruction("ED67       ","RRD               "),
-			Instruction("C7         ","RST 0H            "),
-			Instruction("D7         ","RST 10H           "),
-			Instruction("DF         ","RST 18H           "),
-			Instruction("E7         ","RST 20H           "),
-			Instruction("EF         ","RST 28H           "),
-			Instruction("F7         ","RST 30H           "),
-			Instruction("FF         ","RST 38H           "),
-			Instruction("CF         ","RST 8H            "),
-			Instruction("9E         ","SBC A,(HL)        "),
-			Instruction("DD9E %d    ","SBC A,(IX+%d)     "),
-			Instruction("FD9E %d    ","SBC A,(IY+%d)     "),
-			Instruction("9F         ","SBC A,A           "),
-			Instruction("98         ","SBC A,B           "),
-			Instruction("99         ","SBC A,C           "),
-			Instruction("9A         ","SBC A,D           "),
-			Instruction("9B         ","SBC A,E           "),
-			Instruction("9C         ","SBC A,H           "),
-			Instruction("DD9C       ","SBC A,IXh         "),
-			Instruction("DD9D       ","SBC A,IXl         "),
-			Instruction("FD9C       ","SBC A,IYh         "),
-			Instruction("FD9D       ","SBC A,IYl         "),
-			Instruction("9D         ","SBC A,L           "),
-			Instruction("DE %n      ","SBC A,%n          "),
-			Instruction("ED42       ","SBC HL,BC         "),
-			Instruction("ED52       ","SBC HL,DE         "),
-			Instruction("ED62       ","SBC HL,HL         "),
-			Instruction("ED72       ","SBC HL,SP         "),
-			Instruction("37         ","SCF               "),
-			Instruction("CBC6       ","SET 0,(HL)        "),
-			Instruction("DDCB %d C6 ","SET 0,(IX+%d)     "),
-			Instruction("FDCB %d C6 ","SET 0,(IY+%d)     "),
-			Instruction("CBC7       ","SET 0,A           "),
-			Instruction("CBC0       ","SET 0,B           "),
-			Instruction("CBC1       ","SET 0,C           "),
-			Instruction("CBC2       ","SET 0,D           "),
-			Instruction("CBC3       ","SET 0,E           "),
-			Instruction("CBC4       ","SET 0,H           "),
-			Instruction("CBC5       ","SET 0,L           "),
-			Instruction("CBCE       ","SET 1,(HL)        "),
-			Instruction("DDCB %d CE ","SET 1,(IX+%d)     "),
-			Instruction("FDCB %d CE ","SET 1,(IY+%d)     "),
-			Instruction("CBCF       ","SET 1,A           "),
-			Instruction("CBC8       ","SET 1,B           "),
-			Instruction("CBC9       ","SET 1,C           "),
-			Instruction("CBCA       ","SET 1,D           "),
-			Instruction("CBCB       ","SET 1,E           "),
-			Instruction("CBCC       ","SET 1,H           "),
-			Instruction("CBCD       ","SET 1,L           "),
-			Instruction("CBD6       ","SET 2,(HL)        "),
-			Instruction("DDCB %d D6 ","SET 2,(IX+%d)     "),
-			Instruction("FDCB %d D6 ","SET 2,(IY+%d)     "),
-			Instruction("CBD7       ","SET 2,A           "),
-			Instruction("CBD0       ","SET 2,B           "),
-			Instruction("CBD1       ","SET 2,C           "),
-			Instruction("CBD2       ","SET 2,D           "),
-			Instruction("CBD3       ","SET 2,E           "),
-			Instruction("CBD4       ","SET 2,H           "),
-			Instruction("CBD5       ","SET 2,L           "),
-			Instruction("CBDE       ","SET 3,(HL)        "),
-			Instruction("DDCB %d DE ","SET 3,(IX+%d)     "),
-			Instruction("FDCB %d DE ","SET 3,(IY+%d)     "),
-			Instruction("CBDF       ","SET 3,A           "),
-			Instruction("CBD8       ","SET 3,B           "),
-			Instruction("CBD9       ","SET 3,C           "),
-			Instruction("CBDA       ","SET 3,D           "),
-			Instruction("CBDB       ","SET 3,E           "),
-			Instruction("CBDC       ","SET 3,H           "),
-			Instruction("CBDD       ","SET 3,L           "),
-			Instruction("CBE6       ","SET 4,(HL)        "),
-			Instruction("DDCB %d E6 ","SET 4,(IX+%d)     "),
-			Instruction("FDCB %d E6 ","SET 4,(IY+%d)     "),
-			Instruction("CBE7       ","SET 4,A           "),
-			Instruction("CBE0       ","SET 4,B           "),
-			Instruction("CBE1       ","SET 4,C           "),
-			Instruction("CBE2       ","SET 4,D           "),
-			Instruction("CBE3       ","SET 4,E           "),
-			Instruction("CBE4       ","SET 4,H           "),
-			Instruction("CBE5       ","SET 4,L           "),
-			Instruction("CBEE       ","SET 5,(HL)        "),
-			Instruction("DDCB %d EE ","SET 5,(IX+%d)     "),
-			Instruction("FDCB %d EE ","SET 5,(IY+%d)     "),
-			Instruction("CBEF       ","SET 5,A           "),
-			Instruction("CBE8       ","SET 5,B           "),
-			Instruction("CBE9       ","SET 5,C           "),
-			Instruction("CBEA       ","SET 5,D           "),
-			Instruction("CBEB       ","SET 5,E           "),
-			Instruction("CBEC       ","SET 5,H           "),
-			Instruction("CBED       ","SET 5,L           "),
-			Instruction("CBF6       ","SET 6,(HL)        "),
-			Instruction("DDCB %d F6 ","SET 6,(IX+%d)     "),
-			Instruction("FDCB %d F6 ","SET 6,(IY+%d)     "),
-			Instruction("CBF7       ","SET 6,A           "),
-			Instruction("CBF0       ","SET 6,B           "),
-			Instruction("CBF1       ","SET 6,C           "),
-			Instruction("CBF2       ","SET 6,D           "),
-			Instruction("CBF3       ","SET 6,E           "),
-			Instruction("CBF4       ","SET 6,H           "),
-			Instruction("CBF5       ","SET 6,L           "),
-			Instruction("CBFE       ","SET 7,(HL)        "),
-			Instruction("DDCB %d FE ","SET 7,(IX+%d)     "),
-			Instruction("FDCB %d FE ","SET 7,(IY+%d)     "),
-			Instruction("CBFF       ","SET 7,A           "),
-			Instruction("CBF8       ","SET 7,B           "),
-			Instruction("CBF9       ","SET 7,C           "),
-			Instruction("CBFA       ","SET 7,D           "),
-			Instruction("CBFB       ","SET 7,E           "),
-			Instruction("CBFC       ","SET 7,H           "),
-			Instruction("CBFD       ","SET 7,L           "),
-			Instruction("CB26       ","SLA (HL)          "),
-			Instruction("DDCB %d 26 ","SLA (IX+%d)       "),
-			Instruction("FDCB %d 26 ","SLA (IY+%d)       "),
-			Instruction("CB27       ","SLA A             "),
-			Instruction("CB20       ","SLA B             "),
-			Instruction("CB21       ","SLA C             "),
-			Instruction("CB22       ","SLA D             "),
-			Instruction("CB23       ","SLA E             "),
-			Instruction("CB24       ","SLA H             "),
-			Instruction("CB25       ","SLA L             "),
-			Instruction("CB36       ","SLL (HL)          "),
-			Instruction("DDCB %d 36 ","SLL (IX+%d)       "),
-			Instruction("FDCB %d 36 ","SLL (IY+%d)       "),
-			Instruction("CB37       ","SLL A             "),
-			Instruction("CB30       ","SLL B             "),
-			Instruction("CB31       ","SLL C             "),
-			Instruction("CB32       ","SLL D             "),
-			Instruction("CB33       ","SLL E             "),
-			Instruction("CB34       ","SLL H             "),
-			Instruction("CB35       ","SLL L             "),
-			Instruction("CB2E       ","SRA (HL)          "),
-			Instruction("DDCB %d 2E ","SRA (IX+%d)       "),
-			Instruction("FDCB %d 2E ","SRA (IY+%d)       "),
-			Instruction("CB2F       ","SRA A             "),
-			Instruction("CB28       ","SRA B             "),
-			Instruction("CB29       ","SRA C             "),
-			Instruction("CB2A       ","SRA D             "),
-			Instruction("CB2B       ","SRA E             "),
-			Instruction("CB2C       ","SRA H             "),
-			Instruction("CB2D       ","SRA L             "),
-			Instruction("CB3E       ","SRL (HL)          "),
-			Instruction("DDCB %d 3E ","SRL (IX+%d)       "),
-			Instruction("FDCB %d 3E ","SRL (IY+%d)       "),
-			Instruction("CB3F       ","SRL A             "),
-			Instruction("CB38       ","SRL B             "),
-			Instruction("CB39       ","SRL C             "),
-			Instruction("CB3A       ","SRL D             "),
-			Instruction("CB3B       ","SRL E             "),
-			Instruction("CB3C       ","SRL H             "),
-			Instruction("CB3D       ","SRL L             "),
-			Instruction("96         ","SUB A,(HL)        "),
-			Instruction("DD96 %d    ","SUB A,(IX+%d)     "),
-			Instruction("FD96 %d    ","SUB A,(IY+%d)     "),
-			Instruction("97         ","SUB A,A           "),
-			Instruction("90         ","SUB A,B           "),
-			Instruction("91         ","SUB A,C           "),
-			Instruction("92         ","SUB A,D           "),
-			Instruction("93         ","SUB A,E           "),
-			Instruction("94         ","SUB A,H           "),
-			Instruction("DD94       ","SUB A,IXh         "),
-			Instruction("DD95       ","SUB A,IXl         "),
-			Instruction("FD94       ","SUB A,IYh         "),
-			Instruction("FD95       ","SUB A,IYl         "),
-			Instruction("95         ","SUB A,L           "),
-			Instruction("D6 %n      ","SUB A,%n          "),
-			Instruction("AE         ","XOR (HL)          "),
-			Instruction("DDAE %d    ","XOR (IX+%d)       "),
-			Instruction("FDAE %d    ","XOR (IY+%d)       "),
-			Instruction("AF         ","XOR A             "),
-			Instruction("A8         ","XOR B             "),
-			Instruction("A9         ","XOR C             "),
-			Instruction("AA         ","XOR D             "),
-			Instruction("AB         ","XOR E             "),
-			Instruction("AC         ","XOR H             "),
-			Instruction("DDAC       ","XOR IXh           "),
-			Instruction("DDAD       ","XOR IXl           "),
-			Instruction("FDAC       ","XOR IYh           "),
-			Instruction("FDAD       ","XOR IYl           "),
-			Instruction("AD         ","XOR L             "),
-			Instruction("EE %n      ","XOR %n            "),
-		});
+			Z80 = 0,
+			Gameboy = 1,
+		}
+
+		private static InstructionInfo[] CreateInstructionList(Version Version)
+		{
+			var Instructions = new List<InstructionInfo>();
+			Instructions.Add(Instruction("8E         ", "ADC A,(HL)        "));
+			Instructions.Add(Instruction("DD8E %d    ", "ADC A,(IX+%d)     "));
+			Instructions.Add(Instruction("FD8E %d    ", "ADC A,(IY+%d)     "));
+			Instructions.Add(Instruction("8F         ", "ADC A,A           ", 4));
+			Instructions.Add(Instruction("88         ", "ADC A,B           ", 4));
+			Instructions.Add(Instruction("89         ", "ADC A,C           ", 4));
+			Instructions.Add(Instruction("8A         ", "ADC A,D           ", 4));
+			Instructions.Add(Instruction("8B         ", "ADC A,E           ", 4));
+			Instructions.Add(Instruction("8C         ", "ADC A,H           ", 4));
+			Instructions.Add(Instruction("DD8C       ", "ADC A,IXh         ", 8));
+			Instructions.Add(Instruction("DD8D       ", "ADC A,IXl         ", 8));
+			Instructions.Add(Instruction("FD8C       ", "ADC A,IYh         ", 8));
+			Instructions.Add(Instruction("FD8D       ", "ADC A,IYl         ", 8));
+			Instructions.Add(Instruction("8D         ", "ADC A,L           ", 4));
+			Instructions.Add(Instruction("CE %n      ", "ADC A,%n          "));
+			Instructions.Add(Instruction("ED4A       ", "ADC HL,BC         "));
+			Instructions.Add(Instruction("ED5A       ", "ADC HL,DE         "));
+			Instructions.Add(Instruction("ED6A       ", "ADC HL,HL         "));
+			Instructions.Add(Instruction("ED7A       ", "ADC HL,SP         "));
+			Instructions.Add(Instruction("86         ", "ADD A,(HL)        "));
+			Instructions.Add(Instruction("DD86 %d    ", "ADD A,(IX+%d)     "));
+			Instructions.Add(Instruction("FD86 %d    ", "ADD A,(IY+%d)     "));
+			Instructions.Add(Instruction("87         ", "ADD A,A           "));
+			Instructions.Add(Instruction("80         ", "ADD A,B           "));
+			Instructions.Add(Instruction("81         ", "ADD A,C           "));
+			Instructions.Add(Instruction("82         ", "ADD A,D           "));
+			Instructions.Add(Instruction("83         ", "ADD A,E           "));
+			Instructions.Add(Instruction("84         ", "ADD A,H           "));
+			Instructions.Add(Instruction("DD84       ", "ADD A,IXh         "));
+			Instructions.Add(Instruction("DD85       ", "ADD A,IXl         "));
+			Instructions.Add(Instruction("FD84       ", "ADD A,IYh         "));
+			Instructions.Add(Instruction("FD85       ", "ADD A,IYl         "));
+			Instructions.Add(Instruction("85         ", "ADD A,L           "));
+			Instructions.Add(Instruction("C6 %n      ", "ADD A,%n          "));
+			Instructions.Add(Instruction("09         ", "ADD HL,BC         "));
+			Instructions.Add(Instruction("19         ", "ADD HL,DE         "));
+			Instructions.Add(Instruction("29         ", "ADD HL,HL         "));
+			Instructions.Add(Instruction("39         ", "ADD HL,SP         "));
+			Instructions.Add(Instruction("DD09       ", "ADD IX,BC         "));
+			Instructions.Add(Instruction("DD19       ", "ADD IX,DE         "));
+			Instructions.Add(Instruction("DD29       ", "ADD IX,IX         "));
+			Instructions.Add(Instruction("DD39       ", "ADD IX,SP         "));
+			Instructions.Add(Instruction("FD09       ", "ADD IY,BC         "));
+			Instructions.Add(Instruction("FD19       ", "ADD IY,DE         "));
+			Instructions.Add(Instruction("FD29       ", "ADD IY,IY         "));
+			Instructions.Add(Instruction("FD39       ", "ADD IY,SP         "));
+			Instructions.Add(Instruction("A6         ", "AND (HL)          "));
+			Instructions.Add(Instruction("DDA6 %d    ", "AND (IX+%d)       "));
+			Instructions.Add(Instruction("FDA6 %d    ", "AND (IY+%d)       "));
+			Instructions.Add(Instruction("A7         ", "AND A             "));
+			Instructions.Add(Instruction("A0         ", "AND B             "));
+			Instructions.Add(Instruction("A1         ", "AND C             "));
+			Instructions.Add(Instruction("A2         ", "AND D             "));
+			Instructions.Add(Instruction("A3         ", "AND E             "));
+			Instructions.Add(Instruction("A4         ", "AND H             "));
+			Instructions.Add(Instruction("DDA4       ", "AND IXh           "));
+			Instructions.Add(Instruction("DDA5       ", "AND IXl           "));
+			Instructions.Add(Instruction("FDA4       ", "AND IYh           "));
+			Instructions.Add(Instruction("FDA5       ", "AND IYl           "));
+			Instructions.Add(Instruction("A5         ", "AND L             "));
+			Instructions.Add(Instruction("E6 %n      ", "AND %n            "));
+			Instructions.Add(Instruction("CB46       ", "BIT 0,(HL)        "));
+			Instructions.Add(Instruction("DDCB %d 46 ", "BIT 0,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 41 ", "BIT 0,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 47 ", "BIT 0,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 42 ", "BIT 0,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 43 ", "BIT 0,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 44 ", "BIT 0,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 40 ", "BIT 0,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 45 ", "BIT 0,(IX+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 46 ", "BIT 0,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 40 ", "BIT 0,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 47 ", "BIT 0,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 43 ", "BIT 0,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 41 ", "BIT 0,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 45 ", "BIT 0,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 42 ", "BIT 0,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 44 ", "BIT 0,(IY+%d)     "));
+			Instructions.Add(Instruction("CB47       ", "BIT 0,A           "));
+			Instructions.Add(Instruction("CB40       ", "BIT 0,B           "));
+			Instructions.Add(Instruction("CB41       ", "BIT 0,C           "));
+			Instructions.Add(Instruction("CB42       ", "BIT 0,D           "));
+			Instructions.Add(Instruction("CB43       ", "BIT 0,E           "));
+			Instructions.Add(Instruction("CB44       ", "BIT 0,H           "));
+			Instructions.Add(Instruction("CB45       ", "BIT 0,L           "));
+			Instructions.Add(Instruction("CB4E       ", "BIT 1,(HL)        "));
+			Instructions.Add(Instruction("DDCB %d 4E ", "BIT 1,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 4B ", "BIT 1,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 4F ", "BIT 1,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 4A ", "BIT 1,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 4C ", "BIT 1,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 49 ", "BIT 1,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 48 ", "BIT 1,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 4D ", "BIT 1,(IX+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 4E ", "BIT 1,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 48 ", "BIT 1,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 4F ", "BIT 1,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 4D ", "BIT 1,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 4C ", "BIT 1,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 4B ", "BIT 1,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 4A ", "BIT 1,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 49 ", "BIT 1,(IY+%d)     "));
+			Instructions.Add(Instruction("CB4F       ", "BIT 1,A           "));
+			Instructions.Add(Instruction("CB48       ", "BIT 1,B           "));
+			Instructions.Add(Instruction("CB49       ", "BIT 1,C           "));
+			Instructions.Add(Instruction("CB4A       ", "BIT 1,D           "));
+			Instructions.Add(Instruction("CB4B       ", "BIT 1,E           "));
+			Instructions.Add(Instruction("CB4C       ", "BIT 1,H           "));
+			Instructions.Add(Instruction("CB4D       ", "BIT 1,L           "));
+			Instructions.Add(Instruction("CB56       ", "BIT 2,(HL)        "));
+			Instructions.Add(Instruction("DDCB %d 56 ", "BIT 2,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 53 ", "BIT 2,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 52 ", "BIT 2,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 51 ", "BIT 2,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 54 ", "BIT 2,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 55 ", "BIT 2,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 57 ", "BIT 2,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 50 ", "BIT 2,(IX+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 56 ", "BIT 2,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 53 ", "BIT 2,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 57 ", "BIT 2,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 55 ", "BIT 2,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 50 ", "BIT 2,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 51 ", "BIT 2,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 52 ", "BIT 2,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 54 ", "BIT 2,(IY+%d)     "));
+			Instructions.Add(Instruction("CB57       ", "BIT 2,A           "));
+			Instructions.Add(Instruction("CB50       ", "BIT 2,B           "));
+			Instructions.Add(Instruction("CB51       ", "BIT 2,C           "));
+			Instructions.Add(Instruction("CB52       ", "BIT 2,D           "));
+			Instructions.Add(Instruction("CB53       ", "BIT 2,E           "));
+			Instructions.Add(Instruction("CB54       ", "BIT 2,H           "));
+			Instructions.Add(Instruction("CB55       ", "BIT 2,L           "));
+			Instructions.Add(Instruction("CB5E       ", "BIT 3,(HL)        "));
+			Instructions.Add(Instruction("DDCB %d 5E ", "BIT 3,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 58 ", "BIT 3,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 5A ", "BIT 3,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 59 ", "BIT 3,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 5B ", "BIT 3,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 5F ", "BIT 3,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 5D ", "BIT 3,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 5C ", "BIT 3,(IX+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 5E ", "BIT 3,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 5B ", "BIT 3,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 5A ", "BIT 3,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 5F ", "BIT 3,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 58 ", "BIT 3,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 5C ", "BIT 3,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 59 ", "BIT 3,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 5D ", "BIT 3,(IY+%d)     "));
+			Instructions.Add(Instruction("CB5F       ", "BIT 3,A           "));
+			Instructions.Add(Instruction("CB58       ", "BIT 3,B           "));
+			Instructions.Add(Instruction("CB59       ", "BIT 3,C           "));
+			Instructions.Add(Instruction("CB5A       ", "BIT 3,D           "));
+			Instructions.Add(Instruction("CB5B       ", "BIT 3,E           "));
+			Instructions.Add(Instruction("CB5C       ", "BIT 3,H           "));
+			Instructions.Add(Instruction("CB5D       ", "BIT 3,L           "));
+			Instructions.Add(Instruction("CB66       ", "BIT 4,(HL)        "));
+			Instructions.Add(Instruction("DDCB %d 66 ", "BIT 4,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 60 ", "BIT 4,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 62 ", "BIT 4,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 61 ", "BIT 4,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 65 ", "BIT 4,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 63 ", "BIT 4,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 64 ", "BIT 4,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 67 ", "BIT 4,(IX+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 66 ", "BIT 4,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 60 ", "BIT 4,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 64 ", "BIT 4,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 62 ", "BIT 4,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 65 ", "BIT 4,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 61 ", "BIT 4,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 63 ", "BIT 4,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 67 ", "BIT 4,(IY+%d)     "));
+			Instructions.Add(Instruction("CB67       ", "BIT 4,A           "));
+			Instructions.Add(Instruction("CB60       ", "BIT 4,B           "));
+			Instructions.Add(Instruction("CB61       ", "BIT 4,C           "));
+			Instructions.Add(Instruction("CB62       ", "BIT 4,D           "));
+			Instructions.Add(Instruction("CB63       ", "BIT 4,E           "));
+			Instructions.Add(Instruction("CB64       ", "BIT 4,H           "));
+			Instructions.Add(Instruction("CB65       ", "BIT 4,L           "));
+			Instructions.Add(Instruction("CB6E       ", "BIT 5,(HL)        "));
+			Instructions.Add(Instruction("DDCB %d 6E ", "BIT 5,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 69 ", "BIT 5,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 6D ", "BIT 5,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 6F ", "BIT 5,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 68 ", "BIT 5,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 6C ", "BIT 5,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 6B ", "BIT 5,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 6A ", "BIT 5,(IX+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 6E ", "BIT 5,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 69 ", "BIT 5,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 68 ", "BIT 5,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 6D ", "BIT 5,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 6A ", "BIT 5,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 6F ", "BIT 5,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 6B ", "BIT 5,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 6C ", "BIT 5,(IY+%d)     "));
+			Instructions.Add(Instruction("CB6F       ", "BIT 5,A           "));
+			Instructions.Add(Instruction("CB68       ", "BIT 5,B           "));
+			Instructions.Add(Instruction("CB69       ", "BIT 5,C           "));
+			Instructions.Add(Instruction("CB6A       ", "BIT 5,D           "));
+			Instructions.Add(Instruction("CB6B       ", "BIT 5,E           "));
+			Instructions.Add(Instruction("CB6C       ", "BIT 5,H           "));
+			Instructions.Add(Instruction("CB6D       ", "BIT 5,L           "));
+			Instructions.Add(Instruction("CB76       ", "BIT 6,(HL)        "));
+			Instructions.Add(Instruction("DDCB %d 76 ", "BIT 6,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 77 ", "BIT 6,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 75 ", "BIT 6,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 74 ", "BIT 6,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 73 ", "BIT 6,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 71 ", "BIT 6,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 70 ", "BIT 6,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 72 ", "BIT 6,(IX+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 76 ", "BIT 6,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 73 ", "BIT 6,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 70 ", "BIT 6,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 75 ", "BIT 6,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 74 ", "BIT 6,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 72 ", "BIT 6,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 77 ", "BIT 6,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 71 ", "BIT 6,(IY+%d)     "));
+			Instructions.Add(Instruction("CB77       ", "BIT 6,A           "));
+			Instructions.Add(Instruction("CB70       ", "BIT 6,B           "));
+			Instructions.Add(Instruction("CB71       ", "BIT 6,C           "));
+			Instructions.Add(Instruction("CB72       ", "BIT 6,D           "));
+			Instructions.Add(Instruction("CB73       ", "BIT 6,E           "));
+			Instructions.Add(Instruction("CB74       ", "BIT 6,H           "));
+			Instructions.Add(Instruction("CB75       ", "BIT 6,L           "));
+			Instructions.Add(Instruction("CB7E       ", "BIT 7,(HL)        "));
+			Instructions.Add(Instruction("DDCB %d 7E ", "BIT 7,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 7B ", "BIT 7,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 79 ", "BIT 7,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 7F ", "BIT 7,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 7C ", "BIT 7,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 7A ", "BIT 7,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 7D ", "BIT 7,(IX+%d)     "));
+			Instructions.Add(Instruction("DDCB %d 78 ", "BIT 7,(IX+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 7E ", "BIT 7,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 78 ", "BIT 7,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 7A ", "BIT 7,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 7F ", "BIT 7,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 7C ", "BIT 7,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 7B ", "BIT 7,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 79 ", "BIT 7,(IY+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 7D ", "BIT 7,(IY+%d)     "));
+			Instructions.Add(Instruction("CB7F       ", "BIT 7,A           "));
+			Instructions.Add(Instruction("CB78       ", "BIT 7,B           "));
+			Instructions.Add(Instruction("CB79       ", "BIT 7,C           "));
+			Instructions.Add(Instruction("CB7A       ", "BIT 7,D           "));
+			Instructions.Add(Instruction("CB7B       ", "BIT 7,E           "));
+			Instructions.Add(Instruction("CB7C       ", "BIT 7,H           "));
+			Instructions.Add(Instruction("CB7D       ", "BIT 7,L           "));
+			Instructions.Add(Instruction("CD %nn     ", "CALL (%nn)        "));
+			Instructions.Add(Instruction("DC %nn     ", "CALL C,(%nn)      "));
+			Instructions.Add(Instruction("FC %nn     ", "CALL M,(%nn)      "));
+			Instructions.Add(Instruction("D4 %nn     ", "CALL NC,(%nn)     "));
+			Instructions.Add(Instruction("C4 %nn     ", "CALL NZ,(%nn)     "));
+			Instructions.Add(Instruction("F4 %nn     ", "CALL P,(%nn)      "));
+			Instructions.Add(Instruction("EC %nn     ", "CALL PE,(%nn)     "));
+			Instructions.Add(Instruction("E4 %nn     ", "CALL PO,(%nn)     "));
+			Instructions.Add(Instruction("CC %nn     ", "CALL Z,(%nn)      "));
+			Instructions.Add(Instruction("3F         ", "CCF               "));
+			Instructions.Add(Instruction("BE         ", "CP (HL)           "));
+			Instructions.Add(Instruction("DDBE %d    ", "CP (IX+%d)        "));
+			Instructions.Add(Instruction("FDBE %d    ", "CP (IY+%d)        "));
+			Instructions.Add(Instruction("BF         ", "CP A              "));
+			Instructions.Add(Instruction("B8         ", "CP B              "));
+			Instructions.Add(Instruction("B9         ", "CP C              "));
+			Instructions.Add(Instruction("BA         ", "CP D              "));
+			Instructions.Add(Instruction("BB         ", "CP E              "));
+			Instructions.Add(Instruction("BC         ", "CP H              "));
+			Instructions.Add(Instruction("DDBC       ", "CP IXh            "));
+			Instructions.Add(Instruction("DDBD       ", "CP IXl            "));
+			Instructions.Add(Instruction("FDBC       ", "CP IYh            "));
+			Instructions.Add(Instruction("FDBD       ", "CP IYl            "));
+			Instructions.Add(Instruction("BD         ", "CP L              "));
+			Instructions.Add(Instruction("FE %n      ", "CP %n             "));
+			Instructions.Add(Instruction("EDA9       ", "CPD               "));
+			Instructions.Add(Instruction("EDB9       ", "CPDR              "));
+			Instructions.Add(Instruction("EDA1       ", "CPI               "));
+			Instructions.Add(Instruction("EDB1       ", "CPIR              "));
+			Instructions.Add(Instruction("2F         ", "CPL               "));
+			Instructions.Add(Instruction("27         ", "DAA               "));
+			Instructions.Add(Instruction("35         ", "DEC (HL)          "));
+			Instructions.Add(Instruction("DD35 %d    ", "DEC (IX+%d)       "));
+			Instructions.Add(Instruction("FD35 %d    ", "DEC (IY+%d)       "));
+			Instructions.Add(Instruction("3D         ", "DEC A             "));
+			Instructions.Add(Instruction("05         ", "DEC B             "));
+			Instructions.Add(Instruction("0B         ", "DEC BC            "));
+			Instructions.Add(Instruction("0D         ", "DEC C             "));
+			Instructions.Add(Instruction("15         ", "DEC D             "));
+			Instructions.Add(Instruction("1B         ", "DEC DE            "));
+			Instructions.Add(Instruction("1D         ", "DEC E             "));
+			Instructions.Add(Instruction("25         ", "DEC H             "));
+			Instructions.Add(Instruction("2B         ", "DEC HL            "));
+			Instructions.Add(Instruction("DD2B       ", "DEC IX            "));
+			Instructions.Add(Instruction("DD25       ", "DEC IXh           "));
+			Instructions.Add(Instruction("DD2D       ", "DEC IXl           "));
+			Instructions.Add(Instruction("FD2B       ", "DEC IY            "));
+			Instructions.Add(Instruction("FD25       ", "DEC IYh           "));
+			Instructions.Add(Instruction("FD2D       ", "DEC IYl           "));
+			Instructions.Add(Instruction("2D         ", "DEC L             "));
+			Instructions.Add(Instruction("3B         ", "DEC SP            "));
+			Instructions.Add(Instruction("F3         ", "DI                "));
+			Instructions.Add(Instruction("10 %e      ", "DJNZ (PC+%e)      "));
+			Instructions.Add(Instruction("FB         ", "EI                "));
+			Instructions.Add(Instruction("E3         ", "EX (SP),HL        "));
+			Instructions.Add(Instruction("DDE3       ", "EX (SP),IX        "));
+			Instructions.Add(Instruction("FDE3       ", "EX (SP),IY        "));
+			Instructions.Add(Instruction("08         ", "EX AF,AF'         "));
+			Instructions.Add(Instruction("EB         ", "EX DE,HL          "));
+			Instructions.Add(Instruction("D9         ", "EXX               "));
+			Instructions.Add(Instruction("76         ", "HALT              "));
+			Instructions.Add(Instruction("ED46       ", "IM 0              "));
+			Instructions.Add(Instruction("ED6E       ", "IM 0              "));
+			Instructions.Add(Instruction("ED4E       ", "IM 0              "));
+			Instructions.Add(Instruction("ED66       ", "IM 0              "));
+			Instructions.Add(Instruction("ED56       ", "IM 1              "));
+			Instructions.Add(Instruction("ED76       ", "IM 1              "));
+			Instructions.Add(Instruction("ED5E       ", "IM 2              "));
+			Instructions.Add(Instruction("ED7E       ", "IM 2              "));
+			Instructions.Add(Instruction("ED78       ", "IN A,(C)          "));
+			Instructions.Add(Instruction("DB %n      ", "IN A,(n)          "));
+			Instructions.Add(Instruction("ED40       ", "IN B,(C)          "));
+			Instructions.Add(Instruction("ED48       ", "IN C,(C)          "));
+			Instructions.Add(Instruction("ED50       ", "IN D,(C)          "));
+			Instructions.Add(Instruction("ED58       ", "IN E,(C)          "));
+			Instructions.Add(Instruction("ED70       ", "IN F,(C)          "));
+			Instructions.Add(Instruction("ED60       ", "IN H,(C)          "));
+			Instructions.Add(Instruction("ED68       ", "IN L,(C)          "));
+			Instructions.Add(Instruction("34         ", "INC (HL)          "));
+			Instructions.Add(Instruction("DD34 %d    ", "INC (IX+%d)       "));
+			Instructions.Add(Instruction("FD34 %d    ", "INC (IY+%d)       "));
+			Instructions.Add(Instruction("3C         ", "INC A             "));
+			Instructions.Add(Instruction("04         ", "INC B             "));
+			Instructions.Add(Instruction("03         ", "INC BC            "));
+			Instructions.Add(Instruction("0C         ", "INC C             "));
+			Instructions.Add(Instruction("14         ", "INC D             "));
+			Instructions.Add(Instruction("13         ", "INC DE            "));
+			Instructions.Add(Instruction("1C         ", "INC E             "));
+			Instructions.Add(Instruction("24         ", "INC H             "));
+			Instructions.Add(Instruction("23         ", "INC HL            "));
+			Instructions.Add(Instruction("DD23       ", "INC IX            "));
+			Instructions.Add(Instruction("DD24       ", "INC IXh           "));
+			Instructions.Add(Instruction("DD2C       ", "INC IXl           "));
+			Instructions.Add(Instruction("FD23       ", "INC IY            "));
+			Instructions.Add(Instruction("FD24       ", "INC IYh           "));
+			Instructions.Add(Instruction("FD2C       ", "INC IYl           "));
+			Instructions.Add(Instruction("2C         ", "INC L             "));
+			Instructions.Add(Instruction("33         ", "INC SP            "));
+			Instructions.Add(Instruction("EDAA       ", "IND               "));
+			Instructions.Add(Instruction("EDBA       ", "INDR              "));
+			Instructions.Add(Instruction("EDA2       ", "INI               "));
+			Instructions.Add(Instruction("EDB2       ", "INIR              "));
+			Instructions.Add(Instruction("E9         ", "JP (HL)           "));
+			Instructions.Add(Instruction("DDE9       ", "JP (IX)           "));
+			Instructions.Add(Instruction("FDE9       ", "JP (IY)           "));
+			Instructions.Add(Instruction("C3 %nn     ", "JP (%nn)          "));
+			Instructions.Add(Instruction("DA %nn     ", "JP C,(%nn)        "));
+			Instructions.Add(Instruction("FA %nn     ", "JP M,(%nn)        "));
+			Instructions.Add(Instruction("D2 %nn     ", "JP NC,(%nn)       "));
+			Instructions.Add(Instruction("C2 %nn     ", "JP NZ,(%nn)       "));
+			Instructions.Add(Instruction("F2 %nn     ", "JP P,(%nn)        "));
+			Instructions.Add(Instruction("EA %nn     ", "JP PE,(%nn)       "));
+			Instructions.Add(Instruction("E2 %nn     ", "JP PO,(%nn)       "));
+			Instructions.Add(Instruction("CA %nn     ", "JP Z,(%nn)        "));
+			Instructions.Add(Instruction("18 %e      ", "JR (PC+%e)        "));
+			Instructions.Add(Instruction("38 %e      ", "JR C,(PC+%e)      "));
+			Instructions.Add(Instruction("30 %e      ", "JR NC,(PC+%e)     "));
+			Instructions.Add(Instruction("20 %e      ", "JR NZ,(PC+%e)     "));
+			Instructions.Add(Instruction("28 %e      ", "JR Z,(PC+%e)      "));
+			Instructions.Add(Instruction("02         ", "LD (BC),A         "));
+			Instructions.Add(Instruction("12         ", "LD (DE),A         "));
+			Instructions.Add(Instruction("77         ", "LD (HL),A         "));
+			Instructions.Add(Instruction("70         ", "LD (HL),B         "));
+			Instructions.Add(Instruction("71         ", "LD (HL),C         "));
+			Instructions.Add(Instruction("72         ", "LD (HL),D         "));
+			Instructions.Add(Instruction("73         ", "LD (HL),E         "));
+			Instructions.Add(Instruction("74         ", "LD (HL),H         "));
+			Instructions.Add(Instruction("75         ", "LD (HL),L         "));
+			Instructions.Add(Instruction("36 %n      ", "LD (HL),%n        "));
+			Instructions.Add(Instruction("DD77 %d    ", "LD (IX+%d),A      "));
+			Instructions.Add(Instruction("DD70 %d    ", "LD (IX+%d),B      "));
+			Instructions.Add(Instruction("DD71 %d    ", "LD (IX+%d),C      "));
+			Instructions.Add(Instruction("DD72 %d    ", "LD (IX+%d),D      "));
+			Instructions.Add(Instruction("DD73 %d    ", "LD (IX+%d),E      "));
+			Instructions.Add(Instruction("DD74 %d    ", "LD (IX+%d),H      "));
+			Instructions.Add(Instruction("DD75 %d    ", "LD (IX+%d),L      "));
+			Instructions.Add(Instruction("DD36 %d %n ", "LD (IX+%d),%n     "));
+			Instructions.Add(Instruction("FD77 %d    ", "LD (IY+%d),A      "));
+			Instructions.Add(Instruction("FD70 %d    ", "LD (IY+%d),B      "));
+			Instructions.Add(Instruction("FD71 %d    ", "LD (IY+%d),C      "));
+			Instructions.Add(Instruction("FD72 %d    ", "LD (IY+%d),D      "));
+			Instructions.Add(Instruction("FD73 %d    ", "LD (IY+%d),E      "));
+			Instructions.Add(Instruction("FD74 %d    ", "LD (IY+%d),H      "));
+			Instructions.Add(Instruction("FD75 %d    ", "LD (IY+%d),L      "));
+			Instructions.Add(Instruction("FD36 %d %n ", "LD (IY+%d),%n     "));
+			Instructions.Add(Instruction("32 %nn     ", "LD (%nn),A        "));
+			Instructions.Add(Instruction("ED43 %nn   ", "LD (%nn),BC       "));
+			Instructions.Add(Instruction("ED53 %nn   ", "LD (%nn),DE       "));
+			Instructions.Add(Instruction("ED63 %nn   ", "LD (%nn),HL       "));
+			Instructions.Add(Instruction("22 %nn     ", "LD (%nn),HL       "));
+			Instructions.Add(Instruction("DD22 %nn   ", "LD (%nn),IX       "));
+			Instructions.Add(Instruction("FD22 %nn   ", "LD (%nn),IY       "));
+			Instructions.Add(Instruction("ED73 %nn   ", "LD (%nn),SP       "));
+			Instructions.Add(Instruction("0A         ", "LD A,(BC)         "));
+			Instructions.Add(Instruction("1A         ", "LD A,(DE)         "));
+			Instructions.Add(Instruction("7E         ", "LD A,(HL)         "));
+			Instructions.Add(Instruction("DD7E %d    ", "LD A,(IX+%d)      "));
+			Instructions.Add(Instruction("FD7E %d    ", "LD A,(IY+%d)      "));
+			Instructions.Add(Instruction("3A %nn     ", "LD A,(%nn)        "));
+			Instructions.Add(Instruction("7F         ", "LD A,A            "));
+			Instructions.Add(Instruction("78         ", "LD A,B            "));
+			Instructions.Add(Instruction("79         ", "LD A,C            "));
+			Instructions.Add(Instruction("7A         ", "LD A,D            "));
+			Instructions.Add(Instruction("7B         ", "LD A,E            "));
+			Instructions.Add(Instruction("7C         ", "LD A,H            "));
+			Instructions.Add(Instruction("ED57       ", "LD A,I            "));
+			Instructions.Add(Instruction("DD7C       ", "LD A,IXh          "));
+			Instructions.Add(Instruction("DD7D       ", "LD A,IXl          "));
+			Instructions.Add(Instruction("FD7C       ", "LD A,IYh          "));
+			Instructions.Add(Instruction("FD7D       ", "LD A,IYl          "));
+			Instructions.Add(Instruction("7D         ", "LD A,L            "));
+			Instructions.Add(Instruction("3E %n      ", "LD A,%n           "));
+			Instructions.Add(Instruction("ED5F       ", "LD A,R            "));
+			Instructions.Add(Instruction("DDCB %d 87 ", "LD A,RES 0,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 87 ", "LD A,RES 0,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 8F ", "LD A,RES 1,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 8F ", "LD A,RES 1,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 97 ", "LD A,RES 2,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 97 ", "LD A,RES 2,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 9F ", "LD A,RES 3,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 9F ", "LD A,RES 3,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d A7 ", "LD A,RES 4,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d A7 ", "LD A,RES 4,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d AF ", "LD A,RES 5,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d AF ", "LD A,RES 5,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d B7 ", "LD A,RES 6,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d B7 ", "LD A,RES 6,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d BF ", "LD A,RES 7,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d BF ", "LD A,RES 7,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 17 ", "LD A,RL (IX+%d)   "));
+			Instructions.Add(Instruction("FDCB %d 17 ", "LD A,RL (IY+%d)   "));
+			Instructions.Add(Instruction("DDCB %d 07 ", "LD A,RLC (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 07 ", "LD A,RLC (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 1F ", "LD A,RR (IX+%d)   "));
+			Instructions.Add(Instruction("FDCB %d 1F ", "LD A,RR (IY+%d)   "));
+			Instructions.Add(Instruction("DDCB %d 0F ", "LD A,RRC (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 0F ", "LD A,RRC (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d C7 ", "LD A,SET 0,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d C7 ", "LD A,SET 0,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d CF ", "LD A,SET 1,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d CF ", "LD A,SET 1,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d D7 ", "LD A,SET 2,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d D7 ", "LD A,SET 2,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d DF ", "LD A,SET 3,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d DF ", "LD A,SET 3,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d E7 ", "LD A,SET 4,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d E7 ", "LD A,SET 4,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d EF ", "LD A,SET 5,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d EF ", "LD A,SET 5,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d F7 ", "LD A,SET 6,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d F7 ", "LD A,SET 6,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d FF ", "LD A,SET 7,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d FF ", "LD A,SET 7,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 27 ", "LD A,SLA (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 27 ", "LD A,SLA (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 37 ", "LD A,SLL (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 37 ", "LD A,SLL (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 2F ", "LD A,SRA (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 2F ", "LD A,SRA (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 3F ", "LD A,SRL (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 3F ", "LD A,SRL (IY+%d)  "));
+			Instructions.Add(Instruction("46         ", "LD B,(HL)         "));
+			Instructions.Add(Instruction("DD46 %d    ", "LD B,(IX+%d)      "));
+			Instructions.Add(Instruction("FD46 %d    ", "LD B,(IY+%d)      "));
+			Instructions.Add(Instruction("47         ", "LD B,A            "));
+			Instructions.Add(Instruction("40         ", "LD B,B            "));
+			Instructions.Add(Instruction("41         ", "LD B,C            "));
+			Instructions.Add(Instruction("42         ", "LD B,D            "));
+			Instructions.Add(Instruction("43         ", "LD B,E            "));
+			Instructions.Add(Instruction("44         ", "LD B,H            "));
+			Instructions.Add(Instruction("DD44       ", "LD B,IXh          "));
+			Instructions.Add(Instruction("DD45       ", "LD B,IXl          "));
+			Instructions.Add(Instruction("FD44       ", "LD B,IYh          "));
+			Instructions.Add(Instruction("FD45       ", "LD B,IYl          "));
+			Instructions.Add(Instruction("45         ", "LD B,L            "));
+			Instructions.Add(Instruction("06 %n      ", "LD B,%n           "));
+			Instructions.Add(Instruction("DDCB %d 80 ", "LD B,RES 0,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 80 ", "LD B,RES 0,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 88 ", "LD B,RES 1,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 88 ", "LD B,RES 1,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 90 ", "LD B,RES 2,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 90 ", "LD B,RES 2,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 98 ", "LD B,RES 3,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 98 ", "LD B,RES 3,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d A0 ", "LD B,RES 4,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d A0 ", "LD B,RES 4,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d A8 ", "LD B,RES 5,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d A8 ", "LD B,RES 5,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d B0 ", "LD B,RES 6,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d B0 ", "LD B,RES 6,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d B8 ", "LD B,RES 7,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d B8 ", "LD B,RES 7,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 10 ", "LD B,RL (IX+%d)   "));
+			Instructions.Add(Instruction("FDCB %d 10 ", "LD B,RL (IY+%d)   "));
+			Instructions.Add(Instruction("DDCB %d 00 ", "LD B,RLC (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 00 ", "LD B,RLC (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 18 ", "LD B,RR (IX+%d)   "));
+			Instructions.Add(Instruction("FDCB %d 18 ", "LD B,RR (IY+%d)   "));
+			Instructions.Add(Instruction("DDCB %d 08 ", "LD B,RRC (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 08 ", "LD B,RRC (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d C0 ", "LD B,SET 0,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d C0 ", "LD B,SET 0,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d C8 ", "LD B,SET 1,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d C8 ", "LD B,SET 1,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d D0 ", "LD B,SET 2,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d D0 ", "LD B,SET 2,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d D8 ", "LD B,SET 3,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d D8 ", "LD B,SET 3,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d E0 ", "LD B,SET 4,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d E0 ", "LD B,SET 4,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d E8 ", "LD B,SET 5,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d E8 ", "LD B,SET 5,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d F0 ", "LD B,SET 6,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d F0 ", "LD B,SET 6,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d F8 ", "LD B,SET 7,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d F8 ", "LD B,SET 7,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 20 ", "LD B,SLA (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 20 ", "LD B,SLA (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 30 ", "LD B,SLL (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 30 ", "LD B,SLL (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 28 ", "LD B,SRA (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 28 ", "LD B,SRA (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 38 ", "LD B,SRL (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 38 ", "LD B,SRL (IY+%d)  "));
+			Instructions.Add(Instruction("ED4B %nn   ", "LD BC,(%nn)       "));
+			Instructions.Add(Instruction("01 %nn     ", "LD BC,%nn         "));
+			Instructions.Add(Instruction("4E         ", "LD C,(HL)         "));
+			Instructions.Add(Instruction("DD4E %d    ", "LD C,(IX+%d)      "));
+			Instructions.Add(Instruction("FD4E %d    ", "LD C,(IY+%d)      "));
+			Instructions.Add(Instruction("4F         ", "LD C,A            "));
+			Instructions.Add(Instruction("48         ", "LD C,B            "));
+			Instructions.Add(Instruction("49         ", "LD C,C            "));
+			Instructions.Add(Instruction("4A         ", "LD C,D            "));
+			Instructions.Add(Instruction("4B         ", "LD C,E            "));
+			Instructions.Add(Instruction("4C         ", "LD C,H            "));
+			Instructions.Add(Instruction("DD4C       ", "LD C,IXh          "));
+			Instructions.Add(Instruction("DD4D       ", "LD C,IXl          "));
+			Instructions.Add(Instruction("FD4C       ", "LD C,IYh          "));
+			Instructions.Add(Instruction("FD4D       ", "LD C,IYl          "));
+			Instructions.Add(Instruction("4D         ", "LD C,L            "));
+			Instructions.Add(Instruction("0E %n      ", "LD C,%n           "));
+			Instructions.Add(Instruction("DDCB %d 81 ", "LD C,RES 0,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 81 ", "LD C,RES 0,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 89 ", "LD C,RES 1,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 89 ", "LD C,RES 1,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 91 ", "LD C,RES 2,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 91 ", "LD C,RES 2,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 99 ", "LD C,RES 3,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 99 ", "LD C,RES 3,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d A1 ", "LD C,RES 4,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d A1 ", "LD C,RES 4,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d A9 ", "LD C,RES 5,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d A9 ", "LD C,RES 5,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d B1 ", "LD C,RES 6,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d B1 ", "LD C,RES 6,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d B9 ", "LD C,RES 7,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d B9 ", "LD C,RES 7,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 11 ", "LD C,RL (IX+%d)   "));
+			Instructions.Add(Instruction("FDCB %d 11 ", "LD C,RL (IY+%d)   "));
+			Instructions.Add(Instruction("DDCB %d 01 ", "LD C,RLC (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 01 ", "LD C,RLC (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 19 ", "LD C,RR (IX+%d)   "));
+			Instructions.Add(Instruction("FDCB %d 19 ", "LD C,RR (IY+%d)   "));
+			Instructions.Add(Instruction("DDCB %d 09 ", "LD C,RRC (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 09 ", "LD C,RRC (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d C1 ", "LD C,SET 0,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d C1 ", "LD C,SET 0,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d C9 ", "LD C,SET 1,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d C9 ", "LD C,SET 1,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d D1 ", "LD C,SET 2,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d D1 ", "LD C,SET 2,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d D9 ", "LD C,SET 3,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d D9 ", "LD C,SET 3,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d E1 ", "LD C,SET 4,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d E1 ", "LD C,SET 4,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d E9 ", "LD C,SET 5,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d E9 ", "LD C,SET 5,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d F1 ", "LD C,SET 6,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d F1 ", "LD C,SET 6,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d F9 ", "LD C,SET 7,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d F9 ", "LD C,SET 7,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 21 ", "LD C,SLA (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 21 ", "LD C,SLA (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 31 ", "LD C,SLL (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 31 ", "LD C,SLL (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 29 ", "LD C,SRA (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 29 ", "LD C,SRA (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 39 ", "LD C,SRL (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 39 ", "LD C,SRL (IY+%d)  "));
+			Instructions.Add(Instruction("56         ", "LD D,(HL)         "));
+			Instructions.Add(Instruction("DD56 %d    ", "LD D,(IX+%d)      "));
+			Instructions.Add(Instruction("FD56 %d    ", "LD D,(IY+%d)      "));
+			Instructions.Add(Instruction("57         ", "LD D,A            "));
+			Instructions.Add(Instruction("50         ", "LD D,B            "));
+			Instructions.Add(Instruction("51         ", "LD D,C            "));
+			Instructions.Add(Instruction("52         ", "LD D,D            "));
+			Instructions.Add(Instruction("53         ", "LD D,E            "));
+			Instructions.Add(Instruction("54         ", "LD D,H            "));
+			Instructions.Add(Instruction("DD54       ", "LD D,IXh          "));
+			Instructions.Add(Instruction("DD55       ", "LD D,IXl          "));
+			Instructions.Add(Instruction("FD54       ", "LD D,IYh          "));
+			Instructions.Add(Instruction("FD55       ", "LD D,IYl          "));
+			Instructions.Add(Instruction("55         ", "LD D,L            "));
+			Instructions.Add(Instruction("16 %n      ", "LD D,%n           "));
+			Instructions.Add(Instruction("DDCB %d 82 ", "LD D,RES 0,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 82 ", "LD D,RES 0,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 8A ", "LD D,RES 1,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 8A ", "LD D,RES 1,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 92 ", "LD D,RES 2,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 92 ", "LD D,RES 2,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 9A ", "LD D,RES 3,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 9A ", "LD D,RES 3,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d A2 ", "LD D,RES 4,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d A2 ", "LD D,RES 4,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d AA ", "LD D,RES 5,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d AA ", "LD D,RES 5,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d B2 ", "LD D,RES 6,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d B2 ", "LD D,RES 6,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d BA ", "LD D,RES 7,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d BA ", "LD D,RES 7,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 12 ", "LD D,RL (IX+%d)   "));
+			Instructions.Add(Instruction("FDCB %d 12 ", "LD D,RL (IY+%d)   "));
+			Instructions.Add(Instruction("DDCB %d 02 ", "LD D,RLC (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 02 ", "LD D,RLC (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 1A ", "LD D,RR (IX+%d)   "));
+			Instructions.Add(Instruction("FDCB %d 1A ", "LD D,RR (IY+%d)   "));
+			Instructions.Add(Instruction("DDCB %d 0A ", "LD D,RRC (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 0A ", "LD D,RRC (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d C2 ", "LD D,SET 0,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d C2 ", "LD D,SET 0,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d CA ", "LD D,SET 1,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d CA ", "LD D,SET 1,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d D2 ", "LD D,SET 2,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d D2 ", "LD D,SET 2,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d DA ", "LD D,SET 3,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d DA ", "LD D,SET 3,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d E2 ", "LD D,SET 4,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d E2 ", "LD D,SET 4,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d EA ", "LD D,SET 5,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d EA ", "LD D,SET 5,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d F2 ", "LD D,SET 6,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d F2 ", "LD D,SET 6,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d FA ", "LD D,SET 7,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d FA ", "LD D,SET 7,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 22 ", "LD D,SLA (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 22 ", "LD D,SLA (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 32 ", "LD D,SLL (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 32 ", "LD D,SLL (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 2A ", "LD D,SRA (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 2A ", "LD D,SRA (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 3A ", "LD D,SRL (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 3A ", "LD D,SRL (IY+%d)  "));
+			Instructions.Add(Instruction("ED5B %nn   ", "LD DE,(%nn)       "));
+			Instructions.Add(Instruction("11 %nn     ", "LD DE,%nn         "));
+			Instructions.Add(Instruction("5E         ", "LD E,(HL)         "));
+			Instructions.Add(Instruction("DD5E %d    ", "LD E,(IX+%d)      "));
+			Instructions.Add(Instruction("FD5E %d    ", "LD E,(IY+%d)      "));
+			Instructions.Add(Instruction("5F         ", "LD E,A            "));
+			Instructions.Add(Instruction("58         ", "LD E,B            "));
+			Instructions.Add(Instruction("59         ", "LD E,C            "));
+			Instructions.Add(Instruction("5A         ", "LD E,D            "));
+			Instructions.Add(Instruction("5B         ", "LD E,E            "));
+			Instructions.Add(Instruction("5C         ", "LD E,H            "));
+			Instructions.Add(Instruction("DD5C       ", "LD E,IXh          "));
+			Instructions.Add(Instruction("DD5D       ", "LD E,IXl          "));
+			Instructions.Add(Instruction("FD5C       ", "LD E,IYh          "));
+			Instructions.Add(Instruction("FD5D       ", "LD E,IYl          "));
+			Instructions.Add(Instruction("5D         ", "LD E,L            "));
+			Instructions.Add(Instruction("1E %n      ", "LD E,%n           "));
+			Instructions.Add(Instruction("DDCB %d 83 ", "LD E,RES 0,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 83 ", "LD E,RES 0,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 8B ", "LD E,RES 1,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 8B ", "LD E,RES 1,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 93 ", "LD E,RES 2,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 93 ", "LD E,RES 2,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 9B ", "LD E,RES 3,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 9B ", "LD E,RES 3,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d A3 ", "LD E,RES 4,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d A3 ", "LD E,RES 4,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d AB ", "LD E,RES 5,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d AB ", "LD E,RES 5,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d B3 ", "LD E,RES 6,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d B3 ", "LD E,RES 6,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d BB ", "LD E,RES 7,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d BB ", "LD E,RES 7,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 13 ", "LD E,RL (IX+%d)   "));
+			Instructions.Add(Instruction("FDCB %d 13 ", "LD E,RL (IY+%d)   "));
+			Instructions.Add(Instruction("DDCB %d 03 ", "LD E,RLC (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 03 ", "LD E,RLC (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 1B ", "LD E,RR (IX+%d)   "));
+			Instructions.Add(Instruction("FDCB %d 1B ", "LD E,RR (IY+%d)   "));
+			Instructions.Add(Instruction("DDCB %d 0B ", "LD E,RRC (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 0B ", "LD E,RRC (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d C3 ", "LD E,SET 0,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d C3 ", "LD E,SET 0,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d CB ", "LD E,SET 1,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d CB ", "LD E,SET 1,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d D3 ", "LD E,SET 2,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d D3 ", "LD E,SET 2,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d DB ", "LD E,SET 3,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d DB ", "LD E,SET 3,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d E3 ", "LD E,SET 4,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d E3 ", "LD E,SET 4,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d EB ", "LD E,SET 5,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d EB ", "LD E,SET 5,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d F3 ", "LD E,SET 6,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d F3 ", "LD E,SET 6,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d FB ", "LD E,SET 7,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d FB ", "LD E,SET 7,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 23 ", "LD E,SLA (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 23 ", "LD E,SLA (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 33 ", "LD E,SLL (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 33 ", "LD E,SLL (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 2B ", "LD E,SRA (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 2B ", "LD E,SRA (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 3B ", "LD E,SRL (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 3B ", "LD E,SRL (IY+%d)  "));
+			Instructions.Add(Instruction("66         ", "LD H,(HL)         "));
+			Instructions.Add(Instruction("DD66 %d    ", "LD H,(IX+%d)      "));
+			Instructions.Add(Instruction("FD66 %d    ", "LD H,(IY+%d)      "));
+			Instructions.Add(Instruction("67         ", "LD H,A            "));
+			Instructions.Add(Instruction("60         ", "LD H,B            "));
+			Instructions.Add(Instruction("61         ", "LD H,C            "));
+			Instructions.Add(Instruction("62         ", "LD H,D            "));
+			Instructions.Add(Instruction("63         ", "LD H,E            "));
+			Instructions.Add(Instruction("64         ", "LD H,H            "));
+			Instructions.Add(Instruction("65         ", "LD H,L            "));
+			Instructions.Add(Instruction("26 %n      ", "LD H,%n           "));
+			Instructions.Add(Instruction("DDCB %d 84 ", "LD H,RES 0,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 84 ", "LD H,RES 0,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 8C ", "LD H,RES 1,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 8C ", "LD H,RES 1,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 94 ", "LD H,RES 2,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 94 ", "LD H,RES 2,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 9C ", "LD H,RES 3,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 9C ", "LD H,RES 3,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d A4 ", "LD H,RES 4,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d A4 ", "LD H,RES 4,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d AC ", "LD H,RES 5,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d AC ", "LD H,RES 5,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d B4 ", "LD H,RES 6,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d B4 ", "LD H,RES 6,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d BC ", "LD H,RES 7,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d BC ", "LD H,RES 7,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 14 ", "LD H,RL (IX+%d)   "));
+			Instructions.Add(Instruction("FDCB %d 14 ", "LD H,RL (IY+%d)   "));
+			Instructions.Add(Instruction("DDCB %d 04 ", "LD H,RLC (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 04 ", "LD H,RLC (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 1C ", "LD H,RR (IX+%d)   "));
+			Instructions.Add(Instruction("FDCB %d 1C ", "LD H,RR (IY+%d)   "));
+			Instructions.Add(Instruction("DDCB %d 0C ", "LD H,RRC (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 0C ", "LD H,RRC (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d C4 ", "LD H,SET 0,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d C4 ", "LD H,SET 0,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d CC ", "LD H,SET 1,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d CC ", "LD H,SET 1,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d D4 ", "LD H,SET 2,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d D4 ", "LD H,SET 2,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d DC ", "LD H,SET 3,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d DC ", "LD H,SET 3,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d E4 ", "LD H,SET 4,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d E4 ", "LD H,SET 4,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d EC ", "LD H,SET 5,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d EC ", "LD H,SET 5,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d F4 ", "LD H,SET 6,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d F4 ", "LD H,SET 6,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d FC ", "LD H,SET 7,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d FC ", "LD H,SET 7,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 24 ", "LD H,SLA (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 24 ", "LD H,SLA (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 34 ", "LD H,SLL (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 34 ", "LD H,SLL (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 2C ", "LD H,SRA (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 2C ", "LD H,SRA (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 3C ", "LD H,SRL (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 3C ", "LD H,SRL (IY+%d)  "));
+			Instructions.Add(Instruction("ED6B %nn   ", "LD HL,(%nn)       "));
+			Instructions.Add(Instruction("2A %nn     ", "LD HL,(%nn)       "));
+			Instructions.Add(Instruction("21 %nn     ", "LD HL,%nn         "));
+			Instructions.Add(Instruction("ED47       ", "LD I,A            "));
+			Instructions.Add(Instruction("DD2A %nn   ", "LD IX,(%nn)       "));
+			Instructions.Add(Instruction("DD21 %nn   ", "LD IX,%nn         "));
+			Instructions.Add(Instruction("DD67       ", "LD IXh,A          "));
+			Instructions.Add(Instruction("DD60       ", "LD IXh,B          "));
+			Instructions.Add(Instruction("DD61       ", "LD IXh,C          "));
+			Instructions.Add(Instruction("DD62       ", "LD IXh,D          "));
+			Instructions.Add(Instruction("DD63       ", "LD IXh,E          "));
+			Instructions.Add(Instruction("DD64       ", "LD IXh,IXh        "));
+			Instructions.Add(Instruction("DD65       ", "LD IXh,IXl        "));
+			Instructions.Add(Instruction("DD26 %n    ", "LD IXh,%n         "));
+			Instructions.Add(Instruction("DD6F       ", "LD IXl,A          "));
+			Instructions.Add(Instruction("DD68       ", "LD IXl,B          "));
+			Instructions.Add(Instruction("DD69       ", "LD IXl,C          "));
+			Instructions.Add(Instruction("DD6A       ", "LD IXl,D          "));
+			Instructions.Add(Instruction("DD6B       ", "LD IXl,E          "));
+			Instructions.Add(Instruction("DD6C       ", "LD IXl,IXh        "));
+			Instructions.Add(Instruction("DD6D       ", "LD IXl,IXl        "));
+			Instructions.Add(Instruction("DD2E %n    ", "LD IXl,%n         "));
+			Instructions.Add(Instruction("FD2A %nn   ", "LD IY,(%nn)       "));
+			Instructions.Add(Instruction("FD21 %nn   ", "LD IY,%nn         "));
+			Instructions.Add(Instruction("FD67       ", "LD IYh,A          "));
+			Instructions.Add(Instruction("FD60       ", "LD IYh,B          "));
+			Instructions.Add(Instruction("FD61       ", "LD IYh,C          "));
+			Instructions.Add(Instruction("FD62       ", "LD IYh,D          "));
+			Instructions.Add(Instruction("FD63       ", "LD IYh,E          "));
+			Instructions.Add(Instruction("FD64       ", "LD IYh,IYh        "));
+			Instructions.Add(Instruction("FD65       ", "LD IYh,IYl        "));
+			Instructions.Add(Instruction("FD26 %n    ", "LD IYh,%n         "));
+			Instructions.Add(Instruction("FD6F       ", "LD IYl,A          "));
+			Instructions.Add(Instruction("FD68       ", "LD IYl,B          "));
+			Instructions.Add(Instruction("FD69       ", "LD IYl,C          "));
+			Instructions.Add(Instruction("FD6A       ", "LD IYl,D          "));
+			Instructions.Add(Instruction("FD6B       ", "LD IYl,E          "));
+			Instructions.Add(Instruction("FD6C       ", "LD IYl,IYh        "));
+			Instructions.Add(Instruction("FD6D       ", "LD IYl,IYl        "));
+			Instructions.Add(Instruction("FD2E %n    ", "LD IYl,%n         "));
+			Instructions.Add(Instruction("6E         ", "LD L,(HL)         "));
+			Instructions.Add(Instruction("DD6E %d    ", "LD L,(IX+%d)      "));
+			Instructions.Add(Instruction("FD6E %d    ", "LD L,(IY+%d)      "));
+			Instructions.Add(Instruction("6F         ", "LD L,A            "));
+			Instructions.Add(Instruction("68         ", "LD L,B            "));
+			Instructions.Add(Instruction("69         ", "LD L,C            "));
+			Instructions.Add(Instruction("6A         ", "LD L,D            "));
+			Instructions.Add(Instruction("6B         ", "LD L,E            "));
+			Instructions.Add(Instruction("6C         ", "LD L,H            "));
+			Instructions.Add(Instruction("6D         ", "LD L,L            "));
+			Instructions.Add(Instruction("2E %n      ", "LD L,%n           "));
+			Instructions.Add(Instruction("DDCB %d 85 ", "LD L,RES 0,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 85 ", "LD L,RES 0,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 8D ", "LD L,RES 1,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 8D ", "LD L,RES 1,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 95 ", "LD L,RES 2,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 95 ", "LD L,RES 2,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 9D ", "LD L,RES 3,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d 9D ", "LD L,RES 3,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d A5 ", "LD L,RES 4,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d A5 ", "LD L,RES 4,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d AD ", "LD L,RES 5,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d AD ", "LD L,RES 5,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d B5 ", "LD L,RES 6,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d B5 ", "LD L,RES 6,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d BD ", "LD L,RES 7,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d BD ", "LD L,RES 7,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 15 ", "LD L,RL (IX+%d)   "));
+			Instructions.Add(Instruction("FDCB %d 15 ", "LD L,RL (IY+%d)   "));
+			Instructions.Add(Instruction("DDCB %d 05 ", "LD L,RLC (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 05 ", "LD L,RLC (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 1D ", "LD L,RR (IX+%d)   "));
+			Instructions.Add(Instruction("FDCB %d 1D ", "LD L,RR (IY+%d)   "));
+			Instructions.Add(Instruction("DDCB %d 0D ", "LD L,RRC (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 0D ", "LD L,RRC (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d C5 ", "LD L,SET 0,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d C5 ", "LD L,SET 0,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d CD ", "LD L,SET 1,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d CD ", "LD L,SET 1,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d D5 ", "LD L,SET 2,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d D5 ", "LD L,SET 2,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d DD ", "LD L,SET 3,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d DD ", "LD L,SET 3,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d E5 ", "LD L,SET 4,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d E5 ", "LD L,SET 4,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d ED ", "LD L,SET 5,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d ED ", "LD L,SET 5,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d F5 ", "LD L,SET 6,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d F5 ", "LD L,SET 6,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d FD ", "LD L,SET 7,(IX+%d)"));
+			Instructions.Add(Instruction("FDCB %d FD ", "LD L,SET 7,(IY+%d)"));
+			Instructions.Add(Instruction("DDCB %d 25 ", "LD L,SLA (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 25 ", "LD L,SLA (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 35 ", "LD L,SLL (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 35 ", "LD L,SLL (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 2D ", "LD L,SRA (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 2D ", "LD L,SRA (IY+%d)  "));
+			Instructions.Add(Instruction("DDCB %d 3D ", "LD L,SRL (IX+%d)  "));
+			Instructions.Add(Instruction("FDCB %d 3D ", "LD L,SRL (IY+%d)  "));
+			Instructions.Add(Instruction("ED4F       ", "LD R,A            "));
+			Instructions.Add(Instruction("ED7B %nn   ", "LD SP,(%nn)       "));
+			Instructions.Add(Instruction("F9         ", "LD SP,HL          "));
+			Instructions.Add(Instruction("DDF9       ", "LD SP,IX          "));
+			Instructions.Add(Instruction("FDF9       ", "LD SP,IY          "));
+			Instructions.Add(Instruction("31 %nn     ", "LD SP,%nn         "));
+			Instructions.Add(Instruction("EDA8       ", "LDD               "));
+			Instructions.Add(Instruction("EDB8       ", "LDDR              "));
+			Instructions.Add(Instruction("EDA0       ", "LDI               "));
+			Instructions.Add(Instruction("EDB0       ", "LDIR              "));
+			Instructions.Add(Instruction("ED44       ", "NEG               "));
+			Instructions.Add(Instruction("ED64       ", "NEG               "));
+			Instructions.Add(Instruction("ED6C       ", "NEG               "));
+			Instructions.Add(Instruction("ED74       ", "NEG               "));
+			Instructions.Add(Instruction("ED5C       ", "NEG               "));
+			Instructions.Add(Instruction("ED7C       ", "NEG               "));
+			Instructions.Add(Instruction("ED54       ", "NEG               "));
+			Instructions.Add(Instruction("ED4C       ", "NEG               "));
+			Instructions.Add(Instruction("00         ", "NOP               "));
+			Instructions.Add(Instruction("B6         ", "OR (HL)           "));
+			Instructions.Add(Instruction("DDB6 %d    ", "OR (IX+%d)        "));
+			Instructions.Add(Instruction("FDB6 %d    ", "OR (IY+%d)        "));
+			Instructions.Add(Instruction("B7         ", "OR A              "));
+			Instructions.Add(Instruction("B0         ", "OR B              "));
+			Instructions.Add(Instruction("B1         ", "OR C              "));
+			Instructions.Add(Instruction("B2         ", "OR D              "));
+			Instructions.Add(Instruction("B3         ", "OR E              "));
+			Instructions.Add(Instruction("B4         ", "OR H              "));
+			Instructions.Add(Instruction("DDB4       ", "OR IXh            "));
+			Instructions.Add(Instruction("DDB5       ", "OR IXl            "));
+			Instructions.Add(Instruction("FDB4       ", "OR IYh            "));
+			Instructions.Add(Instruction("FDB5       ", "OR IYl            "));
+			Instructions.Add(Instruction("B5         ", "OR L              "));
+			Instructions.Add(Instruction("F6 %n      ", "OR %n             "));
+			Instructions.Add(Instruction("EDBB       ", "OTDR              "));
+			Instructions.Add(Instruction("EDB3       ", "OTIR              "));
+			Instructions.Add(Instruction("ED71       ", "OUT (C),0         "));
+			Instructions.Add(Instruction("ED79       ", "OUT (C),A         "));
+			Instructions.Add(Instruction("ED41       ", "OUT (C),B         "));
+			Instructions.Add(Instruction("ED49       ", "OUT (C),C         "));
+			Instructions.Add(Instruction("ED51       ", "OUT (C),D         "));
+			Instructions.Add(Instruction("ED59       ", "OUT (C),E         "));
+			Instructions.Add(Instruction("ED61       ", "OUT (C),H         "));
+			Instructions.Add(Instruction("ED69       ", "OUT (C),L         "));
+			Instructions.Add(Instruction("D3 %n      ", "OUT (n),A         "));
+			Instructions.Add(Instruction("EDAB       ", "OUTD              "));
+			Instructions.Add(Instruction("EDA3       ", "OUTI              "));
+			Instructions.Add(Instruction("F1         ", "POP AF            "));
+			Instructions.Add(Instruction("C1         ", "POP BC            "));
+			Instructions.Add(Instruction("D1         ", "POP DE            "));
+			Instructions.Add(Instruction("E1         ", "POP HL            "));
+			Instructions.Add(Instruction("DDE1       ", "POP IX            "));
+			Instructions.Add(Instruction("FDE1       ", "POP IY            "));
+			Instructions.Add(Instruction("F5         ", "PUSH AF           "));
+			Instructions.Add(Instruction("C5         ", "PUSH BC           "));
+			Instructions.Add(Instruction("D5         ", "PUSH DE           "));
+			Instructions.Add(Instruction("E5         ", "PUSH HL           "));
+			Instructions.Add(Instruction("DDE5       ", "PUSH IX           "));
+			Instructions.Add(Instruction("FDE5       ", "PUSH IY           "));
+			Instructions.Add(Instruction("CB86       ", "RES 0,(HL)        "));
+			Instructions.Add(Instruction("DDCB %d 86 ", "RES 0,(IX+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 86 ", "RES 0,(IY+%d)     "));
+			Instructions.Add(Instruction("CB87       ", "RES 0,A           "));
+			Instructions.Add(Instruction("CB80       ", "RES 0,B           "));
+			Instructions.Add(Instruction("CB81       ", "RES 0,C           "));
+			Instructions.Add(Instruction("CB82       ", "RES 0,D           "));
+			Instructions.Add(Instruction("CB83       ", "RES 0,E           "));
+			Instructions.Add(Instruction("CB84       ", "RES 0,H           "));
+			Instructions.Add(Instruction("CB85       ", "RES 0,L           "));
+			Instructions.Add(Instruction("CB8E       ", "RES 1,(HL)        "));
+			Instructions.Add(Instruction("DDCB %d 8E ", "RES 1,(IX+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 8E ", "RES 1,(IY+%d)     "));
+			Instructions.Add(Instruction("CB8F       ", "RES 1,A           "));
+			Instructions.Add(Instruction("CB88       ", "RES 1,B           "));
+			Instructions.Add(Instruction("CB89       ", "RES 1,C           "));
+			Instructions.Add(Instruction("CB8A       ", "RES 1,D           "));
+			Instructions.Add(Instruction("CB8B       ", "RES 1,E           "));
+			Instructions.Add(Instruction("CB8C       ", "RES 1,H           "));
+			Instructions.Add(Instruction("CB8D       ", "RES 1,L           "));
+			Instructions.Add(Instruction("CB96       ", "RES 2,(HL)        "));
+			Instructions.Add(Instruction("DDCB %d 96 ", "RES 2,(IX+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 96 ", "RES 2,(IY+%d)     "));
+			Instructions.Add(Instruction("CB97       ", "RES 2,A           "));
+			Instructions.Add(Instruction("CB90       ", "RES 2,B           "));
+			Instructions.Add(Instruction("CB91       ", "RES 2,C           "));
+			Instructions.Add(Instruction("CB92       ", "RES 2,D           "));
+			Instructions.Add(Instruction("CB93       ", "RES 2,E           "));
+			Instructions.Add(Instruction("CB94       ", "RES 2,H           "));
+			Instructions.Add(Instruction("CB95       ", "RES 2,L           "));
+			Instructions.Add(Instruction("CB9E       ", "RES 3,(HL)        "));
+			Instructions.Add(Instruction("DDCB %d 9E ", "RES 3,(IX+%d)     "));
+			Instructions.Add(Instruction("FDCB %d 9E ", "RES 3,(IY+%d)     "));
+			Instructions.Add(Instruction("CB9F       ", "RES 3,A           "));
+			Instructions.Add(Instruction("CB98       ", "RES 3,B           "));
+			Instructions.Add(Instruction("CB99       ", "RES 3,C           "));
+			Instructions.Add(Instruction("CB9A       ", "RES 3,D           "));
+			Instructions.Add(Instruction("CB9B       ", "RES 3,E           "));
+			Instructions.Add(Instruction("CB9C       ", "RES 3,H           "));
+			Instructions.Add(Instruction("CB9D       ", "RES 3,L           "));
+			Instructions.Add(Instruction("CBA6       ", "RES 4,(HL)        "));
+			Instructions.Add(Instruction("DDCB %d A6 ", "RES 4,(IX+%d)     "));
+			Instructions.Add(Instruction("FDCB %d A6 ", "RES 4,(IY+%d)     "));
+			Instructions.Add(Instruction("CBA7       ", "RES 4,A           "));
+			Instructions.Add(Instruction("CBA0       ", "RES 4,B           "));
+			Instructions.Add(Instruction("CBA1       ", "RES 4,C           "));
+			Instructions.Add(Instruction("CBA2       ", "RES 4,D           "));
+			Instructions.Add(Instruction("CBA3       ", "RES 4,E           "));
+			Instructions.Add(Instruction("CBA4       ", "RES 4,H           "));
+			Instructions.Add(Instruction("CBA5       ", "RES 4,L           "));
+			Instructions.Add(Instruction("CBAE       ", "RES 5,(HL)        "));
+			Instructions.Add(Instruction("DDCB %d AE ", "RES 5,(IX+%d)     "));
+			Instructions.Add(Instruction("FDCB %d AE ", "RES 5,(IY+%d)     "));
+			Instructions.Add(Instruction("CBAF       ", "RES 5,A           "));
+			Instructions.Add(Instruction("CBA8       ", "RES 5,B           "));
+			Instructions.Add(Instruction("CBA9       ", "RES 5,C           "));
+			Instructions.Add(Instruction("CBAA       ", "RES 5,D           "));
+			Instructions.Add(Instruction("CBAB       ", "RES 5,E           "));
+			Instructions.Add(Instruction("CBAC       ", "RES 5,H           "));
+			Instructions.Add(Instruction("CBAD       ", "RES 5,L           "));
+			Instructions.Add(Instruction("CBB6       ", "RES 6,(HL)        "));
+			Instructions.Add(Instruction("DDCB %d B6 ", "RES 6,(IX+%d)     "));
+			Instructions.Add(Instruction("FDCB %d B6 ", "RES 6,(IY+%d)     "));
+			Instructions.Add(Instruction("CBB7       ", "RES 6,A           "));
+			Instructions.Add(Instruction("CBB0       ", "RES 6,B           "));
+			Instructions.Add(Instruction("CBB1       ", "RES 6,C           "));
+			Instructions.Add(Instruction("CBB2       ", "RES 6,D           "));
+			Instructions.Add(Instruction("CBB3       ", "RES 6,E           "));
+			Instructions.Add(Instruction("CBB4       ", "RES 6,H           "));
+			Instructions.Add(Instruction("CBB5       ", "RES 6,L           "));
+			Instructions.Add(Instruction("CBBE       ", "RES 7,(HL)        "));
+			Instructions.Add(Instruction("DDCB %d BE ", "RES 7,(IX+%d)     "));
+			Instructions.Add(Instruction("FDCB %d BE ", "RES 7,(IY+%d)     "));
+			Instructions.Add(Instruction("CBBF       ", "RES 7,A           "));
+			Instructions.Add(Instruction("CBB8       ", "RES 7,B           "));
+			Instructions.Add(Instruction("CBB9       ", "RES 7,C           "));
+			Instructions.Add(Instruction("CBBA       ", "RES 7,D           "));
+			Instructions.Add(Instruction("CBBB       ", "RES 7,E           "));
+			Instructions.Add(Instruction("CBBC       ", "RES 7,H           "));
+			Instructions.Add(Instruction("CBBD       ", "RES 7,L           "));
+			Instructions.Add(Instruction("C9         ", "RET               "));
+			Instructions.Add(Instruction("D8         ", "RET C             "));
+			Instructions.Add(Instruction("F8         ", "RET M             "));
+			Instructions.Add(Instruction("D0         ", "RET NC            "));
+			Instructions.Add(Instruction("C0         ", "RET NZ            "));
+			Instructions.Add(Instruction("F0         ", "RET P             "));
+			Instructions.Add(Instruction("E8         ", "RET PE            "));
+			Instructions.Add(Instruction("E0         ", "RET PO            "));
+			Instructions.Add(Instruction("C8         ", "RET Z             "));
+			Instructions.Add(Instruction("ED4D       ", "RETI              "));
+			Instructions.Add(Instruction("ED45       ", "RETN              "));
+			Instructions.Add(Instruction("ED55       ", "RETN              "));
+			Instructions.Add(Instruction("ED65       ", "RETN              "));
+			Instructions.Add(Instruction("ED5D       ", "RETN              "));
+			Instructions.Add(Instruction("ED75       ", "RETN              "));
+			Instructions.Add(Instruction("ED6D       ", "RETN              "));
+			Instructions.Add(Instruction("ED7D       ", "RETN              "));
+			Instructions.Add(Instruction("CB16       ", "RL (HL)           "));
+			Instructions.Add(Instruction("DDCB %d 16 ", "RL (IX+%d)        "));
+			Instructions.Add(Instruction("FDCB %d 16 ", "RL (IY+%d)        "));
+			Instructions.Add(Instruction("CB17       ", "RL A              "));
+			Instructions.Add(Instruction("CB10       ", "RL B              "));
+			Instructions.Add(Instruction("CB11       ", "RL C              "));
+			Instructions.Add(Instruction("CB12       ", "RL D              "));
+			Instructions.Add(Instruction("CB13       ", "RL E              "));
+			Instructions.Add(Instruction("CB14       ", "RL H              "));
+			Instructions.Add(Instruction("CB15       ", "RL L              "));
+			Instructions.Add(Instruction("17         ", "RLA               "));
+			Instructions.Add(Instruction("CB06       ", "RLC (HL)          "));
+			Instructions.Add(Instruction("DDCB %d 06 ", "RLC (IX+%d)       "));
+			Instructions.Add(Instruction("FDCB %d 06 ", "RLC (IY+%d)       "));
+			Instructions.Add(Instruction("CB07       ", "RLC A             "));
+			Instructions.Add(Instruction("CB00       ", "RLC B             "));
+			Instructions.Add(Instruction("CB01       ", "RLC C             "));
+			Instructions.Add(Instruction("CB02       ", "RLC D             "));
+			Instructions.Add(Instruction("CB03       ", "RLC E             "));
+			Instructions.Add(Instruction("CB04       ", "RLC H             "));
+			Instructions.Add(Instruction("CB05       ", "RLC L             "));
+			Instructions.Add(Instruction("07         ", "RLCA              "));
+			Instructions.Add(Instruction("ED6F       ", "RLD               "));
+			Instructions.Add(Instruction("CB1E       ", "RR (HL)           "));
+			Instructions.Add(Instruction("DDCB %d 1E ", "RR (IX+%d)        "));
+			Instructions.Add(Instruction("FDCB %d 1E ", "RR (IY+%d)        "));
+			Instructions.Add(Instruction("CB1F       ", "RR A              "));
+			Instructions.Add(Instruction("CB18       ", "RR B              "));
+			Instructions.Add(Instruction("CB19       ", "RR C              "));
+			Instructions.Add(Instruction("CB1A       ", "RR D              "));
+			Instructions.Add(Instruction("CB1B       ", "RR E              "));
+			Instructions.Add(Instruction("CB1C       ", "RR H              "));
+			Instructions.Add(Instruction("CB1D       ", "RR L              "));
+			Instructions.Add(Instruction("1F         ", "RRA               "));
+			Instructions.Add(Instruction("CB0E       ", "RRC (HL)          "));
+			Instructions.Add(Instruction("DDCB %d 0E ", "RRC (IX+%d)       "));
+			Instructions.Add(Instruction("FDCB %d 0E ", "RRC (IY+%d)       "));
+			Instructions.Add(Instruction("CB0F       ", "RRC A             "));
+			Instructions.Add(Instruction("CB08       ", "RRC B             "));
+			Instructions.Add(Instruction("CB09       ", "RRC C             "));
+			Instructions.Add(Instruction("CB0A       ", "RRC D             "));
+			Instructions.Add(Instruction("CB0B       ", "RRC E             "));
+			Instructions.Add(Instruction("CB0C       ", "RRC H             "));
+			Instructions.Add(Instruction("CB0D       ", "RRC L             "));
+			Instructions.Add(Instruction("0F         ", "RRCA              "));
+			Instructions.Add(Instruction("ED67       ", "RRD               "));
+			Instructions.Add(Instruction("C7         ", "RST 0H            "));
+			Instructions.Add(Instruction("D7         ", "RST 10H           "));
+			Instructions.Add(Instruction("DF         ", "RST 18H           "));
+			Instructions.Add(Instruction("E7         ", "RST 20H           "));
+			Instructions.Add(Instruction("EF         ", "RST 28H           "));
+			Instructions.Add(Instruction("F7         ", "RST 30H           "));
+			Instructions.Add(Instruction("FF         ", "RST 38H           "));
+			Instructions.Add(Instruction("CF         ", "RST 8H            "));
+			Instructions.Add(Instruction("9E         ", "SBC A,(HL)        "));
+			Instructions.Add(Instruction("DD9E %d    ", "SBC A,(IX+%d)     "));
+			Instructions.Add(Instruction("FD9E %d    ", "SBC A,(IY+%d)     "));
+			Instructions.Add(Instruction("9F         ", "SBC A,A           "));
+			Instructions.Add(Instruction("98         ", "SBC A,B           "));
+			Instructions.Add(Instruction("99         ", "SBC A,C           "));
+			Instructions.Add(Instruction("9A         ", "SBC A,D           "));
+			Instructions.Add(Instruction("9B         ", "SBC A,E           "));
+			Instructions.Add(Instruction("9C         ", "SBC A,H           "));
+			Instructions.Add(Instruction("DD9C       ", "SBC A,IXh         "));
+			Instructions.Add(Instruction("DD9D       ", "SBC A,IXl         "));
+			Instructions.Add(Instruction("FD9C       ", "SBC A,IYh         "));
+			Instructions.Add(Instruction("FD9D       ", "SBC A,IYl         "));
+			Instructions.Add(Instruction("9D         ", "SBC A,L           "));
+			Instructions.Add(Instruction("DE %n      ", "SBC A,%n          "));
+			Instructions.Add(Instruction("ED42       ", "SBC HL,BC         "));
+			Instructions.Add(Instruction("ED52       ", "SBC HL,DE         "));
+			Instructions.Add(Instruction("ED62       ", "SBC HL,HL         "));
+			Instructions.Add(Instruction("ED72       ", "SBC HL,SP         "));
+			Instructions.Add(Instruction("37         ", "SCF               "));
+			Instructions.Add(Instruction("CBC6       ", "SET 0,(HL)        "));
+			Instructions.Add(Instruction("DDCB %d C6 ", "SET 0,(IX+%d)     "));
+			Instructions.Add(Instruction("FDCB %d C6 ", "SET 0,(IY+%d)     "));
+			Instructions.Add(Instruction("CBC7       ", "SET 0,A           "));
+			Instructions.Add(Instruction("CBC0       ", "SET 0,B           "));
+			Instructions.Add(Instruction("CBC1       ", "SET 0,C           "));
+			Instructions.Add(Instruction("CBC2       ", "SET 0,D           "));
+			Instructions.Add(Instruction("CBC3       ", "SET 0,E           "));
+			Instructions.Add(Instruction("CBC4       ", "SET 0,H           "));
+			Instructions.Add(Instruction("CBC5       ", "SET 0,L           "));
+			Instructions.Add(Instruction("CBCE       ", "SET 1,(HL)        "));
+			Instructions.Add(Instruction("DDCB %d CE ", "SET 1,(IX+%d)     "));
+			Instructions.Add(Instruction("FDCB %d CE ", "SET 1,(IY+%d)     "));
+			Instructions.Add(Instruction("CBCF       ", "SET 1,A           "));
+			Instructions.Add(Instruction("CBC8       ", "SET 1,B           "));
+			Instructions.Add(Instruction("CBC9       ", "SET 1,C           "));
+			Instructions.Add(Instruction("CBCA       ", "SET 1,D           "));
+			Instructions.Add(Instruction("CBCB       ", "SET 1,E           "));
+			Instructions.Add(Instruction("CBCC       ", "SET 1,H           "));
+			Instructions.Add(Instruction("CBCD       ", "SET 1,L           "));
+			Instructions.Add(Instruction("CBD6       ", "SET 2,(HL)        "));
+			Instructions.Add(Instruction("DDCB %d D6 ", "SET 2,(IX+%d)     "));
+			Instructions.Add(Instruction("FDCB %d D6 ", "SET 2,(IY+%d)     "));
+			Instructions.Add(Instruction("CBD7       ", "SET 2,A           "));
+			Instructions.Add(Instruction("CBD0       ", "SET 2,B           "));
+			Instructions.Add(Instruction("CBD1       ", "SET 2,C           "));
+			Instructions.Add(Instruction("CBD2       ", "SET 2,D           "));
+			Instructions.Add(Instruction("CBD3       ", "SET 2,E           "));
+			Instructions.Add(Instruction("CBD4       ", "SET 2,H           "));
+			Instructions.Add(Instruction("CBD5       ", "SET 2,L           "));
+			Instructions.Add(Instruction("CBDE       ", "SET 3,(HL)        "));
+			Instructions.Add(Instruction("DDCB %d DE ", "SET 3,(IX+%d)     "));
+			Instructions.Add(Instruction("FDCB %d DE ", "SET 3,(IY+%d)     "));
+			Instructions.Add(Instruction("CBDF       ", "SET 3,A           "));
+			Instructions.Add(Instruction("CBD8       ", "SET 3,B           "));
+			Instructions.Add(Instruction("CBD9       ", "SET 3,C           "));
+			Instructions.Add(Instruction("CBDA       ", "SET 3,D           "));
+			Instructions.Add(Instruction("CBDB       ", "SET 3,E           "));
+			Instructions.Add(Instruction("CBDC       ", "SET 3,H           "));
+			Instructions.Add(Instruction("CBDD       ", "SET 3,L           "));
+			Instructions.Add(Instruction("CBE6       ", "SET 4,(HL)        "));
+			Instructions.Add(Instruction("DDCB %d E6 ", "SET 4,(IX+%d)     "));
+			Instructions.Add(Instruction("FDCB %d E6 ", "SET 4,(IY+%d)     "));
+			Instructions.Add(Instruction("CBE7       ", "SET 4,A           "));
+			Instructions.Add(Instruction("CBE0       ", "SET 4,B           "));
+			Instructions.Add(Instruction("CBE1       ", "SET 4,C           "));
+			Instructions.Add(Instruction("CBE2       ", "SET 4,D           "));
+			Instructions.Add(Instruction("CBE3       ", "SET 4,E           "));
+			Instructions.Add(Instruction("CBE4       ", "SET 4,H           "));
+			Instructions.Add(Instruction("CBE5       ", "SET 4,L           "));
+			Instructions.Add(Instruction("CBEE       ", "SET 5,(HL)        "));
+			Instructions.Add(Instruction("DDCB %d EE ", "SET 5,(IX+%d)     "));
+			Instructions.Add(Instruction("FDCB %d EE ", "SET 5,(IY+%d)     "));
+			Instructions.Add(Instruction("CBEF       ", "SET 5,A           "));
+			Instructions.Add(Instruction("CBE8       ", "SET 5,B           "));
+			Instructions.Add(Instruction("CBE9       ", "SET 5,C           "));
+			Instructions.Add(Instruction("CBEA       ", "SET 5,D           "));
+			Instructions.Add(Instruction("CBEB       ", "SET 5,E           "));
+			Instructions.Add(Instruction("CBEC       ", "SET 5,H           "));
+			Instructions.Add(Instruction("CBED       ", "SET 5,L           "));
+			Instructions.Add(Instruction("CBF6       ", "SET 6,(HL)        "));
+			Instructions.Add(Instruction("DDCB %d F6 ", "SET 6,(IX+%d)     "));
+			Instructions.Add(Instruction("FDCB %d F6 ", "SET 6,(IY+%d)     "));
+			Instructions.Add(Instruction("CBF7       ", "SET 6,A           "));
+			Instructions.Add(Instruction("CBF0       ", "SET 6,B           "));
+			Instructions.Add(Instruction("CBF1       ", "SET 6,C           "));
+			Instructions.Add(Instruction("CBF2       ", "SET 6,D           "));
+			Instructions.Add(Instruction("CBF3       ", "SET 6,E           "));
+			Instructions.Add(Instruction("CBF4       ", "SET 6,H           "));
+			Instructions.Add(Instruction("CBF5       ", "SET 6,L           "));
+			Instructions.Add(Instruction("CBFE       ", "SET 7,(HL)        "));
+			Instructions.Add(Instruction("DDCB %d FE ", "SET 7,(IX+%d)     "));
+			Instructions.Add(Instruction("FDCB %d FE ", "SET 7,(IY+%d)     "));
+			Instructions.Add(Instruction("CBFF       ", "SET 7,A           "));
+			Instructions.Add(Instruction("CBF8       ", "SET 7,B           "));
+			Instructions.Add(Instruction("CBF9       ", "SET 7,C           "));
+			Instructions.Add(Instruction("CBFA       ", "SET 7,D           "));
+			Instructions.Add(Instruction("CBFB       ", "SET 7,E           "));
+			Instructions.Add(Instruction("CBFC       ", "SET 7,H           "));
+			Instructions.Add(Instruction("CBFD       ", "SET 7,L           "));
+			Instructions.Add(Instruction("CB26       ", "SLA (HL)          "));
+			Instructions.Add(Instruction("DDCB %d 26 ", "SLA (IX+%d)       "));
+			Instructions.Add(Instruction("FDCB %d 26 ", "SLA (IY+%d)       "));
+			Instructions.Add(Instruction("CB27       ", "SLA A             "));
+			Instructions.Add(Instruction("CB20       ", "SLA B             "));
+			Instructions.Add(Instruction("CB21       ", "SLA C             "));
+			Instructions.Add(Instruction("CB22       ", "SLA D             "));
+			Instructions.Add(Instruction("CB23       ", "SLA E             "));
+			Instructions.Add(Instruction("CB24       ", "SLA H             "));
+			Instructions.Add(Instruction("CB25       ", "SLA L             "));
+			Instructions.Add(Instruction("CB36       ", "SLL (HL)          "));
+			Instructions.Add(Instruction("DDCB %d 36 ", "SLL (IX+%d)       "));
+			Instructions.Add(Instruction("FDCB %d 36 ", "SLL (IY+%d)       "));
+			Instructions.Add(Instruction("CB37       ", "SLL A             "));
+			Instructions.Add(Instruction("CB30       ", "SLL B             "));
+			Instructions.Add(Instruction("CB31       ", "SLL C             "));
+			Instructions.Add(Instruction("CB32       ", "SLL D             "));
+			Instructions.Add(Instruction("CB33       ", "SLL E             "));
+			Instructions.Add(Instruction("CB34       ", "SLL H             "));
+			Instructions.Add(Instruction("CB35       ", "SLL L             "));
+			Instructions.Add(Instruction("CB2E       ", "SRA (HL)          "));
+			Instructions.Add(Instruction("DDCB %d 2E ", "SRA (IX+%d)       "));
+			Instructions.Add(Instruction("FDCB %d 2E ", "SRA (IY+%d)       "));
+			Instructions.Add(Instruction("CB2F       ", "SRA A             "));
+			Instructions.Add(Instruction("CB28       ", "SRA B             "));
+			Instructions.Add(Instruction("CB29       ", "SRA C             "));
+			Instructions.Add(Instruction("CB2A       ", "SRA D             "));
+			Instructions.Add(Instruction("CB2B       ", "SRA E             "));
+			Instructions.Add(Instruction("CB2C       ", "SRA H             "));
+			Instructions.Add(Instruction("CB2D       ", "SRA L             "));
+			Instructions.Add(Instruction("CB3E       ", "SRL (HL)          "));
+			Instructions.Add(Instruction("DDCB %d 3E ", "SRL (IX+%d)       "));
+			Instructions.Add(Instruction("FDCB %d 3E ", "SRL (IY+%d)       "));
+			Instructions.Add(Instruction("CB3F       ", "SRL A             "));
+			Instructions.Add(Instruction("CB38       ", "SRL B             "));
+			Instructions.Add(Instruction("CB39       ", "SRL C             "));
+			Instructions.Add(Instruction("CB3A       ", "SRL D             "));
+			Instructions.Add(Instruction("CB3B       ", "SRL E             "));
+			Instructions.Add(Instruction("CB3C       ", "SRL H             "));
+			Instructions.Add(Instruction("CB3D       ", "SRL L             "));
+			Instructions.Add(Instruction("96         ", "SUB A,(HL)        "));
+			Instructions.Add(Instruction("DD96 %d    ", "SUB A,(IX+%d)     "));
+			Instructions.Add(Instruction("FD96 %d    ", "SUB A,(IY+%d)     "));
+			Instructions.Add(Instruction("97         ", "SUB A,A           "));
+			Instructions.Add(Instruction("90         ", "SUB A,B           "));
+			Instructions.Add(Instruction("91         ", "SUB A,C           "));
+			Instructions.Add(Instruction("92         ", "SUB A,D           "));
+			Instructions.Add(Instruction("93         ", "SUB A,E           "));
+			Instructions.Add(Instruction("94         ", "SUB A,H           "));
+			Instructions.Add(Instruction("DD94       ", "SUB A,IXh         "));
+			Instructions.Add(Instruction("DD95       ", "SUB A,IXl         "));
+			Instructions.Add(Instruction("FD94       ", "SUB A,IYh         "));
+			Instructions.Add(Instruction("FD95       ", "SUB A,IYl         "));
+			Instructions.Add(Instruction("95         ", "SUB A,L           "));
+			Instructions.Add(Instruction("D6 %n      ", "SUB A,%n          "));
+			Instructions.Add(Instruction("AE         ", "XOR (HL)          "));
+			Instructions.Add(Instruction("DDAE %d    ", "XOR (IX+%d)       "));
+			Instructions.Add(Instruction("FDAE %d    ", "XOR (IY+%d)       "));
+			Instructions.Add(Instruction("AF         ", "XOR A             "));
+			Instructions.Add(Instruction("A8         ", "XOR B             "));
+			Instructions.Add(Instruction("A9         ", "XOR C             "));
+			Instructions.Add(Instruction("AA         ", "XOR D             "));
+			Instructions.Add(Instruction("AB         ", "XOR E             "));
+			Instructions.Add(Instruction("AC         ", "XOR H             "));
+			Instructions.Add(Instruction("DDAC       ", "XOR IXh           "));
+			Instructions.Add(Instruction("DDAD       ", "XOR IXl           "));
+			Instructions.Add(Instruction("FDAC       ", "XOR IYh           "));
+			Instructions.Add(Instruction("FDAD       ", "XOR IYl           "));
+			Instructions.Add(Instruction("AD         ", "XOR L             "));
+			Instructions.Add(Instruction("EE %n      ", "XOR %n            "));
+			return Instructions.ToArray();
+		}
+
+		private static Lazy<InstructionInfo[]> _Instructions = new Lazy<InstructionInfo[]>(() => CreateInstructionList(Version.Z80));
 	}
 }
