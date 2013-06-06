@@ -144,6 +144,7 @@ namespace CSharpCpu.Chip8.Dynarec
 			var Ast = AnalyzeFunction(Memory, PC);
 			Ast = (AstNodeStm)(new AstOptimizer().Optimize(Ast));
 			Console.WriteLine(GeneratorCSharp.GenerateString(Ast));
+			Console.WriteLine(GeneratorIL.GenerateToString<Action<CpuContext>>(Ast));
 			return GeneratorIL.GenerateDelegate<GeneratorIL, Action<CpuContext>>(String.Format("Method_{0:X8}", PC), Ast);
 		}
 

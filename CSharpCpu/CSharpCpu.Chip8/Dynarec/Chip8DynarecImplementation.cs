@@ -56,7 +56,7 @@ ast.Return()
 		{
 			return ast.Statements(
 #if NATIVE_JUMPS
-ast.Statement(ast.CallTail(ast.CallDelegate(Context.GetCallForAddress(Address), Context.GetCpuContext()))),
+				ast.Statement(ast.CallTail(ast.CallDelegate(Context.GetCallForAddress(Address), Context.GetCpuContext()))),
 #else
 				ast.Statements(ast.Assign(Context.GetPC(), Address)),
 #endif
@@ -68,7 +68,7 @@ ast.Statement(ast.CallTail(ast.CallDelegate(Context.GetCallForAddress(Address), 
 		{
 			return ast.Statements(
 #if NATIVE_JUMPS
-ast.Statement(ast.CallTail(ast.CallDelegate(Context.GetCallForAddress(Address + Context.GetRegister(0)), Context.GetCpuContext()))),
+				ast.Statement(ast.CallTail(ast.CallDelegate(Context.GetCallForAddress(Address + Context.GetRegister(0)), Context.GetCpuContext()))),
 #else
 				ast.Statements(ast.Assign(Context.GetPC(), Address + Context.GetRegister(0))),
 #endif
@@ -129,7 +129,7 @@ ast.Statement(ast.CallTail(ast.CallDelegate(Context.GetCallForAddress(Address + 
 		static private DynarecResult _SUB(DynarecContextChip8 Context, byte X, AstNodeExpr Value)
 		{
 			return ast.Statements(
-				ast.Assign(Context.GetRegister(15), ast.Binary((Context.GetRegister(X)), ">", Value)),
+				ast.Assign(Context.GetRegister(15), ast.Cast<byte>(ast.Binary(ast.Cast<uint>(Context.GetRegister(X)), ">", ast.Cast<uint>(Value)))),
 				ast.Assign(Context.GetRegister(X), Context.GetRegister(X) - Value)
 			);
 		}
@@ -150,9 +150,9 @@ ast.Statement(ast.CallTail(ast.CallDelegate(Context.GetCallForAddress(Address + 
 		static public DynarecResult XOR(DynarecContextChip8 Context, byte X, byte Y) { return _BinaryOp(Context, X, "^", Y); }
 		static public DynarecResult SUB(DynarecContextChip8 Context, byte X, byte Y) { return _SUB(Context, X, Context.GetRegister(Y)); }
 
-		static public DynarecResult SHR(DynarecContextChip8 Context, byte X, byte Y) { throw (new NotImplementedException()); }
+		static public DynarecResult SHR(DynarecContextChip8 Context, byte X, byte Y) { return _BinaryOp(Context, X, ">>", Y); }
 		static public DynarecResult SUBN(DynarecContextChip8 Context, byte X, byte Y) { throw (new NotImplementedException()); }
-		static public DynarecResult SHL(DynarecContextChip8 Context, byte X, byte Y) { throw (new NotImplementedException()); }
+		static public DynarecResult SHL(DynarecContextChip8 Context, byte X, byte Y) { return _BinaryOp(Context, X, "<<", Y); }
 
 		static public DynarecResult LD_addr(DynarecContextChip8 Context, ushort Address)
 		{
