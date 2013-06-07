@@ -9,6 +9,8 @@ using SafeILGenerator.Ast;
 using System.Text.RegularExpressions;
 using CSharpCpu.Z80.Disassembler;
 using CSharpCpu.Memory;
+using CSharpCpu.Z80.Interpreter;
+using System.Runtime.Serialization;
 
 namespace CSharpCpu.Tests
 {
@@ -39,6 +41,28 @@ namespace CSharpCpu.Tests
 		[TestMethod]
 		public void TestInterpreter()
 		{
+			var Step = Z80Interpreter.CreateExecuteStep();
+			var Memory = new SimpleFastMemory4(13);
+			var CpuContext = new CSharpCpu.Z80.CpuContext(Memory);
+			CpuContext.IFF1 = true;
+			Assert.AreEqual(true, CpuContext.IFF1);
+			CpuContext.PC = 0;
+
+			// ROM:0000                 di
+			// ROM:0001                 im      1
+			// ROM:0003                 jp      loc_97
+			Memory.WriteBytes(0, new byte[] { 0xF3, 0xED, 0x56, 0xC3, 0x97, 0x00 });
+
+			Step(CpuContext.ReadInstruction, CpuContext);
+			Assert.AreEqual(0x0001, CpuContext.PC);
+			Assert.AreEqual(false, CpuContext.IFF1);
+
+			Step(CpuContext.ReadInstruction, CpuContext);
+			Assert.AreEqual(0x0003, CpuContext.PC);
+			Assert.AreEqual(1, CpuContext.IM);
+
+			Step(CpuContext.ReadInstruction, CpuContext);
+			Assert.AreEqual(0x0097, CpuContext.PC);
 		}
 	}
 }

@@ -48,6 +48,7 @@
     <Compile Include="Cpus\InstructionType.cs" />
     <Compile Include="Cpus\Interpreter\CpuInterpreter.cs" />
     <Compile Include="Decoder\SwitchReadWordDelegate.cs" />
+    <Compile Include="Memory\MemoryPointer.cs" />
     <Compile Include="Memory\SimpleFastMemory4BigEndian.cs" />
     <Compile Include="Memory\IMemory1.cs" />
     <Compile Include="Memory\IMemory2.cs" />

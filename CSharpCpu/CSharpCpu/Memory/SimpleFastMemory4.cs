@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CSharpCpu.Memory
 {
-	unsafe public class SimpleFastMemory4 : IMemory4, IDisposable
+	unsafe public class SimpleFastMemory4 : MemoryPointer, IDisposable
 	{
 		private uint Mask;
 		private byte* Data;
@@ -29,18 +29,10 @@ namespace CSharpCpu.Memory
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public byte* GetPointer(uint Address)
+		public override byte* GetPointer(uint Address, int Size)
 		{
 			//Console.WriteLine("Address: {0:X8}, {1:X8}", Address, Mask);
 			return (Data + (Address & Mask));
 		}
-
-		public byte Read1(uint Address) { return *(byte*)GetPointer(Address); }
-		public ushort Read2(uint Address) { return *(ushort*)GetPointer(Address); }
-		public uint Read4(uint Address) { return *(uint*)GetPointer(Address); }
-
-		public void Write1(uint Address, byte Value) { *(byte*)GetPointer(Address) = Value; }
-		public void Write2(uint Address, ushort Value) { *(ushort*)GetPointer(Address) = Value; }
-		public void Write4(uint Address, uint Value) { *(uint*)GetPointer(Address) = Value; }
 	}
 }

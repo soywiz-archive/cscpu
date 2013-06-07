@@ -8,8 +8,42 @@ namespace CSharpCpu.Z80.Interpreter
 {
 	public class Z80InterpreterImplementation
 	{
-		static public void INVALID(CpuContext Context) {
-			throw(new Exception("Invalid instruction"));
+		static public void INVALID(CpuContext Context)
+		{
+			throw(new InvalidOperationException("Invalid instruction"));
+		}
+
+		static public void _Test1(CpuContext Context)
+		{
+			Context.R1.A = 1;
+		}
+
+		static public void _Test2(CpuContext Context)
+		{
+			var Z = Context.R1.A;
+		}
+
+		static public void OutputDebug(byte Value)
+		{
+			Console.WriteLine("OutputDebug: {0:X2}", Value);
+		}
+
+		static public void UNIMPLEMENTED(CpuContext Context, string Name, string Format)
+		{
+			Console.WriteLine("Not Implemented Instruction '{0}' '{1}' at 0x{2:X4}", Name, Format, Context.PC);
+			Console.ReadKey();
+			throw (new NotImplementedException(String.Format("Not Implemented Instruction '{0}' '{1}' at 0x{2:X4}", Name, Format, Context.PC)));
+		}
+
+		static public void InterruptMode(CpuContext ctx, byte Mode)
+		{
+			ctx.IM = Mode;
+		}
+
+		static public void EnableDisableInterrupt(CpuContext ctx, bool Enable)
+		{
+			ctx.IFF1 = ctx.IFF2 = Enable;
+			ctx.defer_int = true;
 		}
 
 		static public ushort doArithmeticWord(CpuContext ctx, ushort a1, ushort a2, bool withCarry, bool isSub)
@@ -92,35 +126,35 @@ namespace CSharpCpu.Z80.Interpreter
 
 		static public void doAND(CpuContext ctx, byte value)
 		{
-			ctx.A &= value;
+			ctx.R1.A &= value;
 			adjustLogicFlag(ctx, true);
 		}
 
 
 		static public void doOR(CpuContext ctx, byte value)
 		{
-			ctx.A |= value;
+			ctx.R1.A |= value;
 			adjustLogicFlag(ctx, false);
 		}
 
 
 		static public void doXOR(CpuContext ctx, byte value)
 		{
-			ctx.A ^= value;
+			ctx.R1.A ^= value;
 			adjustLogicFlag(ctx, false);
 		}
 
 		/* Adjust flags after AND, OR, XOR */
 		static void adjustLogicFlag(CpuContext ctx, bool flagH)
 		{
-			ctx.VALFLAG(Z80Flags.F_S, (ctx.A & 0x80) != 0);
-			ctx.VALFLAG(Z80Flags.F_Z, (ctx.A == 0));
+			ctx.VALFLAG(Z80Flags.F_S, (ctx.R1.A & 0x80) != 0);
+			ctx.VALFLAG(Z80Flags.F_Z, (ctx.R1.A == 0));
 			ctx.VALFLAG(Z80Flags.F_H, flagH);
 			ctx.VALFLAG(Z80Flags.F_N, false);
 			ctx.VALFLAG(Z80Flags.F_C, false);
-			ctx.VALFLAG(Z80Flags.F_PV, parityBit[ctx.A]);
+			ctx.VALFLAG(Z80Flags.F_PV, parityBit[ctx.R1.A]);
 
-			adjustFlags(ctx, ctx.A);
+			adjustFlags(ctx, ctx.R1.A);
 		}
 
 		static readonly bool[] parityBit = new byte[256] { 
@@ -146,6 +180,16 @@ namespace CSharpCpu.Z80.Interpreter
 		{
 			ctx.VALFLAG(Z80Flags.F_5, (val & (byte)Z80Flags.F_5) != 0);
 			ctx.VALFLAG(Z80Flags.F_3, (val & (byte)Z80Flags.F_3) != 0);
+		}
+
+		public static void Jump(CpuContext ctx, bool JumpIf, ushort Address)
+		{
+			if (JumpIf) ctx.PC = Address;
+		}
+
+		public static void JumpInc(CpuContext ctx, bool JumpIf, sbyte Address)
+		{
+			if (JumpIf) ctx.PC = (ushort)(ctx.PC + Address);
 		}
 	}
 }
