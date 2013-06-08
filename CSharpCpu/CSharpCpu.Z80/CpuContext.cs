@@ -39,7 +39,9 @@ namespace CSharpCpu.Z80
 		public byte IM;
 
 		public bool halted;
-		public uint cycles;
+		//public uint cycles;
+
+		public uint Tstates;
 
 		public bool nmi_req;
 		public bool int_req;
@@ -118,7 +120,8 @@ namespace CSharpCpu.Z80
 			IFF1 = IFF2 = false;
 			IM = 0;
 			halted = false;
-			cycles = 0;
+			//cycles = 0;
+			Tstates = 0;
 			nmi_req = false;
 			int_req = false;
 			defer_int = false;
@@ -141,11 +144,50 @@ namespace CSharpCpu.Z80
 				Marshal.PrelinkAll(typeof(Z80InterpreterImplementation));
 				this.ExecuteStep = Z80Interpreter.CreateExecuteStep();
 
+				int ICount = 0;
 				while (Running)
 				{
 					ushort PC2 = PC;
-					//Console.WriteLine("{0:X4}: {1}", PC2, Disassembler.DecodeAt(PC2));
+					//Console.WriteLine("{0:X4}[IF:{1}{2}]: {3}", PC2, IFF1 ? 1 : 0, IFF2 ? 1 : 0, Disassembler.DecodeAt(PC2));
 					this.ExecuteStep(ReadInstruction, this);
+					ICount++;
+					if (ICount >= 1000)
+					{
+						ICount = 0;
+						Interrupt();
+					}
+				}
+			}
+		}
+
+		public void Interrupt()
+		{
+			if (this.IFF1)
+			{
+				if (this.halted)
+				{
+					this.PC++;
+					this.halted = false;
+				}
+
+				this.Tstates += 7;
+
+				this.R = (byte)((this.R + 1) & 0x7f);
+				this.IFF1 = this.IFF2 = false;
+
+				// push PC
+				Z80InterpreterImplementation.doPush(this, PC);
+
+				switch (IM)
+				{
+					case 0: case 1:
+						PC = 0x0038;
+						break;
+					case 2:
+						this.PC = ReadMemory2((ushort)(((this.I) << 8) | 0xff));
+						break;
+					default:
+						throw(new InvalidOperationException("Unknown interrupt mode"));
 				}
 			}
 		}
@@ -161,49 +203,5 @@ namespace CSharpCpu.Z80
 			//Console.WriteLine("ioWrite: {0:X4}: {1:X2}", Address, Value);
 			//throw new NotImplementedException();
 		}
-	}
-
-	[Flags]
-	public enum Z80Flags : byte
-	{
-		/// <summary>
-		/// Carry
-		/// </summary>
-		F_C = 1 << 0,
-
-		/// <summary>
-		/// Sub / Add
-		/// </summary>
-		F_N = 1 << 1,
-		
-		/// <summary>
-		/// Parity / Overflow
-		/// </summary>
-		F_PV = 1 << 2,
-
-		/// <summary>
-		/// Reserved
-		/// </summary>
-		F_3 = 1 << 3,
-
-		/// <summary>
-		/// Half carry
-		/// </summary>
-		F_H = 1 << 4,
-
-		/// <summary>
-		/// Reserved
-		/// </summary>
-		F_5 = 1 << 5,
-
-		/// <summary>
-		/// Zero
-		/// </summary>
-		F_Z = 1 << 6,
-
-		/// <summary>
-		/// Sign
-		/// </summary>
-		F_S = 1 << 7,
 	}
 }

@@ -187,7 +187,7 @@ namespace CSharpCpu.Z80.Interpreter
 			1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1
 		}.Select(Item => Item != 0).ToArray();
 
-		static void adjustFlags(CpuContext ctx, byte val)
+		public static void adjustFlags(CpuContext ctx, byte val)
 		{
 			ctx.VALFLAG(Z80Flags.F_5, (val & (byte)Z80Flags.F_5) != 0);
 			ctx.VALFLAG(Z80Flags.F_3, (val & (byte)Z80Flags.F_3) != 0);
@@ -237,7 +237,7 @@ namespace CSharpCpu.Z80.Interpreter
 			ctx.HL = LangUtils.SwapRet(ctx.HL, ref ctx.HL_);
 		}
 
-		static byte doIncDec(CpuContext ctx, byte val, bool isDec)
+		public static byte doIncDec(CpuContext ctx, byte val, bool isDec)
 		{
 			if (isDec)
 			{
@@ -332,6 +332,138 @@ namespace CSharpCpu.Z80.Interpreter
 			//	byte port = read8(ctx, ctx->PC++);	
 			//	BR.A = ioRead(ctx, BR.A << 8 | port);
 			ctx.A = ctx.ioRead((ushort)((ctx.A << 8) | Port));
+		}
+
+		public static void doRST(CpuContext ctx, byte nPC)
+		{
+			//ctx->tstates += 1;
+			doPush(ctx, ctx.PC);
+			ctx.PC = nPC;
+		}
+
+		public static void doBIT(CpuContext ctx, int Bit, byte Value)
+		{
+			if ((Value & (1 << Bit)) != 0)
+			{
+				ctx.RESFLAG(Z80Flags.F_Z | Z80Flags.F_PV);
+			}
+			else
+			{
+				ctx.SETFLAG(Z80Flags.F_Z | Z80Flags.F_PV);
+			}
+
+			ctx.SETFLAG(Z80Flags.F_H);
+			ctx.RESFLAG(Z80Flags.F_N);
+
+			ctx.RESFLAG(Z80Flags.F_S);
+			if ((Bit == 7) && !ctx.GETFLAG(Z80Flags.F_Z))
+			{
+				ctx.SETFLAG(Z80Flags.F_S);
+			}
+		}
+
+		public static void doBIT_r(CpuContext ctx, int Bit, byte Value)
+		{
+			doBIT(ctx, Bit, Value);
+			ctx.VALFLAG(Z80Flags.F_5, ((Z80Flags)Value & Z80Flags.F_5) != 0);
+			ctx.VALFLAG(Z80Flags.F_3, ((Z80Flags)Value & Z80Flags.F_3) != 0);
+		}
+
+		public static void doEXAFAF_(CpuContext ctx)
+		{
+			ctx.AF = LangUtils.SwapRet(ctx.AF, ref ctx.AF_);
+		}
+
+		static void adjustFlagSZP(CpuContext ctx, byte val)
+		{
+			ctx.VALFLAG(Z80Flags.F_S, (val & 0x80) != 0);
+			ctx.VALFLAG(Z80Flags.F_Z, (val == 0));
+			ctx.VALFLAG(Z80Flags.F_PV, parityBit[val]);
+		}
+
+		public static byte doRLC(CpuContext ctx, bool adjFlags, byte val)
+		{
+			ctx.VALFLAG(Z80Flags.F_C, (val & 0x80) != 0);
+			val <<= 1;
+			val |= (byte)(ctx.GETFLAG(Z80Flags.F_C) ? 1 : 0);
+
+			adjustFlags(ctx, val);
+			ctx.RESFLAG(Z80Flags.F_H | Z80Flags.F_N);
+
+			if (adjFlags)
+				adjustFlagSZP(ctx, val);
+
+			return val;
+		}
+
+		public static byte doRL(CpuContext ctx, bool adjFlags, byte val)
+		{
+			int CY = ctx.GETFLAG(Z80Flags.F_C) ? 1 :0;
+			ctx.VALFLAG(Z80Flags.F_C, (val & 0x80) != 0);
+			val <<= 1;
+			val |= (byte)CY;
+
+			adjustFlags(ctx, val);
+			ctx.RESFLAG(Z80Flags.F_H | Z80Flags.F_N);
+
+			if (adjFlags)
+				adjustFlagSZP(ctx, val);
+
+			return val;
+		}
+
+		public static byte doRRC(CpuContext ctx, bool adjFlags, byte val)
+		{
+			ctx.VALFLAG(Z80Flags.F_C, (val & 0x01) != 0);
+			val >>= 1;
+			val |= (byte)((ctx.GETFLAG(Z80Flags.F_C) ? 1 :0) << 7);
+
+			adjustFlags(ctx, val);
+			ctx.RESFLAG(Z80Flags.F_H | Z80Flags.F_N);
+
+			if (adjFlags)
+				adjustFlagSZP(ctx, val);
+
+			return val;
+		}
+
+
+		public static byte doRR(CpuContext ctx, bool adjFlags, byte val)
+		{
+			int CY = ctx.GETFLAG(Z80Flags.F_C) ? 1 : 0;
+			ctx.VALFLAG(Z80Flags.F_C, (val & 0x01) != 0);
+			val >>= 1;
+			val |= (byte)(CY << 7);
+
+			adjustFlags(ctx, val);
+			ctx.RESFLAG(Z80Flags.F_H | Z80Flags.F_N);
+
+			if (adjFlags)
+				adjustFlagSZP(ctx, val);
+
+			return val;
+		}
+
+		public static byte doCP_HL(CpuContext ctx)
+		{
+			byte val = ctx.ReadMemory1(ctx.HL);
+			byte result = doArithmeticByte(ctx, ctx.A, val, false, true);
+			adjustFlags(ctx, val);
+			return result;
+		}
+
+		public static void doCPL(CpuContext ctx)
+		{
+			ctx.A = (byte)(~ctx.A);
+			ctx.SETFLAG(Z80Flags.F_H | Z80Flags.F_N);
+			adjustFlags(ctx, ctx.A);
+		}
+
+		public static void doEXDEHL(CpuContext ctx)
+		{
+			var Temp = ctx.DE;
+			ctx.DE = ctx.HL;
+			ctx.HL = Temp;
 		}
 	}
 }

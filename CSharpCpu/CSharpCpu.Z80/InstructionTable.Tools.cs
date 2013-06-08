@@ -71,11 +71,20 @@ namespace CSharpCpu.Cpus.Z80
 			return ast.CallInstance(GetCpuContext(), (Func<ushort, byte>)CpuContext._NullInstance.ReadMemory1, Address);
 		}
 
+		static private AstNodeExpr ReadMemory2(AstNodeExpr Address)
+		{
+			return ast.CallInstance(GetCpuContext(), (Func<ushort, ushort>)CpuContext._NullInstance.ReadMemory2, Address);
+		}
+
 		static private AstNodeStm WriteMemory1(AstNodeExpr Address, AstNodeExpr Value)
 		{
 			return ast.Statement(ast.CallInstance(GetCpuContext(), (Action<ushort, byte>)CpuContext._NullInstance.WriteMemory1, Address, Value));
 		}
-		
+
+		static private AstNodeStm WriteMemory2(AstNodeExpr Address, AstNodeExpr Value)
+		{
+			return ast.Statement(ast.CallInstance(GetCpuContext(), (Action<ushort, ushort>)CpuContext._NullInstance.WriteMemory2, Address, Value));
+		}
 
 		static private AstNodeExpr GetFlag(Z80Flags Flag)
 		{
@@ -103,9 +112,11 @@ namespace CSharpCpu.Cpus.Z80
 			switch (RightRegister)
 			{
 				case "(HL)": return GetRegister("HL");
-				case "(IX+%d)": return ast.Cast<ushort>(GetRegister("IX") + ast.Cast<ushort>(ast.Local(Scope.Get("%d"))));
-				case "(IY+%d)": return ast.Cast<ushort>(GetRegister("IY") + ast.Cast<ushort>(ast.Local(Scope.Get("%d"))));
-				default: throw(new NotImplementedException("Invalid reference instruction"));
+				case "(IX+%d)": return ast.Cast<ushort>(ast.Cast<int>(GetRegister("IX")) + ast.Cast<int>(ast.Local(Scope.Get("%d"))));
+				case "(IY+%d)": return ast.Cast<ushort>(ast.Cast<int>(GetRegister("IY")) + ast.Cast<int>(ast.Local(Scope.Get("%d"))));
+				//case "IX": return ast.Cast<ushort>(ast.Cast<int>(GetRegister("IX")) + ast.Cast<int>(ast.Local(Scope.Get("%d"))));
+				//case "IY": return ast.Cast<ushort>(ast.Cast<int>(GetRegister("IY")) + ast.Cast<int>(ast.Local(Scope.Get("%d"))));
+				default: throw (new NotImplementedException("Invalid reference instruction"));
 			}
 		}
 
@@ -138,6 +149,11 @@ namespace CSharpCpu.Cpus.Z80
 		static private AstNodeExpr GetNByte(Scope<string, AstLocal> Scope)
 		{
 			return ast.Cast<byte>(ast.Local(Scope.Get("%n")));
+		}
+
+		static private AstNodeExpr GetDByte(Scope<string, AstLocal> Scope)
+		{
+			return ast.Cast<sbyte>(ast.Local(Scope.Get("%d")));
 		}
 
 		//static private AstNodeExpr Read8(AstNodeExpr Address)
@@ -180,13 +196,56 @@ namespace CSharpCpu.Cpus.Z80
 						);
 					}
 				break;
+				case "CP":
+					if ((Match = (GetRegex(@"^(A|B|C|D|E|H|L|IXh|IXl|IYh|IYl)$")).Match(Param)).Success)
+					{
+						var Register = Match.Groups[1].Value;
+						return ast.Statements(
+							ast.Statement(ast.CallStatic(
+								(Func<CpuContext, byte, byte, bool, bool, byte>)Z80InterpreterImplementation.doArithmeticByte,
+								GetCpuContext(), GetRegister("A"), GetRegister(Register), false, true
+							)),
+							ast.Statement(ast.CallStatic(
+								(Action<CpuContext, byte>)Z80InterpreterImplementation.adjustFlags,
+								GetCpuContext(), GetRegister(Register)
+							))
+						);
+					}
+
+					if ((Match = (GetRegex(@"^\(HL\)$")).Match(Param)).Success)
+					{
+						return ast.Statement(ast.CallStatic(
+							(Func<CpuContext, byte>)Z80InterpreterImplementation.doCP_HL,
+							GetCpuContext()
+						));
+					}
+					if ((Match = (GetRegex(@"^(%n)$")).Match(Param)).Success)
+					{
+						return ast.Statements(
+							ast.Assign(GetRegister("A"), ast.CallStatic((Func<CpuContext, byte, byte, bool, bool, byte>)Z80InterpreterImplementation.doArithmeticByte, GetCpuContext(), GetRegister("A"), GetNByte(Scope), false, true)),
+							ast.Statement(ast.CallStatic((Action<CpuContext, byte>)Z80InterpreterImplementation.adjustFlags, GetCpuContext(), GetNByte(Scope)))
+						);
+					}
+					break;
+				case "RLA": case "RRA": case "RLCA": case "RRCA":
+					if ((Match = (GetRegex(@"^(RL|RR|RLC|RRC)A$")).Match(Opcode)).Success)
+					{
+						var FName = "do" + Match.Groups[1].Value;
+						var doMethod = typeof(Z80InterpreterImplementation).GetMethod(FName);
+						if (doMethod == null) throw (new Exception("Can't find method '" + FName + "'"));
+						return ast.Assign(GetRegister("A"), ast.CallStatic(doMethod, GetCpuContext(), false, GetRegister("A")));
+					}
+					break;
 				case "AND": case "XOR": case "OR":
 					if ((Match = (GetRegex(@"^(\(HL\)|A|B|C|D|E|H|L|IXh|IXl|IYh|IYl|%n|(\((IX|IY)\+%d\)))$")).Match(Param)).Success)
 					{
 						var RightRegister = Match.Groups[1].Value;
 						//Console.WriteLine("do" + Opcode);
 						return ast.Statement(
-							ast.CallStatic(typeof(Z80InterpreterImplementation).GetMethod("do" + Opcode), GetCpuContext(), ParseRightRegister(RightRegister, Scope))
+							ast.CallStatic(
+								typeof(Z80InterpreterImplementation).GetMethod("do" + Opcode),
+								GetCpuContext(), ParseRightRegister(RightRegister, Scope)
+							)
 						);
 					}
 				break;
@@ -196,6 +255,12 @@ namespace CSharpCpu.Cpus.Z80
 						var Bit = int.Parse(Match.Groups[1].Value);
 						var RightRegister = Match.Groups[2].Value;
 						//Console.WriteLine("do" + Opcode + ":" + Bit + ":" + RightRegister);
+						return ast.Statement(
+							ast.CallStatic(
+								(Action<CpuContext, int, byte>)Z80InterpreterImplementation.doBIT_r,
+								GetCpuContext(), Bit, ParseRightRegister(RightRegister, Scope)
+							)
+						);
 					}
 				break;
 				case "EI": case "DI":
@@ -227,6 +292,17 @@ namespace CSharpCpu.Cpus.Z80
 						));
 					}
 					break;
+				case "EX":
+					if ((Match = (GetRegex(@"^DE,HL$")).Match(Param)).Success)
+					{
+						return ast.Statement(ast.CallStatic(((Action<CpuContext>)Z80InterpreterImplementation.doEXDEHL), GetCpuContext()));
+					}
+					if ((Match = (GetRegex(@"^AF,AF'$")).Match(Param)).Success)
+					{
+						return ast.Statement(ast.CallStatic(((Action<CpuContext>)Z80InterpreterImplementation.doEXAFAF_), GetCpuContext()));
+					}
+					break;
+				case "CPL": return ast.Statement(ast.CallStatic(((Action<CpuContext>)Z80InterpreterImplementation.doCPL), GetCpuContext()));
 				case "RET": return ast.Statement(ast.CallStatic(((Action<CpuContext>)Z80InterpreterImplementation.doRET), GetCpuContext()));
 				case "EXX": return ast.Statement(ast.CallStatic(((Action<CpuContext>)Z80InterpreterImplementation.doEXX),GetCpuContext()));
 				case "OTIR": return ast.Statement(ast.CallStatic(((Action<CpuContext>)Z80InterpreterImplementation.doOTIR), GetCpuContext()));
@@ -270,13 +346,60 @@ namespace CSharpCpu.Cpus.Z80
 						);
 					}
 					break;
-				case "DEC": 
-					if ((Match = (GetRegex(@"^(BC|DE|HL|SP|IX|IY)$")).Match(Param)).Success)
+				case "INC":
+				case "DEC":
 					{
-						var Register = Match.Groups[1].Value;
-						return ast.Assign(GetRegister(Register), ast.Cast<ushort>(GetRegister(Register) - (ushort)1));
+						int AddValue = (Opcode == "INC") ? 1 : -1;
+						bool isDec = (Opcode == "DEC");
+
+						//(INC|DEC) 
+						if ((Match = (GetRegex(@"^\((IX|IY)\+%d\)$")).Match(Param)).Success)
+						{
+							var Register = Match.Groups[1].Value;
+							//ctx->tstates += 6;
+							//char off = read8(ctx, ctx->PC++);
+							//byte value = read8(ctx, WR.%2 + off);
+							//write8(ctx, WR.%2 + off, doIncDec(ctx, value, ID_%1));
+							return WriteMemory1(
+								GetRegister(Register) + GetDByte(Scope),
+								ast.CallStatic(
+									((Func<CpuContext, byte, bool, byte>)Z80InterpreterImplementation.doIncDec),
+									GetCpuContext(), ReadMemory1(GetRegister(Register) + GetDByte(Scope)), isDec
+								)
+							);
+						}
+
+						if ((Match = (GetRegex(@"^\(HL\)$")).Match(Param)).Success)
+						{
+							//ctx->tstates += 1;
+							//byte value = read8(ctx, WR.HL);
+							//write8(ctx, WR.HL, doIncDec(ctx, value, ID_ % 1));
+							return WriteMemory1(
+								GetRegister("HL"),
+								ast.CallStatic(
+									((Func<CpuContext, byte, bool, byte>)Z80InterpreterImplementation.doIncDec),
+									GetCpuContext(), ReadMemory1(GetRegister("HL")), isDec
+								)
+							);
+						}
+						if ((Match = (GetRegex(@"^(A|B|C|D|E|H|L|IXh|IXl|IYh|IYl)$")).Match(Param)).Success)
+						{
+							var Register = Match.Groups[1].Value;
+							return ast.Assign(
+								GetRegister(Register),
+								ast.CallStatic(
+									((Func<CpuContext, byte, bool, byte>)Z80InterpreterImplementation.doIncDec),
+									GetCpuContext(), ast.Cast<byte>(GetRegister(Register)), isDec
+								)
+							);
+						}
+						if ((Match = (GetRegex(@"^(BC|DE|HL|SP|IX|IY)$")).Match(Param)).Success)
+						{
+							var Register = Match.Groups[1].Value;
+							return ast.Assign(GetRegister(Register), ast.Cast<ushort>(GetRegister(Register) + (ushort)AddValue));
+						}
 					}
-				break;
+					break;
 				case "IM":
 					if ((Match = (GetRegex(@"^([012])$")).Match(Param)).Success)
 					{
@@ -292,6 +415,12 @@ namespace CSharpCpu.Cpus.Z80
 				break;
 				// JumP
 				case "JP":
+					if ((Match = (GetRegex(@"^\((HL|IX|IY)\)$")).Match(Param)).Success)
+					{
+						var Register = Match.Groups[1].Value;
+						//ctx->PC = WR.%1;
+						return ast.Assign(GetRegister("PC"), GetRegister(Register));
+					}
 					if ((Match = (GetRegex(@"^(C|M|NZ|NC|P|PE|PO|Z)?,?\(%nn\)$")).Match(Param)).Success)
 					{
 						var Flag = Match.Groups[1].Value;
@@ -316,6 +445,18 @@ namespace CSharpCpu.Cpus.Z80
 						);
 					}
 				break;
+				case "RST":
+					if ((Match = (GetRegex(@"^(0|8|10|18|20|28|30|38)H$")).Match(Param)).Success)
+					{
+						var PC = Convert.ToInt32(Match.Groups[1].Value, 16);
+						return ast.Statement(
+							ast.CallStatic(
+								((Action<CpuContext, byte>)Z80InterpreterImplementation.doRST),
+								GetCpuContext(), (byte)PC
+							)
+						);
+					}
+				break;
 				case "CALL":
 					if ((Match = (GetRegex(@"^(C|M|NZ|NC|P|PE|PO|Z)?,?\(%nn\)$")).Match(Param)).Success)
 					{
@@ -336,8 +477,61 @@ namespace CSharpCpu.Cpus.Z80
 						//}
 					}
 				break;
+				case "NOP": return ast.Statement();
 				// LOAD
 				case "LD":
+					if ((Match = (GetRegex(@"^\((IX|IY)\+%d\),(A|B|C|D|E|H|L)$")).Match(Param)).Success)
+					{
+						var LeftRegister = Match.Groups[1].Value;
+						var RightRegister = Match.Groups[2].Value;
+						return WriteMemory1(
+							GetRegister(LeftRegister) + GetDByte(Scope),
+							GetRegister(RightRegister)
+						);
+					}
+
+					if ((Match = (GetRegex(@"^\((IX|IY)\+%d\),%n$")).Match(Param)).Success)
+					{
+						var LeftRegister = Match.Groups[1].Value;
+						return WriteMemory1(GetRegister(LeftRegister) + GetDByte(Scope), GetNByte(Scope));
+					}
+
+					if ((Match = (GetRegex(@"^(A|B|C|D|E|H|L),(\((IX|IY)\+%d\))$")).Match(Param)).Success)
+					{
+						var LeftRegister = Match.Groups[1].Value;
+						var RightRegister = Match.Groups[2].Value;
+						return ast.Assign(GetRegister(LeftRegister), ParseRightRegister(RightRegister, Scope));
+					}
+
+					if ((Match = (GetRegex(@"^(BC|DE|HL|SP|IX|IY),\(%nn\)$")).Match(Param)).Success)
+					{
+						var LeftRegister = Match.Groups[1].Value;
+						return ast.Assign(GetRegister(LeftRegister), ReadMemory2(GetNNWord(Scope)));
+					}
+
+					if ((Match = (GetRegex(@"^A,\((BC|DE)\)$")).Match(Param)).Success)
+					{
+						var RightRegister = Match.Groups[1].Value;
+						return ast.Assign(GetRegister("A"), ReadMemory1(GetRegister(RightRegister)));
+					}
+
+					if ((Match = (GetRegex(@"^\(HL\),%n$")).Match(Param)).Success)
+					{
+						return WriteMemory1(GetRegister("HL"), GetNByte(Scope));
+					}
+
+					if ((Match = (GetRegex(@"^\(%nn\),(BC|DE|HL|IX|IY|SP)$")).Match(Param)).Success)
+					{
+						var RightRegister = Match.Groups[1].Value;
+						return WriteMemory2(GetNNWord(Scope), GetRegister(RightRegister));
+					}
+
+					if ((Match = (GetRegex(@"^(A|B|C|D|E|H|L),\(%nn\)$")).Match(Param)).Success)
+					{
+						var LeftRegister = Match.Groups[1].Value;
+						return ast.Assign(GetRegister(LeftRegister), ast.Cast<byte>(ReadMemory1(GetNNWord(Scope))));
+					}
+
 					if ((Match = (GetRegex(@"^\((BC|DE|HL)\),(A|B|C|D|E|H|L)$")).Match(Param)).Success)
 					{
 						var LeftRegister = Match.Groups[1].Value;
