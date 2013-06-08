@@ -28,6 +28,12 @@ namespace CSharpCpu.Z80.Disassembler
 			this.Decoder = LazyDecoder.Value;
 		}
 
+		public string DecodeAt(ushort PC)
+		{
+			this.Address = PC;
+			return DecodeNext();
+		}
+
 		public string DecodeNext()
 		{
 			return this.Decoder(() => Memory.Read1(this.Address++));
@@ -39,6 +45,7 @@ namespace CSharpCpu.Z80.Disassembler
 
 			return InstructionTable.MatchArgument.Replace(Key, (Match) =>
 			{
+				if (Values.Count == 0) return Match.Value;
 				return String.Format("${0:X}", Values.Dequeue());
 			});
 		}
@@ -56,7 +63,7 @@ namespace CSharpCpu.Z80.Disassembler
 
 				return ast.Return(ast.CallStatic(
 					((Func<string, uint[], string>)__DisassembleCallback).Method,
-					Context.DecoderReference.Name,
+					Context.DecoderReference.Name + " " + Context.DecoderReference.Format,
 					Array
 				));
 			});

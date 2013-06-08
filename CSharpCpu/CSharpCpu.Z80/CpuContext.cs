@@ -1,5 +1,6 @@
 ﻿using CSharpCpu.Decoder;
 using CSharpCpu.Memory;
+using CSharpCpu.Z80.Disassembler;
 using CSharpCpu.Z80.Interpreter;
 using System;
 using System.Collections.Generic;
@@ -10,28 +11,25 @@ using System.Threading.Tasks;
 
 namespace CSharpCpu.Z80
 {
-	public struct Z80Registers
-	{
-		public ushort AF, BC, DE, HL, IX, IY, SP;
-		public Z80Flags F;
-		public byte A, C, B, E, D, L, H, IXl, IXh, IYl, IYh;
-
-		public void Restart()
-		{
-			AF = BC = DE = HL = IX = IY = SP = default(ushort);
-			F = default(Z80Flags);
-			A = C = B = E = D = L = H = IXl = IXh = IYl = IYh = default(byte);
-		}
-	}
-
-	public class CpuContext
+	unsafe public sealed class CpuContext
 	{
 		static public readonly CpuContext _NullInstance = new CpuContext();
 
 		public readonly IMemory2 Memory;
+		public readonly IZ80IO IZ80IO;
 
-		public Z80Registers R1 = new Z80Registers();
-		public Z80Registers R2 = new Z80Registers();
+		//public Z80Flags F;
+		public byte F, A, C, B, E, D, L, H, IXl, IXh, IYl, IYh;
+		public ushort SP;
+
+		public ushort AF { get { fixed (byte* Ptr = &F  ) return *(ushort*)Ptr; } set { fixed (byte* Ptr = &F  ) *(ushort*)Ptr = value; } }
+		public ushort BC { get { fixed (byte* Ptr = &C  ) return *(ushort*)Ptr; } set { fixed (byte* Ptr = &C  ) *(ushort*)Ptr = value; } }
+		public ushort DE { get { fixed (byte* Ptr = &E  ) return *(ushort*)Ptr; } set { fixed (byte* Ptr = &E  ) *(ushort*)Ptr = value; } }
+		public ushort HL { get { fixed (byte* Ptr = &L  ) return *(ushort*)Ptr; } set { fixed (byte* Ptr = &L  ) *(ushort*)Ptr = value; } }
+		public ushort IX { get { fixed (byte* Ptr = &IXl) return *(ushort*)Ptr; } set { fixed (byte* Ptr = &IXl) *(ushort*)Ptr = value; } }
+		public ushort IY { get { fixed (byte* Ptr = &IYl) return *(ushort*)Ptr; } set { fixed (byte* Ptr = &IYl) *(ushort*)Ptr = value; } }
+
+		public ushort AF_, BC_, DE_, HL_;
 
 		public ushort PC;
 		public byte R;
@@ -54,19 +52,20 @@ namespace CSharpCpu.Z80
 		{
 		}
 
-		public CpuContext(IMemory2 Memory)
+		public CpuContext(IMemory2 Memory, IZ80IO IZ80IO)
 		{
 			this.Memory = Memory;
+			this.IZ80IO = IZ80IO;
 		}
 
 		public void SETFLAG(Z80Flags Flag)
 		{
-			this.R1.F |= Flag;
+			this.F |= (byte)Flag;
 		}
 
 		public void RESFLAG(Z80Flags Flag)
 		{
-			this.R1.F &= ~Flag;
+			this.F &= (byte)(~Flag);
 		}
 
 		public void VALFLAG(Z80Flags Flag, bool Set)
@@ -76,18 +75,29 @@ namespace CSharpCpu.Z80
 
 		public bool GETFLAG(Z80Flags Flag)
 		{
-			return ((this.R1.F & Flag) == Flag);
+			return (((Z80Flags)this.F & Flag) == Flag);
 		}
 
 		public void WriteMemory1(ushort Address, byte Value)
 		{
-			Console.WriteLine("WriteMemory1({0:X4}, {1:X2})", Address, Value);
+			//Console.WriteLine("WriteMemory1({0:X4}, {1:X2})", Address, Value);
 			this.Memory.Write1(Address, Value);
 		}
+
+		public void WriteMemory2(ushort Address, ushort Value)
+		{
+			this.Memory.Write2(Address, Value);
+		}
+
 
 		public byte ReadMemory1(ushort Address)
 		{
 			return this.Memory.Read1(Address);
+		}
+
+		public ushort ReadMemory2(ushort Address)
+		{
+			return this.Memory.Read2(Address);
 		}
 
 		public uint ReadInstruction()
@@ -97,8 +107,11 @@ namespace CSharpCpu.Z80
 
 		public void Restart()
 		{
-			R1.Restart();
-			R2.Restart();
+			F = A = C = B = E = D = L = H = IXl = IXh = IYl = IYh = default(byte);
+			SP = 0;
+
+			AF_ = BC_ = DE_ = HL_ = default(ushort);
+
 			PC = 0;
 			R = 0;
 			I = 0;
@@ -124,17 +137,29 @@ namespace CSharpCpu.Z80
 			}
 			else
 			{
+				var Disassembler = new Z80Disassembler(this.Memory);
 				Marshal.PrelinkAll(typeof(Z80InterpreterImplementation));
 				this.ExecuteStep = Z80Interpreter.CreateExecuteStep();
 
 				while (Running)
 				{
-					Console.WriteLine("PC: {0:X4}, A: {1:X2}", PC, R1.A);
-					//Console.Out.Flush();
-					//Console.ReadKey();
+					ushort PC2 = PC;
+					//Console.WriteLine("{0:X4}: {1}", PC2, Disassembler.DecodeAt(PC2));
 					this.ExecuteStep(ReadInstruction, this);
 				}
 			}
+		}
+
+		public byte ioRead(ushort Address)
+		{
+			return IZ80IO.ioRead(Address);
+		}
+
+		public void ioWrite(ushort Address, byte Value)
+		{
+			IZ80IO.ioWrite(Address, Value);
+			//Console.WriteLine("ioWrite: {0:X4}: {1:X2}", Address, Value);
+			//throw new NotImplementedException();
 		}
 	}
 

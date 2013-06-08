@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CSharpCpu.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,12 +16,22 @@ namespace CSharpCpu.Z80.Interpreter
 
 		static public void _Test1(CpuContext Context)
 		{
-			Context.R1.A = 1;
+			Context.A = 1;
 		}
 
 		static public void _Test2(CpuContext Context)
 		{
-			var Z = Context.R1.A;
+			var Z = Context.A;
+		}
+
+		static public void _Test3(CpuContext Context)
+		{
+			Context.AF = 7;
+		}
+
+		static public void _Test4(CpuContext Context)
+		{
+			var Test = Context.AF;
 		}
 
 		static public void OutputDebug(byte Value)
@@ -126,35 +137,35 @@ namespace CSharpCpu.Z80.Interpreter
 
 		static public void doAND(CpuContext ctx, byte value)
 		{
-			ctx.R1.A &= value;
+			ctx.A &= value;
 			adjustLogicFlag(ctx, true);
 		}
 
 
 		static public void doOR(CpuContext ctx, byte value)
 		{
-			ctx.R1.A |= value;
+			ctx.A |= value;
 			adjustLogicFlag(ctx, false);
 		}
 
 
 		static public void doXOR(CpuContext ctx, byte value)
 		{
-			ctx.R1.A ^= value;
+			ctx.A ^= value;
 			adjustLogicFlag(ctx, false);
 		}
 
 		/* Adjust flags after AND, OR, XOR */
 		static void adjustLogicFlag(CpuContext ctx, bool flagH)
 		{
-			ctx.VALFLAG(Z80Flags.F_S, (ctx.R1.A & 0x80) != 0);
-			ctx.VALFLAG(Z80Flags.F_Z, (ctx.R1.A == 0));
+			ctx.VALFLAG(Z80Flags.F_S, (ctx.A & 0x80) != 0);
+			ctx.VALFLAG(Z80Flags.F_Z, (ctx.A == 0));
 			ctx.VALFLAG(Z80Flags.F_H, flagH);
 			ctx.VALFLAG(Z80Flags.F_N, false);
 			ctx.VALFLAG(Z80Flags.F_C, false);
-			ctx.VALFLAG(Z80Flags.F_PV, parityBit[ctx.R1.A]);
+			ctx.VALFLAG(Z80Flags.F_PV, parityBit[ctx.A]);
 
-			adjustFlags(ctx, ctx.R1.A);
+			adjustFlags(ctx, ctx.A);
 		}
 
 		static readonly bool[] parityBit = new byte[256] { 
@@ -182,14 +193,145 @@ namespace CSharpCpu.Z80.Interpreter
 			ctx.VALFLAG(Z80Flags.F_3, (val & (byte)Z80Flags.F_3) != 0);
 		}
 
-		public static void Jump(CpuContext ctx, bool JumpIf, ushort Address)
+		static public void doPush(CpuContext ctx, ushort val)
+		{
+			ctx.SP -= 2;
+			ctx.WriteMemory2(ctx.SP, val);
+		}
+
+		static public ushort doPop(CpuContext ctx)
+		{
+			ushort val = ctx.ReadMemory2(ctx.SP);
+			ctx.SP += 2;
+			return val;
+		}
+
+		public static void doRET(CpuContext ctx)
+		{
+			ctx.PC = doPop(ctx);
+		}
+
+		public static void doCALL(CpuContext ctx, bool JumpIf, ushort Address)
+		{
+			if (JumpIf)
+			{
+				doPush(ctx, ctx.PC);
+				ctx.PC = Address;
+			}
+		}
+
+		public static void doJUMP(CpuContext ctx, bool JumpIf, ushort Address)
 		{
 			if (JumpIf) ctx.PC = Address;
 		}
 
-		public static void JumpInc(CpuContext ctx, bool JumpIf, sbyte Address)
+		public static void doJUMP_Inc(CpuContext ctx, bool JumpIf, sbyte Address)
 		{
 			if (JumpIf) ctx.PC = (ushort)(ctx.PC + Address);
+		}
+
+		public static void doEXX(CpuContext ctx)
+		{
+			ctx.BC = LangUtils.SwapRet(ctx.BC, ref ctx.BC_);
+			ctx.DE = LangUtils.SwapRet(ctx.DE, ref ctx.DE_);
+			ctx.HL = LangUtils.SwapRet(ctx.HL, ref ctx.HL_);
+		}
+
+		static byte doIncDec(CpuContext ctx, byte val, bool isDec)
+		{
+			if (isDec)
+			{
+				ctx.VALFLAG(Z80Flags.F_PV, ((val & 0x80) != 0) && !(((val - 1) & 0x80) != 0));
+				val--;
+				ctx.VALFLAG(Z80Flags.F_H, (val & 0x0F) == 0x0F);
+			}
+			else
+			{
+				ctx.VALFLAG(Z80Flags.F_PV, !((val & 0x80) != 0) && (((val + 1) & 0x80) != 0));
+				val++;
+				ctx.VALFLAG(Z80Flags.F_H, !((val & 0x0F) != 0));
+			}
+
+			ctx.VALFLAG(Z80Flags.F_S, ((val & 0x80) != 0));
+			ctx.VALFLAG(Z80Flags.F_Z, (val == 0));
+			ctx.VALFLAG(Z80Flags.F_N, isDec);
+
+			adjustFlags(ctx, val);
+
+			return val;
+		}
+
+		public static void doOTIR(CpuContext ctx)
+		{
+#if true
+			while (ctx.B != 0) doOUTI(ctx);
+#else
+			doOUTI(ctx);
+			if (ctx.B != 0) ctx.PC -= 2;
+#endif
+		}
+
+		public static void doOUTI(CpuContext ctx)
+		{
+			var value = ctx.ReadMemory1(ctx.HL);
+			ctx.B = doIncDec(ctx, ctx.B, true);
+			ctx.ioWrite(ctx.BC, value);
+			ctx.HL++;
+			int flag_value = value + ctx.L;
+			ctx.VALFLAG(Z80Flags.F_N, (value & 0x80) != 0);
+			ctx.VALFLAG(Z80Flags.F_H, flag_value > 0xff);
+			ctx.VALFLAG(Z80Flags.F_C, flag_value > 0xff);
+			ctx.VALFLAG(Z80Flags.F_PV, parityBit[(flag_value & 7) ^ ctx.B]);
+			adjustFlags(ctx, ctx.B);
+		}
+
+		public static void doLDI(CpuContext ctx)
+		{
+			//ctx->tstates += 2;
+			byte val = ctx.ReadMemory1(ctx.HL);
+			ctx.WriteMemory1(ctx.DE, val);
+			ctx.DE++;
+			ctx.HL++;
+			ctx.BC--;
+			ctx.VALFLAG(Z80Flags.F_5, ((ctx.A + val) & 0x02) != 0);
+			ctx.VALFLAG(Z80Flags.F_3, ((Z80Flags)(ctx.A + val) & Z80Flags.F_3) != 0);
+			ctx.RESFLAG(Z80Flags.F_H | Z80Flags.F_N);
+			ctx.VALFLAG(Z80Flags.F_PV, ctx.BC != 0);
+		}
+
+		// LDI Repeat
+		public static void doLDIR(CpuContext ctx)
+		{
+#if true
+			while (ctx.BC != 0) doLDI(ctx);
+#else
+			doLDI(ctx);
+			if (ctx.BC != 0) ctx.PC -= 2;
+#endif
+		}
+
+		public static void doDJNZ(CpuContext ctx, sbyte Offset)
+		{
+			//ctx.tstates += 1;
+			ctx.B--;
+			if (ctx.B != 0)
+			{
+				//ctx->tstates += 5;
+				ctx.PC = (ushort)(ctx.PC + Offset);
+			}
+		}
+
+		public static void doOUT(CpuContext ctx, byte Port)
+		{
+			ctx.ioWrite((ushort)(ctx.A << 8 | Port), ctx.A);
+		}
+
+		public static void doIN(CpuContext ctx, byte Port)
+		{
+			//IN A,\(n\)
+			//	byte port = read8(ctx, ctx->PC++);	
+			//	BR.A = ioRead(ctx, BR.A << 8 | port);
+			ctx.A = ctx.ioRead((ushort)((ctx.A << 8) | Port));
 		}
 	}
 }

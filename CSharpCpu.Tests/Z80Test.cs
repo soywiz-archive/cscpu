@@ -11,6 +11,7 @@ using CSharpCpu.Z80.Disassembler;
 using CSharpCpu.Memory;
 using CSharpCpu.Z80.Interpreter;
 using System.Runtime.Serialization;
+using CSharpCpu.Z80;
 
 namespace CSharpCpu.Tests
 {
@@ -22,6 +23,13 @@ namespace CSharpCpu.Tests
 			public byte[] data = new byte[0x1000];
 			public byte Read1(uint Address) { return data[Address]; }
 			public void Write1(uint Address, byte Value) { data[Address] = Value; }
+		}
+
+		class Port : IZ80IO
+		{
+			void IZ80IO.ioWrite(ushort Address, byte Value) { }
+
+			byte IZ80IO.ioRead(ushort Address) { return 0; }
 		}
 
 		[TestMethod]
@@ -43,7 +51,8 @@ namespace CSharpCpu.Tests
 		{
 			var Step = Z80Interpreter.CreateExecuteStep();
 			var Memory = new SimpleFastMemory4(13);
-			var CpuContext = new CSharpCpu.Z80.CpuContext(Memory);
+			var Port = new Port();
+			var CpuContext = new CSharpCpu.Z80.CpuContext(Memory, Port);
 			CpuContext.IFF1 = true;
 			Assert.AreEqual(true, CpuContext.IFF1);
 			CpuContext.PC = 0;

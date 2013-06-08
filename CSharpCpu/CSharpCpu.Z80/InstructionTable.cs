@@ -351,7 +351,7 @@ namespace CSharpCpu.Cpus.Z80
 			Instructions.Add(Instruction("ED5E       ", "IM 2              "));
 			Instructions.Add(Instruction("ED7E       ", "IM 2              "));
 			Instructions.Add(Instruction("ED78       ", "IN A,(C)          "));
-			Instructions.Add(Instruction("DB %n      ", "IN A,(n)          "));
+			Instructions.Add(Instruction("DB %n      ", "IN A,(%n)         "));
 			Instructions.Add(Instruction("ED40       ", "IN B,(C)          "));
 			Instructions.Add(Instruction("ED48       ", "IN C,(C)          "));
 			Instructions.Add(Instruction("ED50       ", "IN D,(C)          "));
@@ -960,7 +960,7 @@ namespace CSharpCpu.Cpus.Z80
 			Instructions.Add(Instruction("ED59       ", "OUT (C),E         "));
 			Instructions.Add(Instruction("ED61       ", "OUT (C),H         "));
 			Instructions.Add(Instruction("ED69       ", "OUT (C),L         "));
-			Instructions.Add(Instruction("D3 %n      ", "OUT (n),A         "));
+			Instructions.Add(Instruction("D3 %n      ", "OUT (%n),A         "));
 			Instructions.Add(Instruction("EDAB       ", "OUTD              "));
 			Instructions.Add(Instruction("EDA3       ", "OUTI              "));
 			Instructions.Add(Instruction("F1         ", "POP AF            "));
