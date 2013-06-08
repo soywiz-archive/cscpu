@@ -12,6 +12,9 @@ using CSharpCpu.Memory;
 using CSharpCpu.Z80.Interpreter;
 using System.Runtime.Serialization;
 using CSharpCpu.Z80;
+using System.IO;
+using System.Linq;
+using CSharpCpu.Z80.Test;
 
 namespace CSharpCpu.Tests
 {
@@ -72,6 +75,12 @@ namespace CSharpCpu.Tests
 
 			Step(CpuContext.ReadInstruction, CpuContext);
 			Assert.AreEqual(0x0097, CpuContext.PC);
+		}
+
+		[TestMethod]
+		public void Test1()
+		{
+			Z80TestTest.Test();
 		}
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using CSharpCpu.Utils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -39,10 +40,11 @@ namespace CSharpCpu.Z80.Interpreter
 			Console.WriteLine("OutputDebug: {0:X2}", Value);
 		}
 
+		[DebuggerHidden]
 		static public void UNIMPLEMENTED(CpuContext Context, string Name, string Format)
 		{
-			Console.WriteLine("Not Implemented Instruction '{0}' '{1}' at 0x{2:X4}", Name, Format, Context.PC);
-			Console.ReadKey();
+			//Console.WriteLine("Not Implemented Instruction '{0}' '{1}' at 0x{2:X4}", Name, Format, Context.PC);
+			//Console.ReadKey();
 			throw (new NotImplementedException(String.Format("Not Implemented Instruction '{0}' '{1}' at 0x{2:X4}", Name, Format, Context.PC)));
 		}
 
@@ -263,7 +265,7 @@ namespace CSharpCpu.Z80.Interpreter
 
 		public static void doOTIR(CpuContext ctx)
 		{
-#if true
+#if false
 			while (ctx.B != 0) doOUTI(ctx);
 #else
 			doOUTI(ctx);
@@ -302,7 +304,7 @@ namespace CSharpCpu.Z80.Interpreter
 		// LDI Repeat
 		public static void doLDIR(CpuContext ctx)
 		{
-#if true
+#if false
 			while (ctx.BC != 0) doLDI(ctx);
 #else
 			doLDI(ctx);
@@ -459,11 +461,65 @@ namespace CSharpCpu.Z80.Interpreter
 			adjustFlags(ctx, ctx.A);
 		}
 
+		// The DAA opcode
+		// According to the value in A and the flags set, add a value to A
+		// This algorithm taken from:
+		// http://www.worldofspectrum.org/faq/reference/z80reference.htm
+		// and verified against the specification in the Zilog
+		// Z80 Family CPU User Manual, rev. 04, Dec. 2004, pp. 166-167
+		public static void doDAA(CpuContext ctx)
+		{
+			int correction_factor = 0x00;
+			int carry = 0;
+			if (ctx.A > 0x99 || ctx.GETFLAG(Z80Flags.F_C))
+			{
+				correction_factor |= 0x60;
+				carry = 1;
+			}
+			if ((ctx.A & 0x0f) > 9 || ctx.GETFLAG(Z80Flags.F_H))
+				correction_factor |= 0x06;
+			int a_before = ctx.A;
+			if (ctx.GETFLAG(Z80Flags.F_N))
+			{
+				ctx.A = (byte)(ctx.A - correction_factor);
+			}
+			else
+			{
+				ctx.A = (byte)(ctx.A + correction_factor);
+			}
+			ctx.VALFLAG(Z80Flags.F_H, ((a_before ^ ctx.A) & 0x10) != 0);
+			ctx.VALFLAG(Z80Flags.F_C, carry != 0);
+			ctx.VALFLAG(Z80Flags.F_S, (ctx.A & 0x80) != 0);
+			ctx.VALFLAG(Z80Flags.F_Z, (ctx.A == 0));
+			ctx.VALFLAG(Z80Flags.F_PV, parityBit[ctx.A]);
+			adjustFlags(ctx, ctx.A);
+		}
+
 		public static void doEXDEHL(CpuContext ctx)
 		{
 			var Temp = ctx.DE;
 			ctx.DE = ctx.HL;
 			ctx.HL = Temp;
+		}
+
+		public static void doSCF(CpuContext ctx)
+		{
+			ctx.SETFLAG(Z80Flags.F_C);
+			ctx.RESFLAG(Z80Flags.F_N | Z80Flags.F_H);
+			adjustFlags(ctx, ctx.A);
+		}
+
+		public static void doCCF(CpuContext ctx)
+		{
+			ctx.VALFLAG(Z80Flags.F_C, (1 - (ctx.GETFLAG(Z80Flags.F_C) ? 1 : 0) != 0));
+			ctx.RESFLAG(Z80Flags.F_N);
+			adjustFlags(ctx, ctx.A);
+		}
+
+		public static void doHALT(CpuContext ctx)
+		{
+			ctx.halted = true;
+			ctx.PC--;
 		}
 	}
 }

@@ -11,6 +11,9 @@ namespace CSharpCpu.Cpus
 		public string Name;
 		public string Format;
 		public MaskDataVars[] MaskDataVarsList;
+		public int Tstates;
+		public int TstatesIfNoBranch;
+
 		//public InstructionType InstructionType;
 		//
 		//public bool IsJump

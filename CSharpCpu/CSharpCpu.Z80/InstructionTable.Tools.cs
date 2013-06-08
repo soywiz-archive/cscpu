@@ -163,6 +163,16 @@ namespace CSharpCpu.Cpus.Z80
 
 		static public AstNodeStm Process(InstructionInfo InstructionInfo, Scope<string, AstLocal> Scope)
 		{
+			var Result = _Process(InstructionInfo, Scope);
+			if (Result == null) return null;
+			return ast.Statements(
+				ast.Assign(GetRegister("Tstates"), GetRegister("Tstates") + InstructionInfo.Tstates),
+				Result
+			);
+		}
+
+		static public AstNodeStm _Process(InstructionInfo InstructionInfo, Scope<string, AstLocal> Scope)
+		{
 			//Mnemonic = Mnemonic.Trim();
 			//var Parts = Mnemonic.Split(new [] {' ' }, 2);
 			Match Match;
@@ -225,6 +235,27 @@ namespace CSharpCpu.Cpus.Z80
 							ast.Assign(GetRegister("A"), ast.CallStatic((Func<CpuContext, byte, byte, bool, bool, byte>)Z80InterpreterImplementation.doArithmeticByte, GetCpuContext(), GetRegister("A"), GetNByte(Scope), false, true)),
 							ast.Statement(ast.CallStatic((Action<CpuContext, byte>)Z80InterpreterImplementation.adjustFlags, GetCpuContext(), GetNByte(Scope)))
 						);
+					}
+					break;
+				// (RLC|RRC|RL|RR) 
+				case "RLC": case "RRC": case "RL": case "RR":
+					{
+						var FuncName = "do" + Opcode;
+						if ((Match = (GetRegex(@"^\(HL\)$")).Match(Param)).Success)
+						{
+							return WriteMemory1(
+								GetRegister("HL"),
+								ast.CallStatic(typeof(Z80InterpreterImplementation).GetMethod(FuncName), GetCpuContext(), true, ReadMemory1(GetRegister("HL")))
+							);
+						}
+						if ((Match = (GetRegex(@"^(A|B|C|D|E|H|L|IXh|IXl|IYh|IYl)$")).Match(Param)).Success)
+						{
+							var Register = Match.Groups[1].Value;
+							return ast.Assign(
+								GetRegister(Register),
+								ast.CallStatic(typeof(Z80InterpreterImplementation).GetMethod(FuncName), GetCpuContext(), true, GetRegister(Register))
+							);
+						}
 					}
 					break;
 				case "RLA": case "RRA": case "RLCA": case "RRCA":
@@ -302,6 +333,7 @@ namespace CSharpCpu.Cpus.Z80
 						return ast.Statement(ast.CallStatic(((Action<CpuContext>)Z80InterpreterImplementation.doEXAFAF_), GetCpuContext()));
 					}
 					break;
+				case "DAA": return ast.Statement(ast.CallStatic(((Action<CpuContext>)Z80InterpreterImplementation.doDAA), GetCpuContext()));
 				case "CPL": return ast.Statement(ast.CallStatic(((Action<CpuContext>)Z80InterpreterImplementation.doCPL), GetCpuContext()));
 				case "RET": return ast.Statement(ast.CallStatic(((Action<CpuContext>)Z80InterpreterImplementation.doRET), GetCpuContext()));
 				case "EXX": return ast.Statement(ast.CallStatic(((Action<CpuContext>)Z80InterpreterImplementation.doEXX),GetCpuContext()));
@@ -309,6 +341,9 @@ namespace CSharpCpu.Cpus.Z80
 				case "OUTI": return ast.Statement(ast.CallStatic(((Action<CpuContext>)Z80InterpreterImplementation.doOUTI), GetCpuContext()));
 				case "LDI": return ast.Statement(ast.CallStatic(((Action<CpuContext>)Z80InterpreterImplementation.doLDI), GetCpuContext()));
 				case "LDIR": return ast.Statement(ast.CallStatic(((Action<CpuContext>)Z80InterpreterImplementation.doLDIR), GetCpuContext()));
+				case "SCF": return ast.Statement(ast.CallStatic(((Action<CpuContext>)Z80InterpreterImplementation.doSCF), GetCpuContext()));
+				case "CCF": return ast.Statement(ast.CallStatic(((Action<CpuContext>)Z80InterpreterImplementation.doCCF), GetCpuContext()));
+				case "HALT": return ast.Statement(ast.CallStatic(((Action<CpuContext>)Z80InterpreterImplementation.doHALT), GetCpuContext()));
 				case "DJNZ": 
 					if ((Match = (GetRegex(@"^\(PC\+%e\)$")).Match(Param)).Success)
 					{
@@ -599,7 +634,7 @@ namespace CSharpCpu.Cpus.Z80
 			return null;
 		}
 
-		static private InstructionInfo Instruction(string OpCode, string Mnemonic, int Cycles = 0)
+		static private InstructionInfo Instruction(string OpCode, string Mnemonic, int tstates = 1, int tstatesIfNoBranch = 1)
 		{
 			Mnemonic = Mnemonic.Trim();
 			var MnemonicParts = Mnemonic.Split(new[] { ' ' }, 2);
@@ -643,7 +678,11 @@ namespace CSharpCpu.Cpus.Z80
 						break;
 				}
 			}
-			return new InstructionInfo(MnemonicName, MnemonicFormat, MaskDataVarsList);
+			return new InstructionInfo(MnemonicName, MnemonicFormat, MaskDataVarsList)
+			{
+				Tstates = tstates,
+				TstatesIfNoBranch = tstatesIfNoBranch,
+			};
 		}
 	}
 }

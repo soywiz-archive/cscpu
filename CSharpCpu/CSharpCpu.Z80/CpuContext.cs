@@ -128,7 +128,23 @@ namespace CSharpCpu.Z80
 			exec_int_vector = false;
 		}
 
-		private Action<SwitchReadWordDelegate, CpuContext> ExecuteStep;
+		private Lazy<Action<SwitchReadWordDelegate, CpuContext>> ExecuteStepLazy = new Lazy<Action<SwitchReadWordDelegate, CpuContext>>(() => Z80Interpreter.CreateExecuteStep());
+		//private Lazy<Z80Disassembler> DissasemblerLazy = new Lazy<Action<SwitchReadWordDelegate, CpuContext>>(() => Z80Interpreter.CreateExecuteStep());
+
+		public void ExecuteTStates(int tstates)
+		{
+			//var Disassembler = new Z80Disassembler(this.Memory);
+			var ExecuteStep = this.ExecuteStepLazy.Value;
+			this.Tstates = 0;
+			while (this.Tstates < tstates)
+			{
+				//Console.WriteLine("{0}", Disassembler.DecodeAt(PC));
+				var OldTstates = this.Tstates;
+				ExecuteStep(ReadInstruction, this);
+				if (this.Tstates == OldTstates) throw(new InvalidOperationException("Not updated tstates"));
+			}
+			this.R = 1;
+		}
 
 		public void Run(bool Dynarec)
 		{
@@ -142,14 +158,14 @@ namespace CSharpCpu.Z80
 			{
 				var Disassembler = new Z80Disassembler(this.Memory);
 				Marshal.PrelinkAll(typeof(Z80InterpreterImplementation));
-				this.ExecuteStep = Z80Interpreter.CreateExecuteStep();
+				var ExecuteStep = this.ExecuteStepLazy.Value;
 
 				int ICount = 0;
 				while (Running)
 				{
 					ushort PC2 = PC;
 					//Console.WriteLine("{0:X4}[IF:{1}{2}]: {3}", PC2, IFF1 ? 1 : 0, IFF2 ? 1 : 0, Disassembler.DecodeAt(PC2));
-					this.ExecuteStep(ReadInstruction, this);
+					ExecuteStep(ReadInstruction, this);
 					ICount++;
 					if (ICount >= 1000)
 					{

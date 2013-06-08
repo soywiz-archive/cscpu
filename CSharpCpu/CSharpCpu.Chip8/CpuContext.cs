@@ -14,9 +14,17 @@ using CSharpCpu.Cpus.Chip8.Interpreter;
 
 namespace CSharpCpu.Cpus.Chip8
 {
+	public enum RunningState
+	{
+		Stopped = 0,
+		Paused = 1,
+		Running = 2,
+	}
+
 	sealed unsafe public class CpuContext
 	{
 		static public CpuContext _NullInstance = new CpuContext();
+		public RunningState RunningState = RunningState.Stopped;
 
 		public ushort PC;
 		public byte V0, V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12, V13, V14, V15;
@@ -71,7 +79,6 @@ namespace CSharpCpu.Cpus.Chip8
 		public Chip8Timer SoundTimer = new Chip8Timer("Sound");
 		public Stack<ushort> CallStack = new Stack<ushort>();
 		public uint InstructionCount;
-		public bool Running = false;
 
 		private CpuContext()
 		{
@@ -84,13 +91,19 @@ namespace CSharpCpu.Cpus.Chip8
 
 		public void DynarecTick()
 		{
-			if (!Running)
+			if (RunningState != RunningState.Running)
 			{
-				throw(new ThreadInterruptedException());
+				switch (RunningState)
+				{
+					case Chip8.RunningState.Stopped: throw (new ThreadInterruptedException());
+					case Chip8.RunningState.Paused: CheckPaused(); break;
+				}
+				
 			}
 
 			if (InstructionCount >= 1000)
 			{
+				
 				//Console.WriteLine("", InstructionCount);
 				InstructionCount = 0;
 				this.Update();
@@ -100,6 +113,14 @@ namespace CSharpCpu.Cpus.Chip8
 					Display.Update();
 				}
 				Thread.Sleep(1);
+			}
+		}
+
+		private void CheckPaused()
+		{
+			while (RunningState == RunningState.Paused)
+			{
+				Thread.Sleep(1000 / 4);
 			}
 		}
 
@@ -170,7 +191,7 @@ namespace CSharpCpu.Cpus.Chip8
 			InstructionCount = 0;
 			SubCount2 = 0;
 			DynarecCache = new Action<CpuContext>[4096];
-			Running = true;
+			RunningState = RunningState.Running;
 		}
 
 		private void _RunDynarec()
@@ -192,6 +213,7 @@ namespace CSharpCpu.Cpus.Chip8
 			{
 				InstructionCount++;
 				DynarecTick();
+				CheckPaused();
 				InterpretStep(ReadInstruction, this);
 			}
 		}
@@ -201,7 +223,7 @@ namespace CSharpCpu.Cpus.Chip8
 			try
 			{
 				Console.WriteLine("ThreadRun...");
-				Running = true;
+				RunningState = RunningState.Running;
 				PC = 0x200;
 
 				if (Dynarec)

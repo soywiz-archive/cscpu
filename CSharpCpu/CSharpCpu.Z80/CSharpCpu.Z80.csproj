@@ -49,6 +49,8 @@
     <Compile Include="Interpreter\Z80Interpreter.cs" />
     <Compile Include="IZ80IO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Test\Port.cs" />
+    <Compile Include="Test\Z80TestTest.cs" />
     <Compile Include="Z80Flags.cs" />
   </ItemGroup>
   <ItemGroup>
